@@ -7,7 +7,6 @@ from ollama import Client
 from kokoro_onnx import Kokoro
 from moviepy import TextClip, AudioFileClip
 
-
 # Função para garantir que os arquivos do Kokoro existam localmente
 def download_kokoro_files():
     files = {
@@ -17,7 +16,12 @@ def download_kokoro_files():
     for file_name, url in files.items():
         if not os.path.exists(file_name):
             with st.spinner(f"Baixando {file_name} (necessário para a narração)..."):
-                urllib.request.urlretrieve(url, file_name)
+                req = urllib.request.Request(
+                    url, 
+                    headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+                )
+                with urllib.request.urlopen(req) as response, open(file_name, 'wb') as out_file:
+                    out_file.write(response.read())
 
 # Executa a verificação dos arquivos do Kokoro
 download_kokoro_files()
@@ -95,15 +99,15 @@ if st.session_state.generated_script:
                     duration = audio_clip.duration + 0.4
                     
                     txt_clip = TextClip(
-                        script_text,
-                        fontsize=fontsize,
+                        text=script_text,
+                        font_size=fontsize,
                         color=text_color,
                         bg_color=bg_color,
                         size=(1080, 1920),
                         method='caption'
-                    ).set_duration(duration)
+                    ).with_duration(duration)
                     
-                    video_clip = txt_clip.set_audio(audio_clip)
+                    video_clip = txt_clip.with_audio(audio_clip)
                     
                     with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as tmp_video:
                         output_video_path = tmp_video.name
