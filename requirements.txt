@@ -1,6 +1,0 @@
-streamlit
-ollama
-kokoro-onnx
-soundfile
-moviepy>=2.0.0
-pillow
