@@ -1,10 +1,25 @@
 import os
 import tempfile
+import urllib.request
 import streamlit as st
 import soundfile as sf
 from ollama import Client
 from kokoro_onnx import Kokoro
 from moviepy.editor import TextClip, AudioFileClip
+
+# Função para garantir que os arquivos do Kokoro existam localmente
+def download_kokoro_files():
+    files = {
+        "kokoro-v0_7.onnx": "https://huggingface.co/hexgrad/Kokoro-82M/resolve/main/kokoro-v0_7.onnx",
+        "voices.json": "https://huggingface.co/hexgrad/Kokoro-82M/resolve/main/voices.json"
+    }
+    for file_name, url in files.items():
+        if not os.path.exists(file_name):
+            with st.spinner(f"Baixando {file_name} (necessário para a narração)..."):
+                urllib.request.urlretrieve(url, file_name)
+
+# Executa a verificação dos arquivos do Kokoro
+download_kokoro_files()
 
 # Configuração da página
 st.set_page_config(page_title="Gerador de Vídeo com Ollama + Kokoro", page_icon="🎬", layout="wide")
@@ -33,7 +48,7 @@ idea_input = st.text_area(
 if "generated_script" not in st.session_state:
     st.session_state.generated_script = ""
 
-# Etapa 1: Gerar Roteiro
+# Etapa 1: Gerar Roteiro via Ollama
 if st.button("1. Gerar Roteiro com Ollama"):
     if not idea_input.strip():
         st.warning("Insira uma ideia primeiro.")
@@ -53,14 +68,14 @@ if st.button("1. Gerar Roteiro com Ollama"):
             except Exception as e:
                 st.error(f"Erro ao conectar com Ollama: {e}")
 
-# Etapa 2: Gerar Vídeo
+# Etapa 2: Gerar Vídeo a partir do Roteiro
 if st.session_state.generated_script:
     script_text = st.text_area("Roteiro Gerado (Edite se necessário):", value=st.session_state.generated_script, height=150)
     
     if st.button("2. Gerar Vídeo Final", type="primary"):
         with st.spinner("Gerando áudio com Kokoro TTS..."):
             try:
-                # Gerar áudio
+                # Carregar o modelo do Kokoro
                 kokoro = Kokoro("kokoro-v0_7.onnx", "voices.json")
                 samples, sample_rate = kokoro.create(
                     script_text, 
@@ -73,7 +88,7 @@ if st.session_state.generated_script:
                     audio_path = tmp_audio.name
                     sf.write(audio_path, samples, sample_rate)
 
-                # Gerar vídeo
+                # Renderizar vídeo
                 with st.spinner("Renderizando vídeo com MoviePy..."):
                     audio_clip = AudioFileClip(audio_path)
                     duration = audio_clip.duration + 0.4
