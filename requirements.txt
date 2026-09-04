@@ -2,5 +2,5 @@ streamlit
 ollama
 kokoro-onnx
 soundfile
-moviepy
+moviepy>=2.0.0
 pillow
