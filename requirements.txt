@@ -1,0 +1,9 @@
+streamlit
+pandas
+requests
+pillow
+ddgs
+moviepy>=2.0
+kokoro>=0.9.4
+soundfile
+numpy
