@@ -5,7 +5,8 @@ import streamlit as st
 import soundfile as sf
 from ollama import Client
 from kokoro_onnx import Kokoro
-from moviepy.editor import TextClip, AudioFileClip
+from moviepy import TextClip, AudioFileClip
+
 
 # Função para garantir que os arquivos do Kokoro existam localmente
 def download_kokoro_files():
