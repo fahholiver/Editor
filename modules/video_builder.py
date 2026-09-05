@@ -25,10 +25,11 @@ from moviepy import (
 )
 from moviepy import vfx, afx
 
-# Resolução vertical do vídeo final. 1080x1920 é o padrão do TikTok/Reels.
-# Se a renderização ficar muito lenta/pesada na sua máquina (ou num servidor
-# gratuito), reduza pra (720, 1280) — a queda de qualidade é pequena.
-W, H = 1080, 1920
+# Resolução vertical do vídeo final. 720x1280 é bem mais leve de memória e
+# renderiza tranquilo até no plano grátis do Streamlit Cloud (~1GB de RAM).
+# Se você for rodar local (ex: com ngrok, máquina com mais RAM), pode subir
+# pra (1080, 1920) — padrão TikTok/Reels, com bem mais qualidade.
+W, H = 720, 1280
 
 FADE = 0.35          # duração do crossfade entre cenas (segundos)
 ZOOM_END = 1.09       # zoom lento contínuo aplicado no fundo de cada cena
@@ -316,7 +317,38 @@ def build_outro_scene(script: dict, media1, media2, audio_path: str, font: str =
 
 # ---------------------------------------------------------------------------
 # Montagem final
+#
+# IMPORTANTE sobre memória: cada cena (build_cover_scene/build_round_scene/
+# build_outro_scene) monta vários clipes e textos em memória. Se você
+# guardar TODAS as cenas do vídeo inteiro numa lista até o fim pra só então
+# escrever o arquivo final, a memória usada cresce junto com o número de
+# rounds — e em servidores com pouca RAM (ex: plano grátis do Streamlit
+# Cloud, ~1GB) isso derruba o processo (o app simplesmente para, sem
+# nenhum erro no log, tipo um "OOM kill").
+#
+# Por isso o fluxo certo é: renderize e SALVE cada cena em um arquivo .mp4
+# separado assim que ela ficar pronta (render_scene_to_file), liberando a
+# memória daquela cena antes de montar a próxima. Só no final, quando todas
+# as cenas já são arquivos pequenos no disco, é que juntamos tudo com
+# crossfade (build_vs_video). Isso mantém o uso de memória praticamente
+# constante, não importa quantos rounds o vídeo tenha.
 # ---------------------------------------------------------------------------
+
+def render_scene_to_file(clip, out_path: str, fps: int = 24) -> str:
+    """Escreve UMA cena em disco e libera a memória dela. Chame isso logo
+    depois de criar cada cena (build_cover_scene/build_round_scene/
+    build_outro_scene), em vez de guardar todas as cenas numa lista até o
+    fim — assim o consumo de memória não cresce com o número de rounds."""
+    clip.write_videofile(
+        out_path, fps=fps, codec="libx264", audio_codec="aac",
+        preset="ultrafast", threads=2, logger=None,
+    )
+    try:
+        clip.close()
+    except Exception:
+        pass
+    return out_path
+
 
 def _with_crossfades(clips: list, fade: float = FADE):
     if len(clips) < 2:
@@ -342,14 +374,24 @@ def _mix_background_music(video, music_path: str | None, volume: float = 0.12):
         return video
 
 
-def build_vs_video(scenes: list, out_path: str, music_path: str | None = None,
-                    music_volume: float = 0.12, fps: int = 30) -> str:
-    """scenes: lista de clipes já prontos (capa, rounds, encerramento), na
-    ordem em que devem aparecer no vídeo final."""
-    final = _with_crossfades(scenes, fade=FADE)
-    final = _mix_background_music(final, music_path, music_volume)
-    final.write_videofile(
-        out_path, fps=fps, codec="libx264", audio_codec="aac",
-        preset="medium", threads=4,
-    )
+def build_vs_video(scene_paths: list[str], out_path: str, music_path: str | None = None,
+                    music_volume: float = 0.12, fps: int = 24) -> str:
+    """scene_paths: lista de caminhos de arquivos .mp4 JÁ RENDERIZADOS (um
+    por cena, veja render_scene_to_file), na ordem em que devem aparecer no
+    vídeo final. Só junta os arquivos com crossfade + música — bem mais
+    leve de memória do que montar tudo a partir dos clipes originais."""
+    clips = [VideoFileClip(p) for p in scene_paths]
+    try:
+        final = _with_crossfades(clips, fade=FADE)
+        final = _mix_background_music(final, music_path, music_volume)
+        final.write_videofile(
+            out_path, fps=fps, codec="libx264", audio_codec="aac",
+            preset="ultrafast", threads=2, logger=None,
+        )
+    finally:
+        for c in clips:
+            try:
+                c.close()
+            except Exception:
+                pass
     return out_path
