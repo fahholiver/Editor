@@ -1,4 +1,0 @@
-espeak-ng
-fonts-dejavu-core
-fontconfig
-ffmpeg
