@@ -1,5 +1,6 @@
 import os
 import wave
+import concurrent.futures
 import streamlit as st
 
 from modules.content import (
@@ -9,6 +10,38 @@ from modules.content import (
 from modules.images import fetch_media_for_item
 from modules.tts_engine import synthesize, LANGUAGES
 from modules.video_builder import build_vs_video, build_cover_scene, build_round_scene, build_outro_scene
+
+MEDIA_TIMEOUT_S = 35  # nunca deixa uma busca de mídia travada por mais que isso
+AUDIO_TIMEOUT_S = 45  # idem pra narração
+
+
+def _with_timeout(fn, timeout_s, *args, **kwargs):
+    """Roda fn com um limite de tempo — se estourar, retorna None em vez de
+    travar o app pra sempre. Usado nas chamadas de rede (Pexels/DuckDuckGo),
+    que às vezes ficam penduradas sem erro nenhum (comum em IPs de nuvem
+    bloqueados/limitados pelo DuckDuckGo, ou conexão lenta).
+    Não usa "with" no executor: se a thread travar de verdade, ela some em
+    segundo plano, mas isso não pode bloquear o retorno desta função."""
+    ex = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+    future = ex.submit(fn, *args, **kwargs)
+    try:
+        return future.result(timeout=timeout_s)
+    except concurrent.futures.TimeoutError:
+        return None
+    finally:
+        ex.shutdown(wait=False)
+
+
+def fetch_media_safe(query, out_dir, base_name, api_key, fallback_query=None):
+    result = _with_timeout(
+        fetch_media_for_item, MEDIA_TIMEOUT_S,
+        query, out_dir, base_name, api_key, fallback_query=fallback_query,
+    )
+    if result is None:
+        st.warning(f"⏱️ Busca de mídia p/ '{query}' demorou demais ou falhou — "
+                   f"esse trecho vai usar um fundo neutro.")
+    return result
+
 
 st.set_page_config(page_title="Gerador de Vídeos VS (estilo TikTok)", page_icon="⚔️", layout="centered")
 st.title("⚔️ Gerador de vídeos \"VS\" (estilo TikTok)")
@@ -185,77 +218,87 @@ if st.session_state.vs_script:
         total_steps = 2 + n * 2 + 1  # capa + (video+audio por lado por round) + encerramento
         step_counter = [0]
 
-        def bump(text):
+        def step(text):
+            """Mostra a mensagem ANTES de rodar a ação — assim, se algo
+            travar (ex: busca de vídeo sem resposta), a barra de progresso
+            mostra exatamente QUAL etapa travou, em vez da anterior."""
             step_counter[0] += 1
             progress.progress(min(step_counter[0] / total_steps, 1.0), text=text)
 
-        # --- Capa ---
-        cover_media1 = fetch_media_for_item(
-            script["item1_query"], IMG_DIR, "cover_item1", pexels_api_key,
-            fallback_query=script["item1_name"],
-        )
-        cover_media2 = fetch_media_for_item(
-            script["item2_query"], IMG_DIR, "cover_item2", pexels_api_key,
-            fallback_query=script["item2_name"],
-        )
-        bump("Buscando clipes da capa...")
+        try:
+            # --- Capa ---
+            step("Buscando clipe da capa (lado 1)...")
+            cover_media1 = fetch_media_safe(
+                script["item1_query"], IMG_DIR, "cover_item1", pexels_api_key,
+                fallback_query=script["item1_name"],
+            )
+            step("Buscando clipe da capa (lado 2)...")
+            cover_media2 = fetch_media_safe(
+                script["item2_query"], IMG_DIR, "cover_item2", pexels_api_key,
+                fallback_query=script["item2_name"],
+            )
 
-        hook_audio = os.path.join(AUDIO_DIR, "hook.wav")
-        synthesize(script["hook_title"], hook_audio, language_id=language, voice=selected_voice)
-        bump("Gerando voz da capa...")
+            step("Gerando voz da capa...")
+            hook_audio = os.path.join(AUDIO_DIR, "hook.wav")
+            synthesize(script["hook_title"], hook_audio, language_id=language, voice=selected_voice)
 
-        cover_scene = build_cover_scene(script, cover_media1, cover_media2, hook_audio)
-        scenes = [cover_scene]
+            cover_scene = build_cover_scene(script, cover_media1, cover_media2, hook_audio)
+            scenes = [cover_scene]
 
-        # --- Rounds ---
-        for idx, rnd in enumerate(script["rounds"]):
-            q1 = str(rnd.get("item1_query") or script["item1_query"])
-            q2 = str(rnd.get("item2_query") or script["item2_query"])
+            # --- Rounds ---
+            for idx, rnd in enumerate(script["rounds"]):
+                q1 = str(rnd.get("item1_query") or script["item1_query"])
+                q2 = str(rnd.get("item2_query") or script["item2_query"])
 
-            media1 = fetch_media_for_item(q1, IMG_DIR, f"round{idx}_item1", pexels_api_key,
+                step(f"Round {idx+1}/{n}: buscando clipe do lado 1...")
+                media1 = fetch_media_safe(q1, IMG_DIR, f"round{idx}_item1", pexels_api_key,
                                            fallback_query=script["item1_name"])
-            bump(f"Round {idx+1}/{n}: buscando clipe do lado 1...")
-            audio1 = os.path.join(AUDIO_DIR, f"round{idx}_item1.wav")
-            synthesize(str(rnd["narration_item1"]), audio1, language_id=language, voice=selected_voice)
-            bump(f"Round {idx+1}/{n}: gerando voz do lado 1...")
-            scenes.append(build_round_scene(
-                script["item1_name"], media1, str(rnd.get("tag_item1", "")), audio1,
-                accent_color=(255, 214, 10, 255),
-            ))
+                step(f"Round {idx+1}/{n}: gerando voz do lado 1...")
+                audio1 = os.path.join(AUDIO_DIR, f"round{idx}_item1.wav")
+                synthesize(str(rnd["narration_item1"]), audio1, language_id=language, voice=selected_voice)
+                scenes.append(build_round_scene(
+                    script["item1_name"], media1, str(rnd.get("tag_item1", "")), audio1,
+                    accent_color=(255, 214, 10, 255),
+                ))
 
-            media2 = fetch_media_for_item(q2, IMG_DIR, f"round{idx}_item2", pexels_api_key,
+                step(f"Round {idx+1}/{n}: buscando clipe do lado 2...")
+                media2 = fetch_media_safe(q2, IMG_DIR, f"round{idx}_item2", pexels_api_key,
                                            fallback_query=script["item2_name"])
-            bump(f"Round {idx+1}/{n}: buscando clipe do lado 2...")
-            audio2 = os.path.join(AUDIO_DIR, f"round{idx}_item2.wav")
-            synthesize(str(rnd["narration_item2"]), audio2, language_id=language, voice=selected_voice)
-            bump(f"Round {idx+1}/{n}: gerando voz do lado 2...")
-            scenes.append(build_round_scene(
-                script["item2_name"], media2, str(rnd.get("tag_item2", "")), audio2,
-                accent_color=(90, 200, 255, 255),
-            ))
+                step(f"Round {idx+1}/{n}: gerando voz do lado 2...")
+                audio2 = os.path.join(AUDIO_DIR, f"round{idx}_item2.wav")
+                synthesize(str(rnd["narration_item2"]), audio2, language_id=language, voice=selected_voice)
+                scenes.append(build_round_scene(
+                    script["item2_name"], media2, str(rnd.get("tag_item2", "")), audio2,
+                    accent_color=(90, 200, 255, 255),
+                ))
 
-        # --- Encerramento ---
-        outro_audio = os.path.join(AUDIO_DIR, "outro.wav")
-        synthesize(script.get("outro_text", ""), outro_audio, language_id=language, voice=selected_voice)
-        scenes.append(build_outro_scene(script, cover_media1, cover_media2, outro_audio))
-        bump("Gerando encerramento...")
+            # --- Encerramento ---
+            step("Gerando encerramento...")
+            outro_audio = os.path.join(AUDIO_DIR, "outro.wav")
+            synthesize(script.get("outro_text", ""), outro_audio, language_id=language, voice=selected_voice)
+            scenes.append(build_outro_scene(script, cover_media1, cover_media2, outro_audio))
 
-        out_path = os.path.join(OUTPUT_DIR, "video_final.mp4")
-        build_vs_video(scenes, out_path, music_path=music_path)
-        progress.progress(1.0, text="Pronto!")
+            progress.progress(0.98, text="Montando vídeo final (isso pode levar alguns minutos)...")
+            out_path = os.path.join(OUTPUT_DIR, "video_final.mp4")
+            build_vs_video(scenes, out_path, music_path=music_path)
+            progress.progress(1.0, text="Pronto!")
 
-        all_audio = [hook_audio] + [
-            os.path.join(AUDIO_DIR, f"round{idx}_item{side}.wav")
-            for idx in range(n) for side in (1, 2)
-        ] + [outro_audio]
-        total_audio_s = sum(
-            wave.open(p).getnframes() / wave.open(p).getframerate()
-            for p in all_audio if os.path.exists(p)
-        )
+            all_audio = [hook_audio] + [
+                os.path.join(AUDIO_DIR, f"round{idx}_item{side}.wav")
+                for idx in range(n) for side in (1, 2)
+            ] + [outro_audio]
+            total_audio_s = sum(
+                wave.open(p).getnframes() / wave.open(p).getframerate()
+                for p in all_audio if os.path.exists(p)
+            )
 
-        st.success(f"Vídeo gerado com sucesso! Duração real da narração: ~{total_audio_s:.0f}s "
-                   f"(você pediu {duration_seconds}s — o vídeo final é um pouco maior por causa "
-                   f"das transições e folgas entre cenas).")
-        st.video(out_path)
-        with open(out_path, "rb") as f:
-            st.download_button("⬇️ Baixar vídeo", f, file_name="video_final.mp4")
+            st.success(f"Vídeo gerado com sucesso! Duração real da narração: ~{total_audio_s:.0f}s "
+                       f"(você pediu {duration_seconds}s — o vídeo final é um pouco maior por causa "
+                       f"das transições e folgas entre cenas).")
+            st.video(out_path)
+            with open(out_path, "rb") as f:
+                st.download_button("⬇️ Baixar vídeo", f, file_name="video_final.mp4")
+
+        except Exception as e:
+            st.error(f"❌ Deu erro renderizando o vídeo: {e}")
+            st.exception(e)
