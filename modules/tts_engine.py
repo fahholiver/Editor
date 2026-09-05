@@ -69,9 +69,9 @@ def synthesize(text: str, out_path: str, reference_voice_path: str | None = None
             os.remove(tmp_mp3)
 
 
-async def _edge_tts_save(text: str, out_path: str, voice: str):
+async def _edge_tts_save(text: str, out_path: str, voice: str, timeout: float = 20.0):
     communicate = edge_tts.Communicate(text, voice)
-    await communicate.save(out_path)
+    await asyncio.wait_for(communicate.save(out_path), timeout=timeout)
 
 
 def _convert_to_wav(src_path: str, out_path: str):
