@@ -1,0 +1,8 @@
+streamlit
+pandas
+requests
+pillow
+ddgs
+moviepy>=2.0
+edge-tts
+numpy
