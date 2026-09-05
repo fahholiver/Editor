@@ -1,4 +1,5 @@
 import os
+import gc
 import wave
 import concurrent.futures
 import streamlit as st
@@ -9,7 +10,10 @@ from modules.content import (
 )
 from modules.images import fetch_media_for_item
 from modules.tts_engine import synthesize, LANGUAGES
-from modules.video_builder import build_vs_video, build_cover_scene, build_round_scene, build_outro_scene
+from modules.video_builder import (
+    build_vs_video, build_cover_scene, build_round_scene, build_outro_scene,
+    render_scene_to_file,
+)
 
 MEDIA_TIMEOUT_S = 35  # nunca deixa uma busca de mídia travada por mais que isso
 AUDIO_TIMEOUT_S = 45  # idem pra narração
@@ -53,8 +57,10 @@ st.caption(
 OUTPUT_DIR = "output"
 IMG_DIR = os.path.join(OUTPUT_DIR, "media")
 AUDIO_DIR = os.path.join(OUTPUT_DIR, "audio")
+SCENES_DIR = os.path.join(OUTPUT_DIR, "scenes")
 os.makedirs(IMG_DIR, exist_ok=True)
 os.makedirs(AUDIO_DIR, exist_ok=True)
+os.makedirs(SCENES_DIR, exist_ok=True)
 
 # ---------------------------------------------------------------------------
 # Configurações gerais
@@ -215,7 +221,7 @@ if st.session_state.vs_script:
     if st.button("🎥 Renderizar vídeo final"):
         progress = st.progress(0.0, text="Iniciando...")
         n = len(script["rounds"])
-        total_steps = 2 + n * 2 + 1  # capa + (video+audio por lado por round) + encerramento
+        total_steps = 4 + n * 6 + 2  # capa (4) + por round (6) + encerramento (2)
         step_counter = [0]
 
         def step(text):
@@ -226,6 +232,19 @@ if st.session_state.vs_script:
             progress.progress(min(step_counter[0] / total_steps, 1.0), text=text)
 
         try:
+            scene_paths = []
+
+            def render_and_free(clip, name):
+                """Grava a cena no disco e libera a memória dela na hora —
+                assim a memória usada não cresce junto com o número de
+                rounds (essencial em servidores com pouca RAM, tipo o
+                plano grátis do Streamlit Cloud)."""
+                path = os.path.join(SCENES_DIR, f"{name}.mp4")
+                render_scene_to_file(clip, path)
+                scene_paths.append(path)
+                del clip
+                gc.collect()
+
             # --- Capa ---
             step("Buscando clipe da capa (lado 1)...")
             cover_media1 = fetch_media_safe(
@@ -242,8 +261,8 @@ if st.session_state.vs_script:
             hook_audio = os.path.join(AUDIO_DIR, "hook.wav")
             synthesize(script["hook_title"], hook_audio, language_id=language, voice=selected_voice)
 
-            cover_scene = build_cover_scene(script, cover_media1, cover_media2, hook_audio)
-            scenes = [cover_scene]
+            step("Renderizando cena da capa...")
+            render_and_free(build_cover_scene(script, cover_media1, cover_media2, hook_audio), "00_cover")
 
             # --- Rounds ---
             for idx, rnd in enumerate(script["rounds"]):
@@ -256,10 +275,11 @@ if st.session_state.vs_script:
                 step(f"Round {idx+1}/{n}: gerando voz do lado 1...")
                 audio1 = os.path.join(AUDIO_DIR, f"round{idx}_item1.wav")
                 synthesize(str(rnd["narration_item1"]), audio1, language_id=language, voice=selected_voice)
-                scenes.append(build_round_scene(
+                step(f"Round {idx+1}/{n}: renderizando cena do lado 1...")
+                render_and_free(build_round_scene(
                     script["item1_name"], media1, str(rnd.get("tag_item1", "")), audio1,
                     accent_color=(255, 214, 10, 255),
-                ))
+                ), f"{idx+1:02d}a_round")
 
                 step(f"Round {idx+1}/{n}: buscando clipe do lado 2...")
                 media2 = fetch_media_safe(q2, IMG_DIR, f"round{idx}_item2", pexels_api_key,
@@ -267,20 +287,22 @@ if st.session_state.vs_script:
                 step(f"Round {idx+1}/{n}: gerando voz do lado 2...")
                 audio2 = os.path.join(AUDIO_DIR, f"round{idx}_item2.wav")
                 synthesize(str(rnd["narration_item2"]), audio2, language_id=language, voice=selected_voice)
-                scenes.append(build_round_scene(
+                step(f"Round {idx+1}/{n}: renderizando cena do lado 2...")
+                render_and_free(build_round_scene(
                     script["item2_name"], media2, str(rnd.get("tag_item2", "")), audio2,
                     accent_color=(90, 200, 255, 255),
-                ))
+                ), f"{idx+1:02d}b_round")
 
             # --- Encerramento ---
-            step("Gerando encerramento...")
+            step("Gerando voz do encerramento...")
             outro_audio = os.path.join(AUDIO_DIR, "outro.wav")
             synthesize(script.get("outro_text", ""), outro_audio, language_id=language, voice=selected_voice)
-            scenes.append(build_outro_scene(script, cover_media1, cover_media2, outro_audio))
+            step("Renderizando cena de encerramento...")
+            render_and_free(build_outro_scene(script, cover_media1, cover_media2, outro_audio), "99_outro")
 
-            progress.progress(0.98, text="Montando vídeo final (isso pode levar alguns minutos)...")
+            progress.progress(0.98, text="Juntando as cenas no vídeo final...")
             out_path = os.path.join(OUTPUT_DIR, "video_final.mp4")
-            build_vs_video(scenes, out_path, music_path=music_path)
+            build_vs_video(scene_paths, out_path, music_path=music_path)
             progress.progress(1.0, text="Pronto!")
 
             all_audio = [hook_audio] + [
