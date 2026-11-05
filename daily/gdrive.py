@@ -127,6 +127,75 @@ def get_asset(name, dest):
     return dest
 
 
+def share_public(file_id):
+    """anyone with the link can read the file (Buffer downloads the video from it); returns a direct URL"""
+    d = Drive()
+    r = requests.post(API + '/files/%s/permissions' % file_id, headers=d.h, timeout=30,
+                      json={'role': 'reader', 'type': 'anyone'})
+    r.raise_for_status()
+    return 'https://drive.usercontent.google.com/download?id=%s&export=download&confirm=t' % file_id
+
+
+def unshare(file_id):
+    """remove the public link again (the file stays in its folder, private)"""
+    d = Drive()
+    r = requests.get(API + '/files/%s/permissions' % file_id, headers=d.h, timeout=30)
+    if r.status_code == 404:
+        return False
+    r.raise_for_status()
+    done = False
+    for p in r.json().get('permissions', []):
+        if p.get('type') == 'anyone':
+            requests.delete(API + '/files/%s/permissions/%s' % (file_id, p['id']), headers=d.h, timeout=30).raise_for_status()
+            done = True
+    return done
+
+
+def save_video(account, day, path):
+    """<root>/<account>/<day>.mp4 - returns the file id"""
+    d = Drive()
+    fid = d.folder(account, d.folder(os.environ.get('GDRIVE_ROOT_FOLDER', 'TikTok Daily')))
+    return d.upload(path, day + '.mp4', fid, 'video/mp4')
+
+
+def save_text(account, day, text):
+    import tempfile
+    d = Drive()
+    fid = d.folder(account, d.folder(os.environ.get('GDRIVE_ROOT_FOLDER', 'TikTok Daily')))
+    with tempfile.TemporaryDirectory() as tmp:
+        p = os.path.join(tmp, day + '.txt')
+        open(p, 'w', encoding='utf-8').write(text)
+        return d.upload(p, day + '.txt', fid, 'text/plain')
+
+
+def get_state(name, dest):
+    """download <root>/_state/<name> (story log, insights); None if it does not exist yet"""
+    return _get(('_state', name), dest)
+
+
+def put_state(path, name):
+    d = Drive()
+    fid = d.folder('_state', d.folder(os.environ.get('GDRIVE_ROOT_FOLDER', 'TikTok Daily')))
+    return d.upload(path, name, fid, 'text/plain' if not name.endswith('.gz') else 'application/gzip')
+
+
+def _get(parts, dest):
+    d = Drive()
+    cur = d._find(os.environ.get('GDRIVE_ROOT_FOLDER', 'TikTok Daily'), 'root', FOLDER)
+    for i, p in enumerate(parts):
+        if not cur:
+            return None
+        cur = d._find(p, cur, FOLDER if i < len(parts) - 1 else None)
+    if not cur:
+        return None
+    r = requests.get(API + '/files/' + cur, headers=d.h, params={'alt': 'media'}, timeout=600, stream=True)
+    r.raise_for_status()
+    with open(dest, 'wb') as f:
+        for ch in r.iter_content(1 << 16):
+            f.write(ch)
+    return dest
+
+
 if __name__ == '__main__':
     cmd = sys.argv[1] if len(sys.argv) > 1 else ''
     if cmd == 'auth':
@@ -147,6 +216,25 @@ if __name__ == '__main__':
         print('GDRIVE_REFRESH_TOKEN=' + j['refresh_token'])
     elif cmd == 'put-asset' and len(sys.argv) > 3:
         print('uploaded', put_asset(sys.argv[2], sys.argv[3]))
+    elif cmd == 'get-asset' and len(sys.argv) > 3:
+        print(get_asset(sys.argv[2], sys.argv[3]) or 'not found')
+    elif cmd == 'get-state' and len(sys.argv) > 3:
+        print(get_state(sys.argv[2], sys.argv[3]) or 'not found')
+    elif cmd == 'put-state' and len(sys.argv) > 3:
+        print('uploaded', put_state(sys.argv[2], sys.argv[3]))
+    elif cmd == 'cleanup-links':
+        # remove the public links of videos from earlier days (their posts have gone out by now)
+        import datetime as _dt, tempfile as _tf
+        today = _dt.date.today().isoformat()
+        with _tf.TemporaryDirectory() as tmp:
+            p = os.path.join(tmp, 's.jsonl')
+            if get_state('stories.jsonl', p):
+                n = 0
+                for l in open(p, encoding='utf-8'):
+                    e = json.loads(l) if l.strip() else {}
+                    if e.get('drive_file_id') and e.get('date', today) < today and unshare(e['drive_file_id']):
+                        n += 1
+                print('public links removed:', n)
     elif cmd == 'test':
         d = Drive()
         root = d.folder(os.environ.get('GDRIVE_ROOT_FOLDER', 'TikTok Daily'))

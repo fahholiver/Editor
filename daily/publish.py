@@ -5,8 +5,9 @@
                        [--at 14:00] [--tz Europe/London] [--late now|queue|fail] [--now] [--channels all|name1,name2] [--dry-run]
 
 1. makes a lighter upload copy (same picture/sound, H.264 CRF 21, <= 4 Mb/s, ~45 MB for 90 s) - TikTok re-encodes anyway
-2. hosts it at a public URL: pushes it to the `media` branch of this (public) repo and uses the
-   raw.githubusercontent.com link. The branch is rewritten as ONE commit holding only the newest
+2. hosts it at a public URL: by default in the account's Google Drive folder (<day>.mp4 next to <day>.txt)
+   with a public link that the next run removes (MEDIA_HOST=drive); or (MEDIA_HOST=github) on the `media`
+   branch of this public repo via raw.githubusercontent.com. The branch is rewritten as ONE commit holding only the newest
    --keep videos + stories.jsonl, so the repo does not grow by a video a day.
    (Or skip this with --video-url if you host the file yourself.)
 3. creates one Buffer post per TikTok channel (--channels: 'all' or names/ids) at --at in --tz, today.
@@ -166,20 +167,30 @@ def main():
             print('dry run: would post %s with mode=%s dueAt=%s' % (name, mode, due_at))
             return
 
-        repo_dir = os.environ.get('MEDIA_REPO_DIR') or sh('git', 'rev-parse', '--show-toplevel', cwd=HERE, capture=True)
-        branch = os.environ.get('MEDIA_BRANCH', 'media')
+        story = open(a.story, encoding='utf-8').read().strip() if a.story and os.path.exists(a.story) else ''
+        text = '%s\n%s\n\nVOICEOVER\n%s\n\nCAPTION\n%s\n' % (a.title, day, story or a.hook, a.caption)
+        host = os.environ.get('MEDIA_HOST', 'drive' if gdrive.configured() else 'github')
+        folder = a.account or (targets[0]['name'] if targets else 'misc')
+        repo_dir = branch = None
         if a.video_url:
             url = a.video_url
+        elif host == 'drive':
+            # the video goes straight into the account's Drive folder next to its VoiceOver text; it gets a
+            # public link only until it is posted (the next run removes the link: gdrive.py cleanup-links)
+            gdrive.save_text(folder, day, text)
+            fid = gdrive.save_video(folder, day, up)
+            url = gdrive.share_public(fid)
+            entry.update(drive_file_id=fid, gdrive='saved')
+            print('saved to Drive %s/%s.mp4 + .txt (public link until posted)' % (folder, day))
         else:
+            repo_dir = os.environ.get('MEDIA_REPO_DIR') or sh('git', 'rev-parse', '--show-toplevel', cwd=HERE, capture=True)
+            branch = os.environ.get('MEDIA_BRANCH', 'media')
             owner, repo = repo_owner_name(repo_dir)
             base = os.environ.get('MEDIA_PUBLIC_BASE') or 'https://raw.githubusercontent.com/%s/%s/%s' % (owner, repo, branch)
             url = '%s/videos/%s' % (base.rstrip('/'), name)
-        entry['video_url'] = url
-
-        # create the post first (so a failed post does not leave a dangling log line), then record it
-        if not a.video_url:
             media_branch_update(repo_dir, branch, [up], dict(entry, status='uploading'), a.keep)
             print('hosted at', url)
+        entry['video_url'] = url
         posts, errors = {}, {}
         for ch in targets:
             cname = ch['name']  # one post per account; a failure on one doesn't stop the others
@@ -202,20 +213,28 @@ def main():
                 errors[m.get('channel', '?')] = str(e)[:300]
                 print('mirror FAILED on %s: %s' % (m.get('channel'), e))
         entry.update(status='scheduled' if posts else 'failed', buffer_posts=posts, errors=errors)
-        if posts and gdrive.configured():  # archive: Drive/<root>/<account>/<day>.mp4 + <day>.txt
-            story = open(a.story, encoding='utf-8').read().strip() if a.story and os.path.exists(a.story) else ''
-            text = ('%s\n%s\n\nVOICEOVER\n%s\n\nCAPTION\n%s\n'
-                    % (a.title, day, story or a.hook, a.caption))
-            try:
-                gdrive.save_day(list(posts), day, up, text)
-                entry['gdrive'] = 'saved'
-            except Exception as e:  # noqa: BLE001 - never block the post because of the archive
-                entry['gdrive'] = 'failed: %s' % str(e)[:200]
-                print('WARNING: Google Drive save failed:', e)
-        if not a.video_url:  # rewrite the log line from "uploading" to "scheduled" (video already there)
+        if host == 'drive' or a.video_url:
+            append_drive_log(entry)
+        else:
+            if posts and gdrive.configured():
+                try:
+                    gdrive.save_day(list(posts), day, up, text)
+                except Exception as e:  # noqa: BLE001
+                    print('WARNING: Google Drive save failed:', e)
             fix_log_status(repo_dir, branch, entry)
         if not posts:
             sys.exit('no Buffer post was created')
+
+
+def append_drive_log(entry):
+    """the story log lives in Drive (TikTok Daily/_state/stories.jsonl)"""
+    with tempfile.TemporaryDirectory() as tmp:
+        p = os.path.join(tmp, 'stories.jsonl')
+        if not gdrive.get_state('stories.jsonl', p):
+            open(p, 'w').close()
+        with open(p, 'a', encoding='utf-8') as f:
+            f.write(json.dumps(entry, ensure_ascii=False) + '\n')
+        gdrive.put_state(p, 'stories.jsonl')
 
 
 def fix_log_status(repo_dir, branch, entry):
