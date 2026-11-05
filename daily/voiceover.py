@@ -163,7 +163,14 @@ def build(story_path, out_dir, provider='auto', voice=None):
     text = open(story_path, encoding='utf-8').read().strip()
     lines = text.split('\n')
     if provider == 'auto':
-        provider = 'elevenlabs' if os.environ.get('ELEVENLABS_API_KEY') else 'edge'
+        provider = 'edge'
+        if os.environ.get('ELEVENLABS_API_KEY'):
+            try:  # check the key with a 1-word request; fall back to the free voice if it fails
+                with tempfile.TemporaryDirectory() as tmp:
+                    tts_elevenlabs('Hello.', voice or ELEVEN_DEFAULT_VOICE, os.path.join(tmp, 'k.mp3'))
+                provider = 'elevenlabs'
+            except Exception as e:  # noqa: BLE001
+                print('WARNING: ElevenLabs unavailable, using Edge TTS instead ->', str(e)[:300])
     voice = voice or (ELEVEN_DEFAULT_VOICE if provider == 'elevenlabs' else EDGE_DEFAULT_VOICE)
     os.makedirs(out_dir, exist_ok=True)
     print('voiceover: %s / %s' % (provider, voice))

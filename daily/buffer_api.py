@@ -78,7 +78,10 @@ def find_tiktok_channel(name=None):
 def create_post(channel_id, text, video_url=None, due_at=None, mode='customScheduled', thumb_ms=None):
     """mode: customScheduled (needs due_at, ISO-8601 UTC) | addToQueue | shareNow.
     Returns the created post dict, raises on MutationError."""
-    inp = {'text': text, 'channelId': channel_id, 'schedulingType': Enum('automatic'), 'mode': Enum(mode)}
+    inp = {'text': text, 'channelId': channel_id, 'schedulingType': Enum('automatic'), 'mode': Enum(mode),
+           'needsApproval': False,
+           # TikTok requires AI-generated content to be labelled (story, voice and animation are all generated)
+           'metadata': {'tiktok': {'isAiGenerated': True}}}
     if mode == 'customScheduled':
         inp['dueAt'] = due_at
     if video_url:
