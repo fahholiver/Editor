@@ -13,7 +13,7 @@ Todo dia uma sessão agendada do Claude Code (na nuvem) faz:
    escreve os shots/efeitos e renderiza seguindo o `CLAUDE.md` de lá.
 4. **Postagem**: [`publish.py`](publish.py) faz uma cópia leve do MP4, hospeda num link público (branch
    `media` deste repo → `raw.githubusercontent.com`) e cria o post no canal TikTok do Buffer agendado
-   para **14:00** (fuso `America/Sao_Paulo` por padrão). Se já passou das 14h, posta na hora.
+   para **14:00** (fuso `Europe/London`, horário do Reino Unido, por padrão). Se já passou das 14h, posta na hora.
 
 As instruções que a sessão agendada segue estão em [`DAILY_RUN.md`](DAILY_RUN.md).
 
@@ -34,7 +34,7 @@ As instruções que a sessão agendada segue estão em [`DAILY_RUN.md`](DAILY_RU
 | `BUFFER_API_KEY` | sim | chave da API do Buffer |
 | `BUFFER_TIKTOK_CHANNEL_ID` | sim | id do canal TikTok (passo acima) |
 | `ELEVENLABS_API_KEY` | não | se quiser a voz ElevenLabs |
-| `POST_TIME` / `POST_TZ` | não | padrão `14:00` / `America/Sao_Paulo` (ex: `America/New_York` pra 14h nos EUA) |
+| `POST_TIME` / `POST_TZ` | não | padrão `14:00` / `Europe/London` (horário do Reino Unido, já com horário de verão) |
 | `PIPELINE_REF` | não | branch com a pasta `daily/` (padrão `main`; use `claude/buffer-tiktok-video-generation-lrudue` até fazer merge) |
 
 **Acesso à rede** — libere estes domínios (hoje estão bloqueados neste ambiente):

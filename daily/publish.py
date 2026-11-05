@@ -2,7 +2,7 @@
 """Publish a finished Motion video to TikTok through Buffer, scheduled for a local time.
 
     python3 publish.py <final.mp4> --slug <slug> --title "<Title>" --caption "<caption + #hashtags>"
-                       [--at 14:00] [--tz America/Sao_Paulo] [--late now|queue|fail] [--dry-run]
+                       [--at 14:00] [--tz Europe/London] [--late now|queue|fail] [--dry-run]
 
 1. makes a lighter upload copy (same picture/sound, H.264 CRF 21, <= 4 Mb/s, ~45 MB for 90 s) - TikTok re-encodes anyway
 2. hosts it at a public URL: pushes it to the `media` branch of this (public) repo and uses the
@@ -112,7 +112,7 @@ def main():
     ap.add_argument('--caption', required=True)
     ap.add_argument('--hook', default='', help='the story\'s first line, saved in the log')
     ap.add_argument('--at', default=os.environ.get('POST_TIME', '14:00'))
-    ap.add_argument('--tz', default=os.environ.get('POST_TZ', 'America/Sao_Paulo'))
+    ap.add_argument('--tz', default=os.environ.get('POST_TZ', 'Europe/London'))
     ap.add_argument('--late', default='now', choices=['now', 'queue', 'fail'])
     ap.add_argument('--thumb-ms', type=int, default=None, help='thumbnail frame offset (ms)')
     ap.add_argument('--video-url', help='already-hosted public URL (skips the media branch upload)')

@@ -54,7 +54,7 @@ cd /home/user/Editor
 python3 daily/publish.py /home/user/motion/output/<slug>_1080x1920.mp4 \
   --slug <slug> --title "<Title>" --hook "<first line of the story>" --caption "<caption + hashtags>"
 ```
-Defaults: 14:00 `America/Sao_Paulo` (env `POST_TIME` / `POST_TZ` override); if 14:00 has already passed it
+Defaults: 14:00 `Europe/London` (env `POST_TIME` / `POST_TZ` override); if 14:00 has already passed it
 posts immediately (`--late now`). Note that `publish.py` rewrites (force-pushes) the `media` branch of
 fahholiver/Editor, which holds only the newest videos + the story log; run it only if the scheduled task's
 prompt authorises that.
