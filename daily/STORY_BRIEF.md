@@ -1,4 +1,4 @@
-# Story brief — rules for every daily short (vertical, ~60–90 s, in the account's language)
+# Story brief — rules for every daily short (vertical, 65–125 s, in the account's language)
 
 The story is the narration script for one Motion video. It is read by a TTS voice exactly as written, and
 every word becomes a karaoke caption, so write for the ear.
@@ -8,7 +8,8 @@ Each TikTok account has its own **format** (see `daily/accounts.json`). The form
 `daily/formats/<format>.md` gives the shape, voice and title style; the rules below apply to every format.
 
 ## Rules
-- Length: the `words` range of the account in `daily/accounts.json` (≈ 60–90 s of narration). One sentence or short beat per line; blank lines only for a
+- **Length: every video 65–125 s** (`seconds` in `daily/accounts.json`; ≈ 165–290 words). bootstrap.py prints a
+  warning if the narration is outside — then lengthen/shorten the story and redo it. One sentence or short beat per line; blank lines only for a
   longer pause (a paragraph break = ~0.75 s silence, a line break = ~0.45 s).
 - **Language & place from the account's locale** (`daily/locales/<language>.md`): write natively in that
   language (never translate an English draft), set it in that country with local places, homes, habits and

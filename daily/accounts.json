@@ -1,19 +1,67 @@
 {
-  "_comment": "One entry per TikTok account (Buffer channel name). language -> daily/locales/<language>.md; format -> daily/formats/<format>.md. post_time is local time in tz (keep >= 1 h apart in UTC). words = story length range. voices: ElevenLabs id first (library voices need a paid ElevenLabs plan), Edge voice as the free fallback with the right accent.",
+  "_comment": "One entry per TikTok account (Buffer channel name). language -> daily/locales/<language>.md; format -> daily/formats/<format>.md. post_time is local time in tz (keep >= 1 h apart in UTC). words = story length range. voices: ElevenLabs id first (library voices need a paid ElevenLabs plan), Edge voice as the free fallback with the right accent. Voices are fixed per account (see insights.md > Voices) - keep them unless the owner asks. Every video must be 65-125 s long (seconds); words is the matching text length.",
   "mandraketoons": {
-    "language": "en-GB", "format": "confession", "post_time": "14:00", "tz": "Europe/London",
-    "words": [170, 260], "elevenlabs_voice": "onwK4e9ZLuTAKqWW03F9", "edge_voice": "en-GB-RyanNeural"
+    "language": "en-GB",
+    "format": "confession",
+    "post_time": "14:00",
+    "tz": "Europe/London",
+    "words": [
+      165,
+      290
+    ],
+    "elevenlabs_voice": "JBFqnCBsd6RMkjVDRZzb",
+    "edge_voice": "en-GB-ThomasNeural",
+    "seconds": [
+      65,
+      125
+    ]
   },
   "anna.20263": {
-    "language": "de-DE", "format": "rule_horror", "post_time": "16:00", "tz": "Europe/Berlin",
-    "words": [150, 230], "elevenlabs_voice": "JiW03c2Gt43XNUQAumRP", "edge_voice": "de-DE-ConradNeural"
+    "language": "de-DE",
+    "format": "rule_horror",
+    "post_time": "16:00",
+    "tz": "Europe/Berlin",
+    "words": [
+      165,
+      290
+    ],
+    "elevenlabs_voice": "JiW03c2Gt43XNUQAumRP",
+    "edge_voice": "de-DE-FlorianMultilingualNeural",
+    "seconds": [
+      65,
+      125
+    ]
   },
   "user890997140": {
-    "language": "fr-FR", "format": "phone_horror", "post_time": "17:00", "tz": "Europe/Paris",
-    "words": [160, 250], "elevenlabs_voice": "5l4ttmr4SKNgi0HnOelT", "edge_voice": "fr-FR-HenriNeural"
+    "language": "fr-FR",
+    "format": "phone_horror",
+    "post_time": "17:00",
+    "tz": "Europe/Paris",
+    "words": [
+      165,
+      290
+    ],
+    "elevenlabs_voice": "5l4ttmr4SKNgi0HnOelT",
+    "edge_voice": "fr-FR-RemyMultilingualNeural",
+    "seconds": [
+      65,
+      125
+    ]
   },
   "_default": {
-    "language": "en-GB", "format": "rule_horror", "post_time": "19:00", "tz": "Europe/London",
-    "words": [170, 260], "elevenlabs_voice": "onwK4e9ZLuTAKqWW03F9", "edge_voice": "en-GB-RyanNeural"
+    "language": "en-GB",
+    "format": "rule_horror",
+    "post_time": "19:00",
+    "tz": "Europe/London",
+    "words": [
+      165,
+      290
+    ],
+    "elevenlabs_voice": "onwK4e9ZLuTAKqWW03F9",
+    "edge_voice": "en-GB-RyanNeural",
+    "seconds": [
+      65,
+      125
+    ]
   }
 }

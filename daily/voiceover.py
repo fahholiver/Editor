@@ -119,7 +119,7 @@ def tts_edge(text, voice, mp3_path):
         proxy = os.environ.get('HTTPS_PROXY') or os.environ.get('https_proxy')
         if proxy:
             kw['proxy'] = proxy  # aiohttp ignores the proxy env vars on its own
-        com = edge_tts.Communicate(text, voice, rate='-4%', **kw)
+        com = edge_tts.Communicate(text, voice, rate='-7%', **kw)  # a bit slower: horror pacing
         units = []
         with open(mp3_path, 'wb') as f:
             async for ch in com.stream():

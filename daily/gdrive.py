@@ -104,6 +104,29 @@ def save_day(accounts, day, video_path, text):
     return out
 
 
+def put_asset(path, name):
+    """store a shared file (e.g. the background music) in <root>/_assets on Drive"""
+    d = Drive()
+    fid = d.folder('_assets', d.folder(os.environ.get('GDRIVE_ROOT_FOLDER', 'TikTok Daily')))
+    return d.upload(path, name, fid, 'audio/mpeg' if name.endswith('.mp3') else 'application/octet-stream')
+
+
+def get_asset(name, dest):
+    """download <root>/_assets/<name> to dest; returns dest or None"""
+    d = Drive()
+    root = d._find(os.environ.get('GDRIVE_ROOT_FOLDER', 'TikTok Daily'), 'root', FOLDER)
+    fold = root and d._find('_assets', root, FOLDER)
+    fid = fold and d._find(name, fold)
+    if not fid:
+        return None
+    r = requests.get(API + '/files/' + fid, headers=d.h, params={'alt': 'media'}, timeout=300, stream=True)
+    r.raise_for_status()
+    with open(dest, 'wb') as f:
+        for ch in r.iter_content(1 << 16):
+            f.write(ch)
+    return dest
+
+
 if __name__ == '__main__':
     cmd = sys.argv[1] if len(sys.argv) > 1 else ''
     if cmd == 'auth':
@@ -122,6 +145,8 @@ if __name__ == '__main__':
         if 'refresh_token' not in j:
             sys.exit('failed: %s' % json.dumps(j)[:400])
         print('GDRIVE_REFRESH_TOKEN=' + j['refresh_token'])
+    elif cmd == 'put-asset' and len(sys.argv) > 3:
+        print('uploaded', put_asset(sys.argv[2], sys.argv[3]))
     elif cmd == 'test':
         d = Drive()
         root = d.folder(os.environ.get('GDRIVE_ROOT_FOLDER', 'TikTok Daily'))

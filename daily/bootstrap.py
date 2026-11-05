@@ -49,8 +49,8 @@ def main():
     ap.add_argument('--account', help='TikTok account: takes language/voices from daily/accounts.json')
     a = ap.parse_args()
     edge_voice = None
+    import plan
     if a.account:
-        import plan
         c = plan.account_cfg(a.account)
         a.voice = a.voice or c.get('elevenlabs_voice')
         edge_voice = c.get('edge_voice')
@@ -73,6 +73,14 @@ def main():
         open(os.path.join(d, f), 'w').write(s)
     os.chmod(os.path.join(d, 'finalize.sh'), 0o755)
     bed = sorted(glob.glob(os.path.join(HERE, 'assets', 'background_music.*')))
+    if not bed:  # the track lives in Google Drive (TikTok Daily/_assets) - the repo is public
+        try:
+            import gdrive
+            if gdrive.configured():
+                got = gdrive.get_asset('background_music.mp3', os.path.join(HERE, 'assets', 'background_music.mp3'))
+                bed = [got] if got else []
+        except Exception as e:  # noqa: BLE001
+            print('WARNING: could not fetch the background music from Drive:', e)
     if bed:  # decoded at the narration's rate, mono
         subprocess.check_call(['ffmpeg', '-y', '-loglevel', 'error', '-i', bed[0], '-ac', '1', '-ar', str(sr),
                                '-c:a', 'pcm_s16le', os.path.join(d, 'music_bed.wav')])
@@ -81,6 +89,10 @@ def main():
         print('background music: none (put the track at daily/assets/background_music.mp3)')
     os.makedirs(os.path.join(a.motion, 'output'), exist_ok=True)
 
+    lo, hi = (plan.account_cfg(a.account).get('seconds', [65, 125]) if a.account else [65, 125])
+    if not lo <= dur <= hi:
+        print('\n*** LENGTH %.1f s IS OUTSIDE %d-%d s: %s the story and run bootstrap again ***'
+              % (dur, lo, hi, 'lengthen' if dur < lo else 'shorten'))
     print('\n%s: %.3f s @ %d Hz -> %d frames at 30 fps\n' % (a.slug, dur, sr, int(dur * 30)))
     print(' '.join('%s@%.2f' % (w[0], w[1]) for w in words))
     print('\npauses > 0.35 s:')
