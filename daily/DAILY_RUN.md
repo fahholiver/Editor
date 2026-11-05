@@ -52,7 +52,8 @@ sheet). Keep image reviews to one sheet per stage.
 ```bash
 cd /home/user/Editor
 python3 daily/publish.py /home/user/motion/output/<slug>_1080x1920.mp4 \
-  --slug <slug> --title "<Title>" --hook "<first line of the story>" --caption "<caption + hashtags>"
+  --slug <slug> --title "<Title>" --hook "<first line of the story>" --caption "<caption + hashtags>" \
+  --story /home/user/motion/_story.txt
 ```
 Defaults: 14:00 `Europe/London` (env `POST_TIME` / `POST_TZ` override); if 14:00 has already passed it
 posts immediately (`--late now`). Note that `publish.py` rewrites (force-pushes) the `media` branch of

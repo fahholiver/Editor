@@ -12,7 +12,9 @@
 3. creates one Buffer post per TikTok channel (--channels: 'all' or names/ids) at --at in --tz, today.
    If that time has already passed: --late now -> post immediately, queue -> next Buffer queue slot,
    fail -> stop with an error.
-4. appends a line to stories.jsonl on the media branch (the story log the next run reads to avoid repeats).
+4. if GDRIVE_* is set, saves <day>.mp4 + <day>.txt (voiceover text, caption) to Google Drive,
+   one folder per TikTok account (see gdrive.py)
+5. appends a line to stories.jsonl on the media branch (the story log the next run reads to avoid repeats).
 
 Env: BUFFER_API_KEY, optional BUFFER_TIKTOK_CHANNELS (default 'all'), MEDIA_REPO_DIR (default: the git repo this file is in),
 MEDIA_BRANCH (default media), MEDIA_PUBLIC_BASE (default https://raw.githubusercontent.com/<owner>/<repo>/<branch>).
@@ -31,6 +33,7 @@ from zoneinfo import ZoneInfo
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import buffer_api  # noqa: E402
+import gdrive  # noqa: E402
 
 
 def sh(*cmd, cwd=None, capture=False):
@@ -118,6 +121,7 @@ def main():
     ap.add_argument('--video-url', help='already-hosted public URL (skips the media branch upload)')
     ap.add_argument('--keep', type=int, default=2, help='videos kept on the media branch')
     ap.add_argument('--dry-run', action='store_true', help='encode only; no upload, no Buffer post')
+    ap.add_argument('--story', help='story/voiceover text file (saved to Google Drive with the video)')
     ap.add_argument('--channels', '--channel', dest='channels', default=os.environ.get('BUFFER_TIKTOK_CHANNELS', 'all'),
                     help="'all' (every TikTok channel in Buffer) or comma-separated names/ids, e.g. anna.20263,strawberry.me27")
     ap.add_argument('--now', action='store_true', help='post immediately instead of at --at')
@@ -166,6 +170,16 @@ def main():
                 errors[cname] = str(e)[:500]
                 print('FAILED on %s: %s' % (cname, e))
         entry.update(status='scheduled' if posts else 'failed', buffer_posts=posts, errors=errors)
+        if posts and gdrive.configured():  # archive: Drive/<root>/<account>/<day>.mp4 + <day>.txt
+            story = open(a.story, encoding='utf-8').read().strip() if a.story and os.path.exists(a.story) else ''
+            text = ('%s\n%s\n\nVOICEOVER\n%s\n\nCAPTION\n%s\n'
+                    % (a.title, day, story or a.hook, a.caption))
+            try:
+                gdrive.save_day(list(posts), day, up, text)
+                entry['gdrive'] = 'saved'
+            except Exception as e:  # noqa: BLE001 - never block the post because of the archive
+                entry['gdrive'] = 'failed: %s' % str(e)[:200]
+                print('WARNING: Google Drive save failed:', e)
         if not a.video_url:  # rewrite the log line from "uploading" to "scheduled" (video already there)
             fix_log_status(repo_dir, branch, entry)
         if not posts:

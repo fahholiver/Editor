@@ -65,3 +65,29 @@ python3 daily/publish.py /home/user/motion/output/minha_historia_1080x1920.mp4 \
   `python3 daily/buffer_api.py introspect CreatePostInput` pra ver o formato atual.
 - O vídeo final completo (alta qualidade) fica só na sessão; o Buffer recebe a cópia leve
   (H.264 ≤ 4 Mb/s), que o TikTok recomprime de qualquer jeito.
+
+## Google Drive (cópia de cada vídeo + texto do VoiceOver)
+
+Depois de postar, o `publish.py` salva no seu Drive:
+```
+TikTok Daily/
+  anna.20263/        2026-11-06.mp4   2026-11-06.txt
+  strawberry.me27/   2026-11-06.mp4   2026-11-06.txt
+```
+O `.txt` tem o título, o texto narrado e a legenda. Se o Drive falhar, o post sai mesmo assim.
+
+**Configuração (uma vez, ~10 min, no computador):**
+1. Acesse https://console.cloud.google.com → crie um projeto (ex.: "TikTok Daily").
+2. **APIs e serviços → Biblioteca** → procure **Google Drive API** → **Ativar**.
+3. **Google Auth Platform / Tela de consentimento OAuth** → tipo **Externo** → nome do app e seu e-mail →
+   salve. Em **Público-alvo**, clique **Publicar app** (modo "Em produção"; senão o acesso expira em 7 dias).
+   Não precisa de verificação do Google: o app só pede acesso aos arquivos que ele mesmo cria (`drive.file`).
+4. **Credenciais → Criar credenciais → ID do cliente OAuth** → tipo **App para computador** → copie o
+   **ID do cliente** e a **Chave secreta do cliente**.
+5. Nas variáveis do ambiente do Claude, adicione `GDRIVE_CLIENT_ID=...` e `GDRIVE_CLIENT_SECRET=...`.
+6. Peça ao Claude para "conectar o Drive": ele gera um link de login do Google (`gdrive.py auth`). Abra,
+   autorize, e o navegador vai parar numa página de erro em `localhost` — **isso é normal**: copie o
+   endereço completo dessa página e mande para o Claude, que gera o `GDRIVE_REFRESH_TOKEN`
+   (`gdrive.py token '<endereço>'`). Cadastre esse valor nas variáveis do ambiente também.
+
+Opcional: `GDRIVE_ROOT_FOLDER` muda o nome da pasta principal (padrão `TikTok Daily`).
