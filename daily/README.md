@@ -1,6 +1,18 @@
 # Vídeo diário de terror → TikTok via Buffer (às 14h)
 
-Todo dia uma sessão agendada do Claude Code (na nuvem) faz:
+Todo dia uma sessão agendada do Claude Code faz **um vídeo novo e diferente para cada conta TikTok**
+conectada no Buffer, cada conta com seu **formato** de história (todos na animação 2D):
+
+| conta | formato | arquivo |
+|---|---|---|
+| anna.20263 | regra de terror ("If X, do Y") | `formats/rule_horror.md` |
+| strawberry.me27 | terror pela tela do celular (mensagens/ligações) | `formats/phone_horror.md` |
+| 3ª conta (quando conectar) | confissão em 1ª pessoa | `formats/confession.md` |
+
+Para trocar o formato de uma conta ou fixar a 3ª, edite `daily/accounts.json`. Para criar um formato novo,
+adicione um arquivo em `daily/formats/`.
+
+Para cada conta:
 
 1. **História**: o próprio Claude escreve uma história de terror curta e original em inglês (~75–100 s),
    seguindo [`STORY_BRIEF.md`](STORY_BRIEF.md) e o histórico (`stories.jsonl`) pra não repetir.

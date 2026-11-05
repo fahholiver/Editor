@@ -119,8 +119,9 @@ def main():
     ap.add_argument('--late', default='now', choices=['now', 'queue', 'fail'])
     ap.add_argument('--thumb-ms', type=int, default=None, help='thumbnail frame offset (ms)')
     ap.add_argument('--video-url', help='already-hosted public URL (skips the media branch upload)')
-    ap.add_argument('--keep', type=int, default=2, help='videos kept on the media branch')
+    ap.add_argument('--keep', type=int, default=8, help='videos kept on the media branch (~2 days x accounts)')
     ap.add_argument('--dry-run', action='store_true', help='encode only; no upload, no Buffer post')
+    ap.add_argument('--format', default='', help='story format (logged, see daily/accounts.json)')
     ap.add_argument('--story', help='story/voiceover text file (saved to Google Drive with the video)')
     ap.add_argument('--channels', '--channel', dest='channels', default=os.environ.get('BUFFER_TIKTOK_CHANNELS', 'all'),
                     help="'all' (every TikTok channel in Buffer) or comma-separated names/ids, e.g. anna.20263,strawberry.me27")
@@ -136,6 +137,7 @@ def main():
     name = '%s_%s.mp4' % (day, a.slug)
     due_at, mode = (None, 'shareNow') if a.now else due_time(a.at, a.tz, a.late)
     entry = {'date': day, 'slug': a.slug, 'title': a.title, 'hook': a.hook, 'caption': a.caption,
+             'format': a.format, 'channels': a.channels,
              'scheduled': '%s %s' % (a.at, a.tz) if mode == 'customScheduled' else mode}
 
     with tempfile.TemporaryDirectory() as tmp:

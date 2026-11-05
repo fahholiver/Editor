@@ -1,0 +1,10 @@
+{
+  "_comment": "TikTok account (Buffer channel name) -> format in daily/formats/. Accounts not listed get the first format from _default_order that no other account uses today.",
+  "anna.20263": "rule_horror",
+  "strawberry.me27": "phone_horror",
+  "_default_order": [
+    "confession",
+    "rule_horror",
+    "phone_horror"
+  ]
+}
