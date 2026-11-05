@@ -62,17 +62,30 @@ def channels(org_id):
     return gql(q)['channels']
 
 
+def tiktok_channels():
+    return [c for o in organizations() for c in channels(o['id']) if 'tiktok' in str(c.get('service', '')).lower()]
+
+
+def find_tiktok_channels(spec='all'):
+    """[(id, name)] for spec = 'all' or comma-separated channel names/ids (e.g. 'anna.20263,strawberry.me27')"""
+    found = tiktok_channels()
+    if not spec or spec.strip().lower() == 'all':
+        if not found:
+            sys.exit('no TikTok channel connected in Buffer')
+        return [(c['id'], c['name']) for c in found]
+    out = []
+    for want in [w.strip().lower().lstrip('@') for w in spec.split(',') if w.strip()]:
+        m = [c for c in found if want in str(c.get('name', '')).lower().lstrip('@') or want == str(c['id']).lower()]
+        if len(m) != 1:
+            sys.exit('TikTok channel "%s": %d matches; connected: %s'
+                     % (want, len(m), ', '.join('%s (%s)' % (c['name'], c['id']) for c in found) or 'none'))
+        out.append((m[0]['id'], m[0]['name']))
+    return out
+
+
 def find_tiktok_channel(name=None):
-    """id of a TikTok channel: the one whose name/id contains `name` (e.g. "anna.20263"), or the only one"""
-    found = [c for o in organizations() for c in channels(o['id']) if 'tiktok' in str(c.get('service', '')).lower()]
-    if name:
-        key = name.lower().lstrip('@')
-        found = [c for c in found if key in str(c.get('name', '')).lower().lstrip('@') or key == str(c['id']).lower()]
-    if len(found) == 1:
-        print('TikTok channel: %s (%s)' % (found[0]['id'], found[0]['name']))
-        return found[0]['id']
-    sys.exit('found %d matching TikTok channels - pass --channel <name or id>; candidates: %s'
-             % (len(found), ', '.join('%s (%s)' % (c['id'], c['name']) for c in found) or 'none'))
+    """single channel id (kept for compatibility)"""
+    return find_tiktok_channels(name or 'all')[0][0]
 
 
 def create_post(channel_id, text, video_url=None, due_at=None, mode='customScheduled', thumb_ms=None):

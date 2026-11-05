@@ -2,19 +2,19 @@
 """Publish a finished Motion video to TikTok through Buffer, scheduled for a local time.
 
     python3 publish.py <final.mp4> --slug <slug> --title "<Title>" --caption "<caption + #hashtags>"
-                       [--at 14:00] [--tz Europe/London] [--late now|queue|fail] [--now] [--channel anna.20263] [--dry-run]
+                       [--at 14:00] [--tz Europe/London] [--late now|queue|fail] [--now] [--channels all|name1,name2] [--dry-run]
 
 1. makes a lighter upload copy (same picture/sound, H.264 CRF 21, <= 4 Mb/s, ~45 MB for 90 s) - TikTok re-encodes anyway
 2. hosts it at a public URL: pushes it to the `media` branch of this (public) repo and uses the
    raw.githubusercontent.com link. The branch is rewritten as ONE commit holding only the newest
    --keep videos + stories.jsonl, so the repo does not grow by a video a day.
    (Or skip this with --video-url if you host the file yourself.)
-3. creates the Buffer post on the TikTok channel (BUFFER_TIKTOK_CHANNEL_ID) at --at in --tz, today.
+3. creates one Buffer post per TikTok channel (--channels: 'all' or names/ids) at --at in --tz, today.
    If that time has already passed: --late now -> post immediately, queue -> next Buffer queue slot,
    fail -> stop with an error.
 4. appends a line to stories.jsonl on the media branch (the story log the next run reads to avoid repeats).
 
-Env: BUFFER_API_KEY, optional BUFFER_TIKTOK_CHANNEL_ID (default: the only TikTok channel in the account), MEDIA_REPO_DIR (default: the git repo this file is in),
+Env: BUFFER_API_KEY, optional BUFFER_TIKTOK_CHANNELS (default 'all'), MEDIA_REPO_DIR (default: the git repo this file is in),
 MEDIA_BRANCH (default media), MEDIA_PUBLIC_BASE (default https://raw.githubusercontent.com/<owner>/<repo>/<branch>).
 """
 import argparse
@@ -118,14 +118,14 @@ def main():
     ap.add_argument('--video-url', help='already-hosted public URL (skips the media branch upload)')
     ap.add_argument('--keep', type=int, default=2, help='videos kept on the media branch')
     ap.add_argument('--dry-run', action='store_true', help='encode only; no upload, no Buffer post')
-    ap.add_argument('--channel', default=os.environ.get('BUFFER_TIKTOK_CHANNEL', 'anna.20263'),
-                    help='TikTok channel name (e.g. anna.20263) or id, when Buffer has more than one')
+    ap.add_argument('--channels', '--channel', dest='channels', default=os.environ.get('BUFFER_TIKTOK_CHANNELS', 'all'),
+                    help="'all' (every TikTok channel in Buffer) or comma-separated names/ids, e.g. anna.20263,strawberry.me27")
     ap.add_argument('--now', action='store_true', help='post immediately instead of at --at')
     a = ap.parse_args()
 
-    channel = os.environ.get('BUFFER_TIKTOK_CHANNEL_ID')
-    if not a.dry_run and not channel:
-        channel = buffer_api.find_tiktok_channel(a.channel)
+    targets = [] if a.dry_run else buffer_api.find_tiktok_channels(a.channels)
+    if targets:
+        print('posting to: ' + ', '.join(n for _, n in targets))
 
     zone = ZoneInfo(a.tz)
     day = dt.datetime.now(zone).strftime('%Y-%m-%d')
@@ -156,11 +156,20 @@ def main():
         if not a.video_url:
             media_branch_update(repo_dir, branch, [up], dict(entry, status='uploading'), a.keep)
             print('hosted at', url)
-        post = buffer_api.create_post(channel, a.caption, url, due_at, mode, a.thumb_ms)
-        print('Buffer post created: id=%s dueAt=%s mode=%s' % (post.get('id'), post.get('dueAt'), mode))
-        entry.update(status='scheduled', buffer_post_id=post.get('id'))
+        posts, errors = {}, {}
+        for cid, cname in targets:  # one post per account; a failure on one doesn't stop the others
+            try:
+                post = buffer_api.create_post(cid, a.caption, url, due_at, mode, a.thumb_ms)
+                posts[cname] = post.get('id')
+                print('Buffer post created on %s: id=%s dueAt=%s mode=%s' % (cname, post.get('id'), post.get('dueAt'), mode))
+            except Exception as e:  # noqa: BLE001
+                errors[cname] = str(e)[:500]
+                print('FAILED on %s: %s' % (cname, e))
+        entry.update(status='scheduled' if posts else 'failed', buffer_posts=posts, errors=errors)
         if not a.video_url:  # rewrite the log line from "uploading" to "scheduled" (video already there)
             fix_log_status(repo_dir, branch, entry)
+        if not posts:
+            sys.exit('no Buffer post was created')
 
 
 def fix_log_status(repo_dir, branch, entry):
