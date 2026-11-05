@@ -19,20 +19,21 @@ sys.path.insert(0, HERE)
 import voiceover  # noqa: E402
 
 MUSIC_BED = '''
-MUSIC_GAIN = 0.55   # before the engine's own x0.3 and ducking under speech
+MUSIC_UNDER_DB = 15   # music this many dB under the narration (before the engine's extra ducking while it speaks)
 
 
 def music_bed():
-    """the channel's background track (music_bed.wav), looped over the whole video, faded in/out"""
+    """the channel's background track (music_bed.wav), looped, faded in/out, level relative to the narration"""
     p = os.path.join(HERE, 'music_bed.wav')
     if not os.path.exists(p):
         return np.zeros(N)
     with wave.open(p) as w:
         x = np.frombuffer(w.readframes(w.getnframes()), np.int16).astype(np.float64) / 32768
-    x = x / (np.sqrt(np.mean(x ** 2)) + 1e-9) * 0.12          # same loudness whatever the file
+    x = x / (np.sqrt(np.mean(x ** 2)) + 1e-9)
+    narr_rms = np.sqrt(np.mean(NARR[np.abs(NARR) > 0.01] ** 2)) if np.any(np.abs(NARR) > 0.01) else 0.1
     x = np.tile(x, N // len(x) + 1)[:N]
     f = np.minimum(1, np.minimum(np.arange(N), N - np.arange(N)) / (1.5 * SR))
-    return x * f * MUSIC_GAIN
+    return x * f * narr_rms * 10 ** (-MUSIC_UNDER_DB / 20) / 0.3   # main() scales music by 0.3
 '''
 
 ENGINE_FILES = ('render.py', 'audio.py', 'finalize.sh', 'verify_audio.py', 'gfx.py', 'gfx_emma.py', 'gfx_adam.py')
