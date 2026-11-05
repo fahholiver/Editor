@@ -33,6 +33,7 @@ from zoneinfo import ZoneInfo
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import buffer_api  # noqa: E402
+import plan  # noqa: E402
 import gdrive  # noqa: E402
 
 
@@ -189,6 +190,17 @@ def main():
             except Exception as e:  # noqa: BLE001
                 errors[cname] = str(e)[:500]
                 print('FAILED on %s: %s' % (cname, e))
+        # re-post the same video to the account's mirror channels (other Buffer accounts, Instagram, YouTube...)
+        for m in (plan.account_cfg(a.account).get('also_post_to', []) if a.account else []):
+            try:
+                ch = buffer_api.find_channels(m['channel'])[0]
+                m_due, m_mode = (None, 'shareNow') if a.now else due_time(m.get('post_time', a.at), m.get('tz', a.tz), a.late)
+                post = buffer_api.create_post(ch, m.get('caption', a.caption), url, m_due, m_mode, a.thumb_ms, a.title)
+                posts[ch['name']] = post.get('id')
+                print('mirror post on %s (%s): id=%s dueAt=%s' % (ch['name'], ch['service'], post.get('id'), post.get('dueAt')))
+            except BaseException as e:  # noqa: BLE001 - a mirror never blocks the main post
+                errors[m.get('channel', '?')] = str(e)[:300]
+                print('mirror FAILED on %s: %s' % (m.get('channel'), e))
         entry.update(status='scheduled' if posts else 'failed', buffer_posts=posts, errors=errors)
         if posts and gdrive.configured():  # archive: Drive/<root>/<account>/<day>.mp4 + <day>.txt
             story = open(a.story, encoding='utf-8').read().strip() if a.story and os.path.exists(a.story) else ''

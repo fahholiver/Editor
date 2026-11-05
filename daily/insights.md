@@ -18,7 +18,7 @@ facts with numbers, then the rule we follow because of them. Judge a post only a
 | account | voice | since |
 |---|---|---|
 | mandraketoons (UK) | ElevenLabs **George** `JBFqnCBsd6RMkjVDRZzb` (fallback Edge en-GB-ThomasNeural) | 2026-11-05 |
-| anna.20263 (DE) | Microsoft **de-DE-KillianNeural** (Edge) — owner asked for a less common voice | 2026-11-06 |
+| anna.20263 (DE) | Microsoft **de-DE-ConradNeural** (Edge) — owner's choice | 2026-11-06 |
 | user890997140 (FR) | ElevenLabs **Callum** `N2lVS1w4EtoT3dr4eOWO`, verified French (fallback Edge fr-FR-HenriNeural) — less common | 2026-11-06 |
 Not Daniel. Edge voices at -7 % speed for horror pacing. Before: DE Florian, FR Rémy (2026-11-05 only).
 Free ElevenLabs keys ≈ 10k characters/month each; George + Callum need ≈ 2,200/day, so the free credit lasts
