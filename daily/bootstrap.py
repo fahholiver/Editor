@@ -38,6 +38,8 @@ def main():
     for f in ENGINE_FILES:
         s = open(os.path.join(tpl, f)).read()
         s = s.replace('{{TITLE}}', a.title).replace('{{SLUG}}', a.slug).replace('{{SR}}', str(sr))
+        # the engine's audio check compares 20-30 s; make it fit short videos too
+        s = s.replace('seg = slice(SR * 20, SR * 30)', 'seg = slice(n // 5, n // 5 + min(SR * 10, n // 2))')
         open(os.path.join(d, f), 'w').write(s)
     os.chmod(os.path.join(d, 'finalize.sh'), 0o755)
     os.makedirs(os.path.join(a.motion, 'output'), exist_ok=True)
