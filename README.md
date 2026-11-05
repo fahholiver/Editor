@@ -132,6 +132,6 @@ chave!) e evite o fallback do DuckDuckGo.
 
 ## Sobre postar automaticamente no TikTok
 
-Este projeto só gera o `.mp4`. Postar automaticamente exige a TikTok Content
-Posting API (precisa de aprovação de app pelo TikTok for Developers) — pode
-ser adicionado depois, num módulo separado.
+O app Streamlit só gera o `.mp4`. Para o vídeo diário de terror (história +
+voiceover gerados pelo Claude, animação da engine Motion) postado no TikTok
+via Buffer todo dia às 14h, veja [`daily/README.md`](daily/README.md).
