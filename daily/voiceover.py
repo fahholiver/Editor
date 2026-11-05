@@ -12,7 +12,8 @@ Writes to <out_dir>:
 Each non-empty line of the story is synthesised separately and joined with a short silence, so the pacing
 follows the line breaks (a horror narration lives on its pauses). Word times come straight from the TTS
 (no forced alignment needed):
-  * ElevenLabs  (/with-timestamps, character alignment) if ELEVENLABS_API_KEY is set  -> best quality
+  * ElevenLabs  (/with-timestamps, character alignment) if ELEVENLABS_API_KEYS / ELEVENLABS_API_KEY is set,
+    rotating to the next key when one runs out of credit                             -> best quality
   * Microsoft Edge neural voices via `edge-tts` (WordBoundary events)                 -> free, no key
 """
 import argparse
@@ -138,7 +139,57 @@ def tts_edge(text, voice, mp3_path):
             print('  edge-tts retry after error:', e, file=sys.stderr)
 
 
+class ElevenKeysExhausted(RuntimeError):
+    pass
+
+
+def eleven_keys():
+    """ElevenLabs keys in priority order: ELEVENLABS_API_KEYS (comma/space/newline separated), then
+    ELEVENLABS_API_KEY. Duplicates removed."""
+    raw = (os.environ.get('ELEVENLABS_API_KEYS', '') + ' ' + os.environ.get('ELEVENLABS_API_KEY', '')).replace(',', ' ')
+    out = []
+    for k in raw.split():
+        if k not in out:
+            out.append(k)
+    return out
+
+
+_KEYS = []          # keys still usable in this run (first = current)
+
+
+def eleven_credits(key):
+    """remaining characters for a key, or None if the key may not read its subscription"""
+    import requests
+    try:
+        r = requests.get('https://api.elevenlabs.io/v1/user/subscription', headers={'xi-api-key': key}, timeout=20)
+        if r.status_code != 200:
+            return None if r.status_code in (401, 403) and 'permission' in r.text else -1
+        j = r.json()
+        return int(j.get('character_limit', 0)) - int(j.get('character_count', 0))
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def pick_eleven_keys(need_chars):
+    """order the keys: ones with enough credit first (unknown credit after them); drop dead/empty keys"""
+    good, unknown = [], []
+    for i, k in enumerate(eleven_keys()):
+        c = eleven_credits(k)
+        tag = 'key %d (...%s)' % (i + 1, k[-4:])
+        if c is None:
+            print('  %s: credit unknown (key without user_read permission) - will try it' % tag)
+            unknown.append(k)
+        elif c >= need_chars:
+            print('  %s: %d characters left' % (tag, c))
+            good.append(k)
+        else:
+            print('  %s: skipped (%s)' % (tag, 'invalid key' if c < 0 else '%d characters left, need %d' % (c, need_chars)))
+    _KEYS[:] = good + unknown
+    return list(_KEYS)
+
+
 def tts_elevenlabs(text, voice, mp3_path, prev_text=None, next_text=None):
+    """synthesise one line; on quota/auth errors rotate to the next key (same voice id works on every account)"""
     import requests
     body = {'text': text, 'model_id': ELEVEN_MODEL,
             'voice_settings': {'stability': 0.55, 'similarity_boost': 0.8, 'style': 0.15, 'speed': 0.95}}
@@ -146,31 +197,48 @@ def tts_elevenlabs(text, voice, mp3_path, prev_text=None, next_text=None):
         body['previous_text'] = prev_text   # keeps intonation continuous across separately rendered lines
     if next_text:
         body['next_text'] = next_text
-    r = requests.post('https://api.elevenlabs.io/v1/text-to-speech/%s/with-timestamps' % voice,
-                      params={'output_format': 'mp3_44100_128'},
-                      headers={'xi-api-key': os.environ['ELEVENLABS_API_KEY']}, json=body, timeout=120)
-    if r.status_code != 200:
-        raise RuntimeError('ElevenLabs %d: %s' % (r.status_code, r.text[:400]))
-    j = r.json()
-    open(mp3_path, 'wb').write(base64.b64decode(j['audio_base64']))
-    al = j.get('alignment') or j.get('normalized_alignment')
-    return list(zip(al['characters'], al['character_start_times_seconds'], al['character_end_times_seconds']))
+    if not _KEYS:
+        _KEYS[:] = eleven_keys()
+    while _KEYS:
+        key = _KEYS[0]
+        r = requests.post('https://api.elevenlabs.io/v1/text-to-speech/%s/with-timestamps' % voice,
+                          params={'output_format': 'mp3_44100_128'},
+                          headers={'xi-api-key': key}, json=body, timeout=120)
+        if r.status_code == 200:
+            j = r.json()
+            open(mp3_path, 'wb').write(base64.b64decode(j['audio_base64']))
+            al = j.get('alignment') or j.get('normalized_alignment')
+            return list(zip(al['characters'], al['character_start_times_seconds'], al['character_end_times_seconds']))
+        msg = r.text[:300]
+        if r.status_code in (401, 402, 403, 429) or 'quota' in msg:
+            print('  ElevenLabs key ...%s rejected (%d: %s) - next key' % (key[-4:], r.status_code, msg[:120]))
+            _KEYS.pop(0)
+            continue
+        raise RuntimeError('ElevenLabs %d: %s' % (r.status_code, msg))
+    raise ElevenKeysExhausted('no ElevenLabs key left with credit')
 
 
 # ------------------------------------------------------------------ main
 
 def build(story_path, out_dir, provider='auto', voice=None):
+    try:
+        return _build(story_path, out_dir, provider, voice)
+    except ElevenKeysExhausted:
+        print('WARNING: ElevenLabs credit ran out mid-story - redoing the whole narration with the free Edge voice')
+        return _build(story_path, out_dir, 'edge', None)
+
+
+def _build(story_path, out_dir, provider='auto', voice=None):
     text = open(story_path, encoding='utf-8').read().strip()
     lines = text.split('\n')
     if provider == 'auto':
         provider = 'edge'
-        if os.environ.get('ELEVENLABS_API_KEY'):
-            try:  # check the key with a 1-word request; fall back to the free voice if it fails
-                with tempfile.TemporaryDirectory() as tmp:
-                    tts_elevenlabs('Hello.', voice or ELEVEN_DEFAULT_VOICE, os.path.join(tmp, 'k.mp3'))
+        if eleven_keys():
+            print('ElevenLabs keys:')
+            if pick_eleven_keys(int(len(text) * 1.15) + 50):
                 provider = 'elevenlabs'
-            except Exception as e:  # noqa: BLE001
-                print('WARNING: ElevenLabs unavailable, using Edge TTS instead ->', str(e)[:300])
+            else:
+                print('WARNING: no ElevenLabs key with enough credit - using the free Edge voice')
     voice = voice or (ELEVEN_DEFAULT_VOICE if provider == 'elevenlabs' else EDGE_DEFAULT_VOICE)
     os.makedirs(out_dir, exist_ok=True)
     print('voiceover: %s / %s' % (provider, voice))
