@@ -57,11 +57,16 @@ branch of fahholiver/Editor (newest videos + story log) and saves `<day>.mp4` + 
 account's Google Drive folder. Run it only if the scheduled task's prompt authorises that.
 
 ## 4b. After ALL accounts are published
-Copy each `_story_<account>.txt` to `<slug>/story.txt`, then commit each `<slug>/` (add a `.gitignore` with
-`build/ stills/ stems/ mix.wav music_bed.wav __pycache__/`) to a new branch `daily/<slug>` of the Motion repo.
-Only at the end: switching branches removes the other stories' files (restore with
-`git checkout daily/<slug> -- <slug> && git reset -q -- <slug>`). Commit `daily/insights.md` changes to the
-Editor pipeline branch. Free disk: `rm -rf /home/user/motion/*/build /home/user/motion/*/stills /home/user/motion/output/*`.
+Save each story folder on its own Motion branch **with a git worktree** (never switch branches in
+/home/user/motion — that deletes the other stories' files):
+```bash
+cd /home/user/motion && s=<slug> && W=/tmp/wt_$s
+git worktree add -q -b daily/$s "$W" claude/radiator-animation
+mkdir -p "$W/$s" && for f in $s/*; do case "$(basename $f)" in build|stills|stems|mix.wav|music_bed.wav|__pycache__) ;; *) cp -r "$f" "$W/$s/";; esac; done
+(cd "$W" && git add -f $s && git commit -qm "Daily short $s" && git push -q -u origin daily/$s); git worktree remove --force "$W"
+```
+Commit `daily/insights.md` changes to the Editor pipeline branch. Free disk: delete `<slug>/build`, `<slug>/stills`
+and `/home/user/motion/output/*.mp4`.
 
 ## 5. Report
 One line per account: title, language, duration, post time, Buffer post id — plus what the metrics taught
