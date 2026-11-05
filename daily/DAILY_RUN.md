@@ -16,12 +16,14 @@ cd /home/user/Editor && pip install -q -r daily/requirements.txt
 python3 daily/engine.py fetch /home/user/motion               # Motion animation engine from Drive
 python3 daily/gdrive.py get-state stories.jsonl /tmp/stories.jsonl
 python3 daily/gdrive.py get-state insights.md /tmp/insights.md
+python3 daily/gdrive.py get-state inspiration.md /tmp/inspiration.md   # owner's reference videos (may not exist yet)
 python3 daily/gdrive.py cleanup-links                         # earlier videos: remove their public links
 python3 daily/metrics.py /tmp/stories.jsonl > /tmp/metrics.md  # views, watch time, likes per post
 python3 daily/plan.py /tmp/stories.jsonl                       # today's accounts + everything already used
 ```
 Read `/home/user/motion/CLAUDE.md` (engine workflow + QC), `daily/STORY_BRIEF.md`, `/tmp/insights.md` (voices,
-music, rules learned) and `/tmp/metrics.md`. If posts now ≥ 2 days old clearly beat or lose to their account's
+music, rules learned), `/tmp/inspiration.md` (techniques from the owner's reference videos — apply them in
+stories and shots) and `/tmp/metrics.md`. If posts now ≥ 2 days old clearly beat or lose to their account's
 median, add the lesson (date, numbers, rule) to `/tmp/insights.md` and apply it today — one change at a time.
 Save it back at the end: `python3 daily/gdrive.py put-state /tmp/insights.md insights.md`.
 

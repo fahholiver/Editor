@@ -116,3 +116,9 @@ Opcional: `GDRIVE_ROOT_FOLDER` muda o nome da pasta principal (padrão `TikTok D
 - **Horários**: `post_time` + `tz` de cada conta (mantenha 1 h de diferença).
 - **Métricas**: todo dia o `daily/metrics.py` puxa do Buffer views, tempo médio assistido, likes e shares de
   cada post; o que funcionar vira regra em `daily/insights.md` e é aplicado nas próximas histórias.
+
+## Vídeos de inspiração
+Mande o vídeo **aqui no chat** (anexo) dizendo para qual conta é (ou "todas") e o que você gostou. O Claude mede
+o ritmo (duração, cortes, gancho), olha os quadros, escreve uma ficha com as técnicas a copiar e guarda tudo no
+Drive (`TikTok Daily/_inspiration/` + `_state/inspiration.md`). A rotina diária lê essa ficha antes de criar as
+histórias e as cenas. Só técnicas são copiadas — nunca a história, personagens, arte ou música do vídeo.
