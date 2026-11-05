@@ -1,5 +1,5 @@
 # Insights — what works (updated by the daily run from `daily/metrics.py`)
-\n> The live copy is in Google Drive (`TikTok Daily/_state/insights.md`); the daily run reads and updates that one.
+> The live copy is in Google Drive (`TikTok Daily/_state/insights.md`); the daily run reads and updates that one.
 
 The daily run reads this before writing stories and adds what the latest numbers teach. Keep it short:
 facts with numbers, then the rule we follow because of them. Judge a post only after ~2 days.
