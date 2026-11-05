@@ -14,7 +14,7 @@
    fail -> stop with an error.
 4. appends a line to stories.jsonl on the media branch (the story log the next run reads to avoid repeats).
 
-Env: BUFFER_API_KEY, BUFFER_TIKTOK_CHANNEL_ID, optional MEDIA_REPO_DIR (default: the git repo this file is in),
+Env: BUFFER_API_KEY, optional BUFFER_TIKTOK_CHANNEL_ID (default: the only TikTok channel in the account), MEDIA_REPO_DIR (default: the git repo this file is in),
 MEDIA_BRANCH (default media), MEDIA_PUBLIC_BASE (default https://raw.githubusercontent.com/<owner>/<repo>/<branch>).
 """
 import argparse
@@ -122,7 +122,7 @@ def main():
 
     channel = os.environ.get('BUFFER_TIKTOK_CHANNEL_ID')
     if not a.dry_run and not channel:
-        sys.exit('BUFFER_TIKTOK_CHANNEL_ID is not set (run: python3 daily/buffer_api.py channels)')
+        channel = buffer_api.find_tiktok_channel()
 
     zone = ZoneInfo(a.tz)
     day = dt.datetime.now(zone).strftime('%Y-%m-%d')
