@@ -14,13 +14,15 @@ facts with numbers, then the rule we follow because of them. Judge a post only a
 - Retention: ~20–33 s average on 70–90 s videos ≈ 30–40 % watch-through. The first 3 seconds (hook line +
   fast cuts) decide it.
 
-## Voices (fixed per account — always use these, owner's choice 2026-11-05)
-| account | voice | why |
+## Voices (fixed per account — always use these)
+| account | voice | since |
 |---|---|---|
-| mandraketoons (UK) | ElevenLabs **George** `JBFqnCBsd6RMkjVDRZzb` (fallback Edge en-GB-ThomasNeural) | British storyteller, warm/raspy, made for narration |
-| anna.20263 (DE) | Edge **de-DE-FlorianMultilingualNeural** (ElevenLabs Helmut `JiW03c2Gt43XNUQAumRP` once the plan is paid) | native German, expressive |
-| user890997140 (FR) | Edge **fr-FR-RemyMultilingualNeural** (ElevenLabs Paul K `5l4ttmr4SKNgi0HnOelT` once paid) | native French, expressive |
-Not Daniel. Edge voices run at -7 % speed for horror pacing.
+| mandraketoons (UK) | ElevenLabs **George** `JBFqnCBsd6RMkjVDRZzb` (fallback Edge en-GB-ThomasNeural) | 2026-11-05 |
+| anna.20263 (DE) | Microsoft **de-DE-KillianNeural** (Edge) — owner asked for a less common voice | 2026-11-06 |
+| user890997140 (FR) | ElevenLabs **Callum** `N2lVS1w4EtoT3dr4eOWO`, verified French (fallback Edge fr-FR-HenriNeural) — less common | 2026-11-06 |
+Not Daniel. Edge voices at -7 % speed for horror pacing. Before: DE Florian, FR Rémy (2026-11-05 only).
+Free ElevenLabs keys ≈ 10k characters/month each; George + Callum need ≈ 2,200/day, so the free credit lasts
+~2 weeks a month — after that the fallback voice is used until the credit resets (or a paid plan is added).
 
 ## Background music (owner's choice 2026-11-05)
 "Horror music box" (Pixabay, leberch 585986), stored in Drive `TikTok Daily/_assets/background_music.mp3`,

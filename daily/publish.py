@@ -144,9 +144,9 @@ def main():
         if 'POST_TIME' not in os.environ:
             a.at, a.tz = c['post_time'], c['tz']
 
-    targets = [] if a.dry_run else buffer_api.find_tiktok_channels(a.channels)
+    targets = [] if a.dry_run else buffer_api.find_channels(a.channels)
     if targets:
-        print('posting to: ' + ', '.join(n for _, n in targets))
+        print('posting to: ' + ', '.join('%s (%s)' % (c['name'], c['service']) for c in targets))
 
     zone = ZoneInfo(a.tz)
     day = dt.datetime.now(zone).strftime('%Y-%m-%d')
@@ -180,9 +180,10 @@ def main():
             media_branch_update(repo_dir, branch, [up], dict(entry, status='uploading'), a.keep)
             print('hosted at', url)
         posts, errors = {}, {}
-        for cid, cname in targets:  # one post per account; a failure on one doesn't stop the others
+        for ch in targets:
+            cname = ch['name']  # one post per account; a failure on one doesn't stop the others
             try:
-                post = buffer_api.create_post(cid, a.caption, url, due_at, mode, a.thumb_ms)
+                post = buffer_api.create_post(ch, a.caption, url, due_at, mode, a.thumb_ms, a.title)
                 posts[cname] = post.get('id')
                 print('Buffer post created on %s: id=%s dueAt=%s mode=%s' % (cname, post.get('id'), post.get('dueAt'), mode))
             except Exception as e:  # noqa: BLE001

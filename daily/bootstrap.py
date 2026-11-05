@@ -53,8 +53,11 @@ def main():
     import plan
     if a.account:
         c = plan.account_cfg(a.account)
-        a.voice = a.voice or c.get('elevenlabs_voice')
         edge_voice = c.get('edge_voice')
+        if c.get('elevenlabs_voice'):
+            a.voice = a.voice or c['elevenlabs_voice']
+        elif a.provider == 'auto':          # this account uses its Microsoft voice only
+            a.provider, a.voice = 'edge', a.voice or edge_voice
         print('account %s: %s, voices %s / %s' % (a.account, c['language'], a.voice, edge_voice))
 
     tpl = os.path.join(a.motion, 'template')

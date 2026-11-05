@@ -20,7 +20,16 @@ import buffer_api  # noqa: E402
 
 
 def sent_posts(days):
-    org = buffer_api.organizations()[0]['id']
+    out = []
+    for env in buffer_api.api_keys():
+        buffer_api.use_key(env)
+        for o in buffer_api.organizations():
+            out += _sent(o['id'], days)
+    buffer_api.use_key('BUFFER_API_KEY')
+    return out
+
+
+def _sent(org, days):
     since = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days)).strftime('%Y-%m-%d')
     out, after = [], None
     for _ in range(10):
@@ -34,7 +43,7 @@ def sent_posts(days):
         if not r['pageInfo'].get('hasNextPage') or (nodes and (nodes[-1].get('sentAt') or '') < since):
             break
         after = r['pageInfo']['endCursor']
-    return [p for p in out if p.get('channelService') == 'tiktok' and (p.get('sentAt') or '') >= since]
+    return [p for p in out if p.get('channelService') in buffer_api.SERVICES and (p.get('sentAt') or '') >= since]
 
 
 def main():

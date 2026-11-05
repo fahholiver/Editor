@@ -31,7 +31,13 @@ def plan(accounts):
 
 if __name__ == '__main__':
     import buffer_api
-    accounts = [n for _, n in buffer_api.find_tiktok_channels(os.environ.get('BUFFER_TIKTOK_CHANNELS', 'all'))]
+    cfg = json.load(open(os.path.join(HERE, 'accounts.json')))
+    chans = buffer_api.all_channels()
+    # every TikTok in Buffer (unknown ones get _default) + Instagram/YouTube only when listed in accounts.json
+    accounts = [c['name'] for c in chans if c['service'] == 'tiktok' or c['name'] in cfg]
+    only = os.environ.get('BUFFER_TIKTOK_CHANNELS')
+    if only and only != 'all':
+        accounts = [a for a in accounts if a in [x.strip() for x in only.split(',')]]
     p = plan(accounts)
     log = []
     if len(sys.argv) > 1 and os.path.exists(sys.argv[1]):
