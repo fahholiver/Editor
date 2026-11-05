@@ -59,8 +59,11 @@ python3 daily/publish.py /home/user/motion/output/<slug>_1080x1920.mp4 --channel
 when `GDRIVE_*` is set, saves `<day>.mp4` + `<day>.txt` in the account's Google Drive folder. Run it only if
 the scheduled task's prompt authorises that.
 
-Then commit `<slug>/` (without `build/`, `stills/`, `stems/`, `output/`) to a new branch `daily/<slug>` of
-the Motion repo, and free disk space: `rm -rf /home/user/motion/<slug>/build /home/user/motion/output/*`.
+## 4b. After ALL accounts are published
+Commit each `<slug>/` (it has a `.gitignore` for `build/`, `stills/`, `stems/`, `mix.wav`) to a new branch
+`daily/<slug>` of the Motion repo. Do this only at the end: switching branches removes the other stories'
+files from the working tree (restore with `git checkout daily/<slug> -- <slug> && git reset -q -- <slug>`).
+Then free disk space: `rm -rf /home/user/motion/*/build /home/user/motion/*/stills /home/user/motion/output/*`.
 
 ## 5. Report
 One line per account: title, format, duration, Buffer post id + time — or what failed and at which step.
