@@ -3,13 +3,13 @@
 Todo dia uma sessão agendada do Claude Code faz **um vídeo novo e diferente para cada conta TikTok**
 conectada no Buffer, cada conta com seu **formato** de história (todos na animação 2D):
 
-| conta | formato | arquivo |
-|---|---|---|
-| anna.20263 | regra de terror ("If X, do Y") | `formats/rule_horror.md` |
-| strawberry.me27 | terror pela tela do celular (mensagens/ligações) | `formats/phone_horror.md` |
-| 3ª conta (quando conectar) | confissão em 1ª pessoa | `formats/confession.md` |
+| conta | público / idioma | formato | voz | posta às |
+|---|---|---|---|---|
+| mandraketoons | Reino Unido, inglês britânico | confissão em 1ª pessoa | Daniel (ElevenLabs) | 14:00 Londres |
+| anna.20263 | Alemanha, alemão | regra de terror | Conrad (nativa) | 16:00 Berlim (15:00 Londres) |
+| user890997140 | França, francês | terror pela tela do celular | Henri (nativa) | 17:00 Paris (16:00 Londres) |
 
-Para trocar o formato de uma conta ou fixar a 3ª, edite `daily/accounts.json`. Para criar um formato novo,
+Tudo isso fica em `daily/accounts.json` (idioma, formato, voz, horário, tamanho do texto). Para criar um formato novo,
 adicione um arquivo em `daily/formats/`.
 
 Para cada conta:
@@ -103,3 +103,16 @@ O `.txt` tem o título, o texto narrado e a legenda. Se o Drive falhar, o post s
    (`gdrive.py token '<endereço>'`). Cadastre esse valor nas variáveis do ambiente também.
 
 Opcional: `GDRIVE_ROOT_FOLDER` muda o nome da pasta principal (padrão `TikTok Daily`).
+
+
+## Como mudar daqui pra frente
+- **Música de fundo**: coloque o arquivo em `daily/assets/background_music.mp3` (ou mande no chat). Ela toca
+  em loop por baixo de todos os vídeos, abaixando sozinha quando a narração fala.
+- **Texto maior/menor**: mude `words` da conta em `daily/accounts.json` (ex. `[250, 350]` ≈ 90–120 s).
+- **Novo modelo de texto**: escreva/edite um arquivo em `daily/formats/` (forma da história, tom, título) e
+  aponte a conta para ele em `accounts.json`. Detalhes de cada país ficam em `daily/locales/`.
+- **Referências visuais / de áudio**: mande no chat (imagens, links de vídeos, áudios) dizendo para qual conta;
+  o Claude adapta os cenários/personagens da engine e registra o pedido em `daily/insights.md`.
+- **Horários**: `post_time` + `tz` de cada conta (mantenha 1 h de diferença).
+- **Métricas**: todo dia o `daily/metrics.py` puxa do Buffer views, tempo médio assistido, likes e shares de
+  cada post; o que funcionar vira regra em `daily/insights.md` e é aplicado nas próximas histórias.

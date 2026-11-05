@@ -1,4 +1,4 @@
-# Story brief — rules for every daily short (English, vertical, ~60–90 s)
+# Story brief — rules for every daily short (vertical, ~60–90 s, in the account's language)
 
 The story is the narration script for one Motion video. It is read by a TTS voice exactly as written, and
 every word becomes a karaoke caption, so write for the ear.
@@ -8,9 +8,12 @@ Each TikTok account has its own **format** (see `daily/accounts.json`). The form
 `daily/formats/<format>.md` gives the shape, voice and title style; the rules below apply to every format.
 
 ## Rules
-- 170–260 words (≈ 60–90 s of narration). One sentence or short beat per line; blank lines only for a
+- Length: the `words` range of the account in `daily/accounts.json` (≈ 60–90 s of narration). One sentence or short beat per line; blank lines only for a
   longer pause (a paragraph break = ~0.75 s silence, a line break = ~0.45 s).
-- British English setting and vocabulary (flat, torch, Mum, lift) — the voice is British.
+- **Language & place from the account's locale** (`daily/locales/<language>.md`): write natively in that
+  language (never translate an English draft), set it in that country with local places, homes, habits and
+  names, so a local viewer recognises their own life. Every on-screen text (tags, phone messages, contact
+  names, UI words) is in that language too.
 - Point of view as the format says; keep tense and person consistent.
 - Dialogue in curly quotes “ ” (the captions tint quotes cream). Keep speakers obvious.
 - Numbers as you want them shown (*3:18 a.m.*, *Flight 628*); the TTS reads them.
@@ -21,6 +24,8 @@ Each TikTok account has its own **format** (see `daily/accounts.json`). The form
   footprints, a sleeve hanging loose). Don't reveal later events early.
 - TikTok-safe: creepy, not graphic. No self-harm, no harm to children or animals shown, no real people,
   places of tragedy or brands.
+- **Always a brand-new story.** Never repeat or translate a story, twist or ending — not from earlier days,
+  not from another account, not from the older videos on the accounts.
 - **Original every day, and different on every account.** Read the recent log first and do not reuse a
   hook, setting + twist pair, or ending mechanic from the last 30 entries (all accounts), nor give two
   accounts the same story or setting on the same day. The "only child" tell has already been used three times —

@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
-"""Today's plan: one new video per TikTok account in Buffer, each in that account's format.
+"""Today's plan: one new video per TikTok account in Buffer, each with its own language, format, voice and
+posting time (daily/accounts.json).
 
-    python3 plan.py [stories.jsonl]      # prints one line per account: account, format, brief file
-
-Formats come from daily/accounts.json; an account that is not listed gets the first format of
-_default_order not already used today. With a stories.jsonl (the log on the media branch) it also prints
-the last titles/hooks per format, so today's stories don't repeat them.
+    python3 plan.py [stories.jsonl]     # one block per account + the titles/hooks it already used
 """
 import json
 import os
@@ -15,35 +12,35 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
 
-def plan(accounts):
+def account_cfg(acc):
     cfg = json.load(open(os.path.join(HERE, 'accounts.json')))
-    order = cfg.get('_default_order', [])
-    used, out = set(), []
-    for acc in accounts:  # explicit mappings first
-        if acc in cfg:
-            used.add(cfg[acc])
-    for acc in accounts:
-        fmt = cfg.get(acc)
-        if not fmt:
-            fmt = next((f for f in order if f not in used), order[0] if order else 'rule_horror')
-            used.add(fmt)
-        brief = os.path.join(HERE, 'formats', fmt + '.md')
-        if not os.path.exists(brief):
-            sys.exit('format %s for %s has no file %s' % (fmt, acc, brief))
-        out.append({'account': acc, 'format': fmt, 'brief': brief})
-    return out
+    c = dict(cfg.get('_default', {}))
+    c.update(cfg.get(acc, {}))
+    c['account'] = acc
+    c['brief'] = os.path.join(HERE, 'formats', c['format'] + '.md')
+    c['locale'] = os.path.join(HERE, 'locales', c['language'] + '.md')
+    for k in ('brief', 'locale'):
+        if not os.path.exists(c[k]):
+            sys.exit('%s for %s: missing %s' % (k, acc, c[k]))
+    return c
+
+
+def plan(accounts):
+    return [account_cfg(a) for a in accounts]
 
 
 if __name__ == '__main__':
     import buffer_api
-    accounts = [name for _, name in buffer_api.find_tiktok_channels(os.environ.get('BUFFER_TIKTOK_CHANNELS', 'all'))]
+    accounts = [n for _, n in buffer_api.find_tiktok_channels(os.environ.get('BUFFER_TIKTOK_CHANNELS', 'all'))]
     p = plan(accounts)
     log = []
     if len(sys.argv) > 1 and os.path.exists(sys.argv[1]):
         log = [json.loads(l) for l in open(sys.argv[1], encoding='utf-8') if l.strip()]
-    for item in p:
-        print('%-20s format=%-13s brief=%s' % (item['account'], item['format'], item['brief']))
-        past = [e for e in log if e.get('format') == item['format']][-10:]
-        for e in past:
-            print('      already used (%s): %s - %s' % (e.get('date'), e.get('title'), e.get('hook')))
+    for c in p:
+        print('%-16s %s  %s  post %s %s  %d-%d words' % (c['account'], c['language'], c['format'], c['post_time'],
+                                                        c['tz'], c['words'][0], c['words'][1]))
+        print('    brief=%s locale=%s' % (c['brief'], c['locale']))
+        for e in [e for e in log if e.get('channels') == c['account'] or e.get('account') == c['account']][-15:]:
+            print('    already used (%s): %s - %s' % (e.get('date'), e.get('title'), e.get('hook')))
+    print('all past titles:', '; '.join(e.get('title', '') for e in log[-40:]))
     print(json.dumps(p))

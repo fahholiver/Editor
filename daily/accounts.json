@@ -1,11 +1,19 @@
 {
-  "_comment": "TikTok account (Buffer channel name) -> format in daily/formats/. Accounts not listed get the first format from _default_order that no other account uses today.",
-  "anna.20263": "rule_horror",
-  "_default_order": [
-    "confession",
-    "rule_horror",
-    "phone_horror"
-  ],
-  "user890997140": "phone_horror",
-  "mandraketoons": "confession"
+  "_comment": "One entry per TikTok account (Buffer channel name). language -> daily/locales/<language>.md; format -> daily/formats/<format>.md. post_time is local time in tz (keep >= 1 h apart in UTC). words = story length range. voices: ElevenLabs id first (library voices need a paid ElevenLabs plan), Edge voice as the free fallback with the right accent.",
+  "mandraketoons": {
+    "language": "en-GB", "format": "confession", "post_time": "14:00", "tz": "Europe/London",
+    "words": [170, 260], "elevenlabs_voice": "onwK4e9ZLuTAKqWW03F9", "edge_voice": "en-GB-RyanNeural"
+  },
+  "anna.20263": {
+    "language": "de-DE", "format": "rule_horror", "post_time": "16:00", "tz": "Europe/Berlin",
+    "words": [150, 230], "elevenlabs_voice": "JiW03c2Gt43XNUQAumRP", "edge_voice": "de-DE-ConradNeural"
+  },
+  "user890997140": {
+    "language": "fr-FR", "format": "phone_horror", "post_time": "17:00", "tz": "Europe/Paris",
+    "words": [160, 250], "elevenlabs_voice": "5l4ttmr4SKNgi0HnOelT", "edge_voice": "fr-FR-HenriNeural"
+  },
+  "_default": {
+    "language": "en-GB", "format": "rule_horror", "post_time": "19:00", "tz": "Europe/London",
+    "words": [170, 260], "elevenlabs_voice": "onwK4e9ZLuTAKqWW03F9", "edge_voice": "en-GB-RyanNeural"
+  }
 }

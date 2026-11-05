@@ -45,7 +45,7 @@ ELEVEN_MODEL = 'eleven_multilingual_v2'
 
 def norm_chars(s):
     """lower-case alphanumerics only - what we compare between the story text and the TTS output"""
-    return re.sub(r'[^0-9a-z]', '', s.lower().replace('’', "'"))
+    return ''.join(c for c in s.casefold() if c.isalnum())  # keeps ä ö ü ß é è ç ...
 
 
 def map_tokens(tokens, units):
@@ -210,7 +210,7 @@ def tts_elevenlabs(text, voice, mp3_path, prev_text=None, next_text=None):
             al = j.get('alignment') or j.get('normalized_alignment')
             return list(zip(al['characters'], al['character_start_times_seconds'], al['character_end_times_seconds']))
         msg = r.text[:300]
-        if r.status_code in (401, 402, 403, 429) or 'quota' in msg:
+        if r.status_code in (401, 402, 403, 429) or 'quota' in msg:  # credit, plan (library voice) or auth
             print('  ElevenLabs key ...%s rejected (%d: %s) - next key' % (key[-4:], r.status_code, msg[:120]))
             _KEYS.pop(0)
             continue
@@ -220,15 +220,17 @@ def tts_elevenlabs(text, voice, mp3_path, prev_text=None, next_text=None):
 
 # ------------------------------------------------------------------ main
 
-def build(story_path, out_dir, provider='auto', voice=None):
+def build(story_path, out_dir, provider='auto', voice=None, edge_voice=None):
+    """voice = ElevenLabs voice id (or the Edge voice when provider='edge'); edge_voice = the free fallback"""
     try:
-        return _build(story_path, out_dir, provider, voice)
+        return _build(story_path, out_dir, provider, voice, edge_voice)
     except ElevenKeysExhausted:
-        print('WARNING: ElevenLabs credit ran out mid-story - redoing the whole narration with the free Edge voice')
-        return _build(story_path, out_dir, 'edge', None)
+        print('WARNING: ElevenLabs could not voice this story (credit / plan) - redoing the whole narration with '
+              'the free Edge voice %s' % (edge_voice or EDGE_DEFAULT_VOICE))
+        return _build(story_path, out_dir, 'edge', edge_voice, edge_voice)
 
 
-def _build(story_path, out_dir, provider='auto', voice=None):
+def _build(story_path, out_dir, provider='auto', voice=None, edge_voice=None):
     text = open(story_path, encoding='utf-8').read().strip()
     lines = text.split('\n')
     if provider == 'auto':
@@ -239,7 +241,9 @@ def _build(story_path, out_dir, provider='auto', voice=None):
                 provider = 'elevenlabs'
             else:
                 print('WARNING: no ElevenLabs key with enough credit - using the free Edge voice')
-    voice = voice or (ELEVEN_DEFAULT_VOICE if provider == 'elevenlabs' else EDGE_DEFAULT_VOICE)
+    if provider == 'edge' and voice and not voice.count('-') >= 2:
+        voice = None   # an ElevenLabs id is no Edge voice name
+    voice = voice or (ELEVEN_DEFAULT_VOICE if provider == 'elevenlabs' else (edge_voice or EDGE_DEFAULT_VOICE))
     os.makedirs(out_dir, exist_ok=True)
     print('voiceover: %s / %s' % (provider, voice))
 
@@ -293,5 +297,6 @@ if __name__ == '__main__':
     ap.add_argument('out_dir')
     ap.add_argument('--provider', default='auto', choices=['auto', 'elevenlabs', 'edge'])
     ap.add_argument('--voice')
+    ap.add_argument('--edge-voice')
     a = ap.parse_args()
-    build(a.story, a.out_dir, a.provider, a.voice)
+    build(a.story, a.out_dir, a.provider, a.voice, a.edge_voice)

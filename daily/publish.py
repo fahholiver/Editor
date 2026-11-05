@@ -95,6 +95,14 @@ def media_branch_update(repo_dir, branch, add_files, log_entry, keep):
         sys.exit('git push of the media branch failed')
 
 
+def video_duration(path):
+    try:
+        return round(float(sh('ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', path,
+                              capture=True)), 2)
+    except Exception:  # noqa: BLE001
+        return None
+
+
 def due_time(at, tz, late):
     zone = ZoneInfo(tz)
     now = dt.datetime.now(zone)
@@ -121,12 +129,20 @@ def main():
     ap.add_argument('--video-url', help='already-hosted public URL (skips the media branch upload)')
     ap.add_argument('--keep', type=int, default=8, help='videos kept on the media branch (~2 days x accounts)')
     ap.add_argument('--dry-run', action='store_true', help='encode only; no upload, no Buffer post')
+    ap.add_argument('--account', help='TikTok account: channel, post time, tz and format from daily/accounts.json')
     ap.add_argument('--format', default='', help='story format (logged, see daily/accounts.json)')
     ap.add_argument('--story', help='story/voiceover text file (saved to Google Drive with the video)')
     ap.add_argument('--channels', '--channel', dest='channels', default=os.environ.get('BUFFER_TIKTOK_CHANNELS', 'all'),
                     help="'all' (every TikTok channel in Buffer) or comma-separated names/ids, e.g. anna.20263,strawberry.me27")
     ap.add_argument('--now', action='store_true', help='post immediately instead of at --at')
     a = ap.parse_args()
+    if a.account:
+        import plan
+        c = plan.account_cfg(a.account)
+        a.channels = a.account
+        a.format = a.format or c['format']
+        if 'POST_TIME' not in os.environ:
+            a.at, a.tz = c['post_time'], c['tz']
 
     targets = [] if a.dry_run else buffer_api.find_tiktok_channels(a.channels)
     if targets:
@@ -137,7 +153,8 @@ def main():
     name = '%s_%s.mp4' % (day, a.slug)
     due_at, mode = (None, 'shareNow') if a.now else due_time(a.at, a.tz, a.late)
     entry = {'date': day, 'slug': a.slug, 'title': a.title, 'hook': a.hook, 'caption': a.caption,
-             'format': a.format, 'channels': a.channels,
+             'format': a.format, 'channels': a.channels, 'account': a.account or a.channels,
+             'duration': video_duration(a.video),
              'scheduled': '%s %s' % (a.at, a.tz) if mode == 'customScheduled' else mode}
 
     with tempfile.TemporaryDirectory() as tmp:
