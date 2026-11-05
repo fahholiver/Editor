@@ -62,14 +62,17 @@ def channels(org_id):
     return gql(q)['channels']
 
 
-def find_tiktok_channel():
-    """id of the TikTok channel when the account has exactly one (else exit with the list)"""
-    found = [(c, o) for o in organizations() for c in channels(o['id']) if 'tiktok' in str(c.get('service', '')).lower()]
+def find_tiktok_channel(name=None):
+    """id of a TikTok channel: the one whose name/id contains `name` (e.g. "anna.20263"), or the only one"""
+    found = [c for o in organizations() for c in channels(o['id']) if 'tiktok' in str(c.get('service', '')).lower()]
+    if name:
+        key = name.lower().lstrip('@')
+        found = [c for c in found if key in str(c.get('name', '')).lower().lstrip('@') or key == str(c['id']).lower()]
     if len(found) == 1:
-        print('TikTok channel: %s (%s)' % (found[0][0]['id'], found[0][0]['name']))
-        return found[0][0]['id']
-    sys.exit('found %d TikTok channels - set BUFFER_TIKTOK_CHANNEL_ID to one of: %s'
-             % (len(found), ', '.join('%s (%s)' % (c['id'], c['name']) for c, _ in found) or 'none'))
+        print('TikTok channel: %s (%s)' % (found[0]['id'], found[0]['name']))
+        return found[0]['id']
+    sys.exit('found %d matching TikTok channels - pass --channel <name or id>; candidates: %s'
+             % (len(found), ', '.join('%s (%s)' % (c['id'], c['name']) for c in found) or 'none'))
 
 
 def create_post(channel_id, text, video_url=None, due_at=None, mode='customScheduled', thumb_ms=None):

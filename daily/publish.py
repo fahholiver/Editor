@@ -2,7 +2,7 @@
 """Publish a finished Motion video to TikTok through Buffer, scheduled for a local time.
 
     python3 publish.py <final.mp4> --slug <slug> --title "<Title>" --caption "<caption + #hashtags>"
-                       [--at 14:00] [--tz Europe/London] [--late now|queue|fail] [--dry-run]
+                       [--at 14:00] [--tz Europe/London] [--late now|queue|fail] [--now] [--channel anna.20263] [--dry-run]
 
 1. makes a lighter upload copy (same picture/sound, H.264 CRF 21, <= 4 Mb/s, ~45 MB for 90 s) - TikTok re-encodes anyway
 2. hosts it at a public URL: pushes it to the `media` branch of this (public) repo and uses the
@@ -118,16 +118,19 @@ def main():
     ap.add_argument('--video-url', help='already-hosted public URL (skips the media branch upload)')
     ap.add_argument('--keep', type=int, default=2, help='videos kept on the media branch')
     ap.add_argument('--dry-run', action='store_true', help='encode only; no upload, no Buffer post')
+    ap.add_argument('--channel', default=os.environ.get('BUFFER_TIKTOK_CHANNEL', 'anna.20263'),
+                    help='TikTok channel name (e.g. anna.20263) or id, when Buffer has more than one')
+    ap.add_argument('--now', action='store_true', help='post immediately instead of at --at')
     a = ap.parse_args()
 
     channel = os.environ.get('BUFFER_TIKTOK_CHANNEL_ID')
     if not a.dry_run and not channel:
-        channel = buffer_api.find_tiktok_channel()
+        channel = buffer_api.find_tiktok_channel(a.channel)
 
     zone = ZoneInfo(a.tz)
     day = dt.datetime.now(zone).strftime('%Y-%m-%d')
     name = '%s_%s.mp4' % (day, a.slug)
-    due_at, mode = due_time(a.at, a.tz, a.late)
+    due_at, mode = (None, 'shareNow') if a.now else due_time(a.at, a.tz, a.late)
     entry = {'date': day, 'slug': a.slug, 'title': a.title, 'hook': a.hook, 'caption': a.caption,
              'scheduled': '%s %s' % (a.at, a.tz) if mode == 'customScheduled' else mode}
 

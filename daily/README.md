@@ -32,7 +32,7 @@ As instruções que a sessão agendada segue estão em [`DAILY_RUN.md`](DAILY_RU
 | nome | obrigatório | valor |
 |---|---|---|
 | `BUFFER_API_KEY` | sim | chave da API do Buffer |
-| `BUFFER_TIKTOK_CHANNEL_ID` | não | só se houver mais de um canal TikTok no Buffer (senão é achado sozinho) |
+| `BUFFER_TIKTOK_CHANNEL` | não | nome do canal TikTok no Buffer (padrão `anna.20263`) |
 | `ELEVENLABS_API_KEY` | não | se quiser a voz ElevenLabs |
 | `POST_TIME` / `POST_TZ` | não | padrão `14:00` / `Europe/London` (horário do Reino Unido, já com horário de verão) |
 | `PIPELINE_REF` | não | branch com a pasta `daily/` (padrão `main`; use `claude/buffer-tiktok-video-generation-lrudue` até fazer merge) |
