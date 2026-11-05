@@ -122,3 +122,9 @@ Mande o vídeo **aqui no chat** (anexo) dizendo para qual conta é (ou "todas") 
 o ritmo (duração, cortes, gancho), olha os quadros, escreve uma ficha com as técnicas a copiar e guarda tudo no
 Drive (`TikTok Daily/_inspiration/` + `_state/inspiration.md`). A rotina diária lê essa ficha antes de criar as
 histórias e as cenas. Só técnicas são copiadas — nunca a história, personagens, arte ou música do vídeo.
+
+## Relatório diário (08:07 Londres)
+Uma tarefa separada e leve publica todo dia, sem análise, o relatório dos vídeos do dia anterior:
+1. ranking do pior para o melhor (perfil, visualizações, retenção até o final);
+2. interações por vídeo (plataforma, vídeo, @, curtidas, comentários, salvamentos, compartilhamentos).
+Também fica salvo no Drive em `TikTok Daily/_reports/<data>.md`. Rodar à mão: `python3 daily/report.py --date 2026-11-05`.
