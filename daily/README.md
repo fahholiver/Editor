@@ -133,6 +133,12 @@ Também fica salvo no Drive em `TikTok Daily/_reports/<data>.md`. Rodar à mão:
 | vídeo original | cópia em | quando |
 |---|---|---|
 | mandraketoons (UK) | Coyote's Jazz (YouTube Shorts), proper_laughs_uk (Instagram Reel) | 17:00 Londres |
-| anna.20263 (alemão) | Melhores Mensagens (YouTube Shorts), thai.1382 (TikTok) | 19:00 Berlim |
-| user890997140 (francês) | Algorithmic Capital (YouTube Shorts), kaelusuxkzx (TikTok) | 20:00 Paris |
+| anna.20263 (alemão) | Melhores Mensagens (YouTube Shorts) | 19:00 Berlim |
+| user890997140 (francês) | Algorithmic Capital (YouTube Shorts) | 20:00 Paris |
 Configurado em `also_post_to` no `accounts.json` (chaves Buffer 2 e 3).
+
+## Contas com história própria (desde 2026-11-08)
+| conta | idioma | formato | voz | posta às |
+|---|---|---|---|---|
+| thai.1382 | alemão | terror pela tela do celular | Killian (Microsoft) | 21:00 Berlim |
+| kaelusuxkzx | francês | confissão em 1ª pessoa | Rémy (Microsoft) | 22:00 Paris |
