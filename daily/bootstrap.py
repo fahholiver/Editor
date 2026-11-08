@@ -64,6 +64,8 @@ def apply_style(render_py, style, dest):
     if 'STYLE.after_scene' not in s:
         assert STYLE_HOOK_OLD in s, 'render_frame changed - update STYLE_HOOK_OLD'
         s = s.replace(STYLE_HOOK_OLD, STYLE_HOOK_NEW)
+        # caption key words in the style's colour (if it has one)
+        s = s.replace("col = RED if (raw in KEY", "col = (getattr(STYLE, 'KEY_COLOR', None) or RED) if (raw in KEY")
         s = s.replace('    rgb = rgb * vignette() + grain(fi)\n',
                       '    rgb = rgb * vignette() + grain(fi)\n    if STYLE:\n        rgb = STYLE.post(rgb)\n')
         s = s.replace('\nFPS = 30\n', '\ntry:\n    import style as STYLE\nexcept ImportError:\n    STYLE = None\n'
