@@ -104,7 +104,7 @@
     "elevenlabs_voice": "",
     "edge_voice": "de-DE-KillianNeural",
     "also_post_to": [],
-    "active_from": "2026-11-09"
+    "active_from": "2026-11-08"
   },
   "kaelusuxkzx": {
     "language": "fr-FR",
@@ -122,7 +122,7 @@
     "elevenlabs_voice": "",
     "edge_voice": "fr-FR-RemyMultilingualNeural",
     "also_post_to": [],
-    "active_from": "2026-11-09"
+    "active_from": "2026-11-08"
   },
   "_default": {
     "language": "en-GB",
