@@ -12,10 +12,25 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
 
+def _today():
+    import datetime as dt
+    from zoneinfo import ZoneInfo
+    return os.environ.get('PLAN_DATE') or dt.datetime.now(ZoneInfo('Europe/London')).date().isoformat()
+
+
+def is_active(acc):
+    cfg = json.load(open(os.path.join(HERE, 'accounts.json'))).get(acc, {})
+    return cfg.get('active_from', '0000') <= _today()
+
+
 def account_cfg(acc):
     cfg = json.load(open(os.path.join(HERE, 'accounts.json')))
     c = dict(cfg.get('_default', {}))
     c.update(cfg.get(acc, {}))
+    today = _today()
+    for day, over in sorted((c.pop('changes_from', None) or {}).items()):   # dated changes
+        if day <= today:
+            c.update(over)
     c['account'] = acc
     c['brief'] = os.path.join(HERE, 'formats', c['format'] + '.md')
     c['locale'] = os.path.join(HERE, 'locales', c['language'] + '.md')
@@ -35,7 +50,7 @@ if __name__ == '__main__':
     chans = buffer_api.all_channels()
     # only accounts listed in accounts.json get their own new story; other channels (e.g. reposting accounts
     # on a second Buffer key) only receive copies through also_post_to
-    accounts = [c['name'] for c in chans if c['name'] in cfg and not c['name'].startswith('_')]
+    accounts = [c['name'] for c in chans if c['name'] in cfg and not c['name'].startswith('_') and is_active(c['name'])]
     only = os.environ.get('BUFFER_TIKTOK_CHANNELS')
     if only and only != 'all':
         accounts = [a for a in accounts if a in [x.strip() for x in only.split(',')]]
