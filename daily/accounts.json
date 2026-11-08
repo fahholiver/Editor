@@ -28,7 +28,12 @@
         "post_time": "17:00",
         "tz": "Europe/London"
       }
-    ]
+    ],
+    "changes_from": {
+      "2026-11-09": {
+        "format": "cursed_object"
+      }
+    }
   },
   "anna.20263": {
     "language": "de-DE",

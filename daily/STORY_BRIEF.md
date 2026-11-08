@@ -20,7 +20,8 @@ Each TikTok account has its own **format** (see `daily/accounts.json`). The form
 - Numbers as you want them shown (*3:18 a.m.*, *Flight 628*); the TTS reads them.
 - Every event must be drawable as flat 2D vector shots with the engine: night interiors (bedroom,
   kitchen, hallway, bathroom/mirror, lift, flat, plane cabin), windows/facades, phones and call screens,
-  one or two characters, a pet, simple props. No crowds fighting, no complex action, no gore.
+  one or two characters, a pet, simple props (format `cursed_object`: bright daytime rooms — classroom,
+  office, shop, kitchen, waiting room — with silent background extras). No crowds fighting, no complex action, no gore.
 - Visual beats are concrete nouns the animator can show at the moment they are said (a radiator, wet
   footprints, a sleeve hanging loose). Don't reveal later events early.
 - TikTok-safe: creepy, not graphic. No self-harm, no harm to children or animals shown, no real people,
