@@ -15,7 +15,20 @@
       65,
       125
     ],
-    "also_post_to": []
+    "also_post_to": [
+      {
+        "channel": "6aefc64de29c69a1719d1ab1",
+        "name": "Coyote's Jazz (YouTube)",
+        "post_time": "17:00",
+        "tz": "Europe/London"
+      },
+      {
+        "channel": "6aefc34ee29c69a1719d0696",
+        "name": "proper_laughs_uk (Instagram)",
+        "post_time": "17:00",
+        "tz": "Europe/London"
+      }
+    ]
   },
   "anna.20263": {
     "language": "de-DE",
@@ -32,7 +45,20 @@
       65,
       125
     ],
-    "also_post_to": []
+    "also_post_to": [
+      {
+        "channel": "6aefc634e29c69a1719d1a29",
+        "name": "Melhores Mensagens (YouTube)",
+        "post_time": "19:00",
+        "tz": "Europe/Berlin"
+      },
+      {
+        "channel": "6aefc1e1e29c69a1719cfc50",
+        "name": "thai.1382 (TikTok)",
+        "post_time": "19:00",
+        "tz": "Europe/Berlin"
+      }
+    ]
   },
   "user890997140": {
     "language": "fr-FR",
@@ -49,7 +75,20 @@
       65,
       125
     ],
-    "also_post_to": []
+    "also_post_to": [
+      {
+        "channel": "6aefc608e29c69a1719d1915",
+        "name": "Algorithmic Capital (YouTube)",
+        "post_time": "20:00",
+        "tz": "Europe/Paris"
+      },
+      {
+        "channel": "6aefc190e29c69a1719cf9d7",
+        "name": "kaelusuxkzx (TikTok)",
+        "post_time": "20:00",
+        "tz": "Europe/Paris"
+      }
+    ]
   },
   "_default": {
     "language": "en-GB",

@@ -131,6 +131,7 @@ def create_post(channel, text, video_url=None, due_at=None, mode='customSchedule
     meta = {'tiktok': {'tiktok': {'isAiGenerated': True}},
             'instagram': {'instagram': {'type': Enum('reel'), 'shouldShareToFeed': True, 'isAiGenerated': True}},
             'youtube': {'youtube': {'title': (title or text)[:95], 'privacy': Enum('public'), 'madeForKids': False,
+                                    'categoryId': '1',   # Film & Animation
                                     'isAiGenerated': True}}}.get(service, {})
     inp = {'text': text, 'channelId': channel['id'], 'schedulingType': Enum('automatic'), 'mode': Enum(mode),
            'needsApproval': False}
