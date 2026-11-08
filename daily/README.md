@@ -142,3 +142,8 @@ Configurado em `also_post_to` no `accounts.json` (chaves Buffer 2 e 3).
 |---|---|---|---|---|
 | thai.1382 | alemão | terror pela tela do celular | Killian (Microsoft) | 21:00 Berlim |
 | kaelusuxkzx | francês | confissão em 1ª pessoa | Rémy (Microsoft) | 22:00 Paris |
+
+## Ideias novas
+No Drive, dentro de `TikTok Daily`, há o documento **"IDEIAS — escreva aqui"** (Google Docs). Escreva uma ideia por
+linha, começando pela conta ou "todas" (ex.: `anna.20263: uma história num trem noturno parado no meio do nada`).
+A rotina lê toda manhã, usa no máximo uma ideia nova por conta por dia e registra quais já usou.

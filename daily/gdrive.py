@@ -196,6 +196,45 @@ def _get(parts, dest):
     return dest
 
 
+IDEAS_DOC = 'IDEIAS — escreva aqui'
+IDEAS_TEMPLATE = """IDEIAS PARA OS PRÓXIMOS VÍDEOS
+Escreva uma ideia por linha. Comece com a conta (ou "todas") e dois pontos. Exemplos:
+anna.20263: uma história num trem noturno da Deutsche Bahn parado no meio do nada
+todas: o vizinho que só aparece nas fotos
+mandraketoons: deixar os vídeos mais longos, perto de 2 minutos
+
+A rotina diária lê este documento toda manhã, usa as ideias que ainda não foram usadas
+(no máximo uma por conta por dia) e registra quais já usou. Pode apagar as antigas quando quiser.
+---
+"""
+
+
+def ideas_doc():
+    """the Google Doc the owner writes ideas in (created by this app so it can read it); returns its id"""
+    d = Drive()
+    root = d.folder(os.environ.get('GDRIVE_ROOT_FOLDER', 'TikTok Daily'))
+    fid = d._find(IDEAS_DOC, root)
+    if fid:
+        return fid
+    meta = {'name': IDEAS_DOC, 'parents': [root], 'mimeType': 'application/vnd.google-apps.document'}
+    boundary = 'ideasdoc'
+    body = ('--%s\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n%s\r\n--%s\r\n'
+            'Content-Type: text/plain; charset=UTF-8\r\n\r\n%s\r\n--%s--' % (
+                boundary, json.dumps(meta), boundary, IDEAS_TEMPLATE, boundary)).encode('utf-8')
+    r = requests.post(UPLOAD, headers=dict(d.h, **{'Content-Type': 'multipart/related; boundary=' + boundary}),
+                      params={'uploadType': 'multipart', 'fields': 'id'}, data=body, timeout=60)
+    r.raise_for_status()
+    return r.json()['id']
+
+
+def read_ideas():
+    d = Drive()
+    r = requests.get(API + '/files/%s/export' % ideas_doc(), headers=d.h, params={'mimeType': 'text/plain'}, timeout=60)
+    r.raise_for_status()
+    text = r.content.decode('utf-8-sig')
+    return text.split('---', 1)[1].strip() if '---' in text else text.strip()
+
+
 if __name__ == '__main__':
     cmd = sys.argv[1] if len(sys.argv) > 1 else ''
     if cmd == 'auth':
@@ -235,6 +274,8 @@ if __name__ == '__main__':
                     if e.get('drive_file_id') and e.get('date', today) < today and unshare(e['drive_file_id']):
                         n += 1
                 print('public links removed:', n)
+    elif cmd == 'ideas':
+        print(read_ideas())
     elif cmd == 'test':
         d = Drive()
         root = d.folder(os.environ.get('GDRIVE_ROOT_FOLDER', 'TikTok Daily'))

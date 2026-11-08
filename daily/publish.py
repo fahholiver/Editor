@@ -133,6 +133,7 @@ def main():
     ap.add_argument('--dry-run', action='store_true', help='encode only; no upload, no Buffer post')
     ap.add_argument('--account', help='TikTok account: channel, post time, tz and format from daily/accounts.json')
     ap.add_argument('--format', default='', help='story format (logged, see daily/accounts.json)')
+    ap.add_argument('--idea', default='', help="the owner's idea (from the IDEIAS doc) this video used")
     ap.add_argument('--story', help='story/voiceover text file (saved to Google Drive with the video)')
     ap.add_argument('--channels', '--channel', dest='channels', default=os.environ.get('BUFFER_TIKTOK_CHANNELS', 'all'),
                     help="'all' (every TikTok channel in Buffer) or comma-separated names/ids, e.g. anna.20263,strawberry.me27")
@@ -155,7 +156,7 @@ def main():
     name = '%s_%s.mp4' % (day, a.slug)
     due_at, mode = (None, 'shareNow') if a.now else due_time(a.at, a.tz, a.late)
     entry = {'date': day, 'slug': a.slug, 'title': a.title, 'hook': a.hook, 'caption': a.caption,
-             'format': a.format, 'channels': a.channels, 'account': a.account or a.channels,
+             'format': a.format, 'channels': a.channels, 'idea': a.idea, 'account': a.account or a.channels,
              'duration': video_duration(a.video),
              'scheduled': '%s %s' % (a.at, a.tz) if mode == 'customScheduled' else mode}
 

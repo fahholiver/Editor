@@ -17,6 +17,7 @@ python3 daily/engine.py fetch /home/user/motion               # Motion animation
 python3 daily/gdrive.py get-state stories.jsonl /tmp/stories.jsonl
 python3 daily/gdrive.py get-state insights.md /tmp/insights.md
 python3 daily/gdrive.py get-state inspiration.md /tmp/inspiration.md   # owner's reference videos (may not exist yet)
+python3 daily/gdrive.py ideas > /tmp/ideas.txt               # owner's ideas doc in Drive ("IDEIAS — escreva aqui")
 python3 daily/gdrive.py cleanup-links                         # earlier videos: remove their public links
 python3 daily/metrics.py /tmp/stories.jsonl > /tmp/metrics.md  # views, watch time, likes per post
 python3 daily/plan.py /tmp/stories.jsonl                       # today's accounts + everything already used
@@ -28,6 +29,10 @@ median, add the lesson (date, numbers, rule) to `/tmp/insights.md` and apply it 
 Save it back at the end: `python3 daily/gdrive.py put-state /tmp/insights.md insights.md`.
 
 ## 1. Stories (you write them) — all accounts first
+**Owner's ideas first:** `/tmp/ideas.txt` has one idea per line (`<account|todas>: <idea>`). An idea whose text
+is not yet in any `idea` field of `/tmp/stories.jsonl` is pending: use it today for that account (`todas` = the
+best-fitting account), at most one idea per account per day, and pass it to publish.py with `--idea "<line>"`.
+Ideas that are instructions (length, tone, style) apply to that account from today on — also note them in insights.
 For each account read its format file and locale file (`daily/locales/<language>.md`) and write the story
 natively in that language to `/home/user/motion/_story_<account>.txt` (dots → underscores), with title, slug
 (new folder, ≤ 20 chars, ASCII) and caption in that language. 65–125 s (≈ 165–290 words). Every story is
@@ -58,7 +63,7 @@ cd /home/user/Editor
 cp /home/user/motion/_story_<account>.txt /home/user/motion/<slug>/story.txt
 python3 daily/publish.py /home/user/motion/output/<slug>_1080x1920.mp4 --account <account> \
   --slug <slug> --title "<Title>" --hook "<first line>" --caption "<caption + hashtags>" \
-  --story /home/user/motion/<slug>/story.txt
+  --story /home/user/motion/<slug>/story.txt [--idea "<the idea line used>"]
 python3 daily/engine.py save-story /home/user/motion <slug>
 ```
 `publish.py` saves `<day>.mp4` + `<day>.txt` in the account's Drive folder, gives the video a public link
