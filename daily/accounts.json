@@ -1,0 +1,143 @@
+{
+  "_comment": "One entry per TikTok account (Buffer channel name). language -> daily/locales/<language>.md; format -> daily/formats/<format>.md. post_time is local time in tz (keep >= 1 h apart in UTC). words = story length range. voices: ElevenLabs id first (library voices need a paid ElevenLabs plan), Edge voice as the free fallback with the right accent. Voices are fixed per account (see insights.md > Voices) - keep them unless the owner asks. Every video must be 65-125 s long (seconds); words is the matching text length. also_post_to: the same video is re-posted (no new story) to these channels of any Buffer key, e.g. {\"channel\": \"my_insta\", \"post_time\": \"19:00\", \"tz\": \"Europe/Berlin\"}. visual_style: optional look from daily/styles/ (e.g. pixel_arcade). changes_from: {\"YYYY-MM-DD\": {overrides}} applied from that date (London); active_from: the account gets stories from that date.",
+  "mandraketoons": {
+    "language": "en-GB",
+    "format": "confession",
+    "post_time": "14:00",
+    "tz": "Europe/London",
+    "words": [
+      165,
+      290
+    ],
+    "elevenlabs_voice": "JBFqnCBsd6RMkjVDRZzb",
+    "edge_voice": "en-GB-ThomasNeural",
+    "seconds": [
+      65,
+      125
+    ],
+    "also_post_to": [
+      {
+        "channel": "6aefc64de29c69a1719d1ab1",
+        "name": "Coyote's Jazz (YouTube)",
+        "post_time": "17:00",
+        "tz": "Europe/London"
+      },
+      {
+        "channel": "6aefc34ee29c69a1719d0696",
+        "name": "proper_laughs_uk (Instagram)",
+        "post_time": "17:00",
+        "tz": "Europe/London"
+      }
+    ]
+  },
+  "anna.20263": {
+    "language": "de-DE",
+    "format": "rule_horror",
+    "post_time": "16:00",
+    "tz": "Europe/Berlin",
+    "words": [
+      165,
+      290
+    ],
+    "elevenlabs_voice": "",
+    "edge_voice": "de-DE-ConradNeural",
+    "seconds": [
+      65,
+      125
+    ],
+    "also_post_to": [
+      {
+        "channel": "6aefc634e29c69a1719d1a29",
+        "name": "Melhores Mensagens (YouTube)",
+        "post_time": "19:00",
+        "tz": "Europe/Berlin"
+      }
+    ],
+    "changes_from": {
+      "2026-11-09": {
+        "visual_style": "pixel_arcade"
+      }
+    }
+  },
+  "user890997140": {
+    "language": "fr-FR",
+    "format": "phone_horror",
+    "post_time": "17:00",
+    "tz": "Europe/Paris",
+    "words": [
+      165,
+      290
+    ],
+    "elevenlabs_voice": "N2lVS1w4EtoT3dr4eOWO",
+    "edge_voice": "fr-FR-HenriNeural",
+    "seconds": [
+      65,
+      125
+    ],
+    "also_post_to": [
+      {
+        "channel": "6aefc608e29c69a1719d1915",
+        "name": "Algorithmic Capital (YouTube)",
+        "post_time": "20:00",
+        "tz": "Europe/Paris"
+      }
+    ],
+    "changes_from": {
+      "2026-11-09": {
+        "format": "interactive_series"
+      }
+    }
+  },
+  "thai.1382": {
+    "language": "de-DE",
+    "format": "phone_horror",
+    "post_time": "21:00",
+    "tz": "Europe/Berlin",
+    "words": [
+      165,
+      290
+    ],
+    "seconds": [
+      65,
+      125
+    ],
+    "elevenlabs_voice": "",
+    "edge_voice": "de-DE-KillianNeural",
+    "also_post_to": [],
+    "active_from": "2026-11-08"
+  },
+  "kaelusuxkzx": {
+    "language": "fr-FR",
+    "format": "confession",
+    "post_time": "22:00",
+    "tz": "Europe/Paris",
+    "words": [
+      165,
+      290
+    ],
+    "seconds": [
+      65,
+      125
+    ],
+    "elevenlabs_voice": "",
+    "edge_voice": "fr-FR-RemyMultilingualNeural",
+    "also_post_to": [],
+    "active_from": "2026-11-08"
+  },
+  "_default": {
+    "language": "en-GB",
+    "format": "rule_horror",
+    "post_time": "19:00",
+    "tz": "Europe/London",
+    "words": [
+      165,
+      290
+    ],
+    "elevenlabs_voice": "onwK4e9ZLuTAKqWW03F9",
+    "edge_voice": "en-GB-RyanNeural",
+    "seconds": [
+      65,
+      125
+    ]
+  }
+}
