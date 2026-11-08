@@ -39,7 +39,7 @@ def cuts(path, thr=0.3):
 
 def loudness(path):
     out = subprocess.run(['ffmpeg', '-i', path, '-af', 'ebur128', '-f', 'null', '-'], capture_output=True, text=True).stderr
-    m = re.search(r'I:\s+(-?[\d.]+) LUFS', out)
+    m = re.search(r'Summary:.*?I:\s+(-?[\d.]+) LUFS', out, re.S)  # the summary, not the first per-frame line
     return float(m.group(1)) if m else None
 
 
