@@ -1,5 +1,5 @@
 {
-  "_comment": "One entry per TikTok account (Buffer channel name). language -> daily/locales/<language>.md; format -> daily/formats/<format>.md. post_time is local time in tz (keep >= 1 h apart in UTC). words = story length range. voices: ElevenLabs id first (library voices need a paid ElevenLabs plan), Edge voice as the free fallback with the right accent. Voices are fixed per account (see insights.md > Voices) - keep them unless the owner asks. Every video must be 65-125 s long (seconds); words is the matching text length. also_post_to: the same video is re-posted (no new story) to these channels of any Buffer key, e.g. {\"channel\": \"my_insta\", \"post_time\": \"19:00\", \"tz\": \"Europe/Berlin\"}.",
+  "_comment": "One entry per TikTok account (Buffer channel name). language -> daily/locales/<language>.md; format -> daily/formats/<format>.md. post_time is local time in tz (keep >= 1 h apart in UTC). words = story length range. voices: ElevenLabs id first (library voices need a paid ElevenLabs plan), Edge voice as the free fallback with the right accent. Voices are fixed per account (see insights.md > Voices) - keep them unless the owner asks. Every video must be 65-125 s long (seconds); words is the matching text length. also_post_to: the same video is re-posted (no new story) to these channels of any Buffer key, e.g. {\"channel\": \"my_insta\", \"post_time\": \"19:00\", \"tz\": \"Europe/Berlin\"}. visual_style: optional look from daily/styles/ (e.g. pixel_arcade).",
   "mandraketoons": {
     "language": "en-GB",
     "format": "confession",
@@ -52,7 +52,8 @@
         "post_time": "19:00",
         "tz": "Europe/Berlin"
       }
-    ]
+    ],
+    "visual_style": "pixel_arcade"
   },
   "user890997140": {
     "language": "fr-FR",

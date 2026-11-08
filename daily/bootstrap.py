@@ -36,6 +36,41 @@ def music_bed():
     return x * f * narr_rms * 10 ** (-MUSIC_UNDER_DB / 20) / 0.3   # main() scales music by 0.3
 '''
 
+STYLE_HOOK_OLD = '''    draw_hud(ctx, t, opt)
+    for al, c in flashes(t):
+        ctx.rectangle(0, 0, W, H)
+        ctx.set_source_rgba(*c, al)
+        ctx.fill()
+    draw_caption(ctx, t, opt.get('cap_y', 1400))
+'''
+STYLE_HOOK_NEW = '''    if STYLE:   # account visual style (daily/styles/<style>.py copied here as style.py)
+        STYLE.after_scene(surf, W, H)
+        for al, c in flashes(t):
+            ctx.rectangle(0, 0, W, H)
+            ctx.set_source_rgba(*c, al)
+            ctx.fill()
+        STYLE.bezel(ctx, W, H)
+        STYLE.overlay(surf, W, H, lambda c: (draw_hud(c, t, opt), draw_caption(c, t, opt.get('cap_y', 1400)),
+                                             STYLE.game_hud(c, t, DUR)))
+    else:
+''' + ''.join('    ' + l + '\n' for l in STYLE_HOOK_OLD.splitlines())
+
+
+def apply_style(render_py, style, dest):
+    """copy daily/styles/<style>.py to dest/style.py and hook it into render.py's render_frame"""
+    import shutil
+    shutil.copy(os.path.join(HERE, 'styles', style + '.py'), os.path.join(dest, 'style.py'))
+    s = open(render_py).read()
+    if 'STYLE.after_scene' not in s:
+        assert STYLE_HOOK_OLD in s, 'render_frame changed - update STYLE_HOOK_OLD'
+        s = s.replace(STYLE_HOOK_OLD, STYLE_HOOK_NEW)
+        s = s.replace('    rgb = rgb * vignette() + grain(fi)\n',
+                      '    rgb = rgb * vignette() + grain(fi)\n    if STYLE:\n        rgb = STYLE.post(rgb)\n')
+        s = s.replace('\nFPS = 30\n', '\ntry:\n    import style as STYLE\nexcept ImportError:\n    STYLE = None\n'
+                      'if STYLE and hasattr(STYLE, "font"):\n    font = STYLE.font  # captions in the style font\n\nFPS = 30\n', 1)
+    open(render_py, 'w').write(s)
+
+
 ENGINE_FILES = ('render.py', 'audio.py', 'finalize.sh', 'verify_audio.py', 'gfx.py', 'gfx_emma.py', 'gfx_adam.py')
 
 
@@ -76,6 +111,10 @@ def main():
         s = s.replace('seg = slice(SR * 20, SR * 30)', 'seg = slice(n // 5, n // 5 + min(SR * 10, n // 2))')
         open(os.path.join(d, f), 'w').write(s)
     os.chmod(os.path.join(d, 'finalize.sh'), 0o755)
+    style = plan.account_cfg(a.account).get('visual_style') if a.account else None
+    if style:
+        apply_style(os.path.join(d, 'render.py'), style, d)
+        print('visual style:', style)
     bed = sorted(glob.glob(os.path.join(HERE, 'assets', 'background_music.*')))
     if not bed:  # the track lives in Google Drive (TikTok Daily/_assets) - the repo is public
         try:

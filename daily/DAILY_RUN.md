@@ -51,6 +51,9 @@ cd /home/user/motion && python3 /home/user/Editor/daily/bootstrap.py . <slug> "<
 ```
 If it prints `LENGTH … OUTSIDE 65-125 s`, lengthen/shorten the story and run it again.
 
+**Visual style:** if the account has `visual_style` (e.g. `pixel_arcade`, see `daily/styles/`), bootstrap already
+hooked it in — draw the shots as usual; the style pixelates them and adds its HUD/frame. Check one still early.
+
 **Animation** — `SHOTS` in `<slug>/render.py`, `CUES`/`build_music` in `<slug>/audio.py` (the background
 track already plays; keep `build_music` to stingers/risers). Reuse the engine's rigs/sets and the existing
 story folders as examples. All on-screen text in the account's language. Then:
