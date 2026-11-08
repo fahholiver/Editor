@@ -59,7 +59,11 @@ Narrator neutral and slightly amused, fast. A soft “click/whoosh” on every u
 drops out at the reversal (silence makes it creepy).
 
 ## Length
-The account limits still apply (65–125 s): aim for **65–75 s** (≈ 170–200 words) — 5–7 uses of the object.
+Owner wants it **long — clearly over 1 minute: 80–110 s (≈ 210–270 words)**, never under 80 s (thai.1382's
+`seconds`/`words` are set to this). Fill the time with story, not padding: 7–9 uses of the object in **two
+rounds** — round 1 (uses 1–4) solves the original problem and grows greedy; a short mid-point beat (a second
+problem or a witness who almost notices, ~8–10 s); round 2 (uses 5–9) fast and counted, then the reversal and the
+question. Keep cuts every ~2.4 s, so more length = more shots (≈ 35–45), never longer shots.
 
 ## Title / caption
 Title = the object (*Das Sprung-Feuerzeug*, *Die Stumm-Fernbedienung*). Caption = the rule as a question + 4–6 hashtags, e.g.
