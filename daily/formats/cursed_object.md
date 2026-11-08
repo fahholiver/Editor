@@ -1,7 +1,9 @@
 # Format: cursed_object — one magic object, used too many times, backfires
 
 Reference: owner's video of 2026-11-08 (3D school cartoon: a boy, a pen that erases memories, a teacher).
-Take only the technique, never that story, characters, object or ending.
+Take only the technique, never that story, characters, object or ending. Used by **thai.1382** (German, from
+2026-11-09): write natively in German, set in Germany (Schule, Büro, Supermarkt, Wartezimmer, WG-Küche); the
+English lines below only show the shape (*„Lena hat heute eine Prüfung. Sie hat nicht gelernt.“*).
 
 ## Shape (third person, present tense, very short sentences)
 1. **Hook in the first 3 s = problem + object + power**, two lines:
@@ -17,7 +19,8 @@ Take only the technique, never that story, characters, object or ending.
    (the other character has forgotten everything, is stuck, has swapped places with him…). Show it calm and
    quiet: one wide, still shot, 3–4 s, no flash.
 6. **Ending = a question to the viewer** (last 4–5 s): *“What should Tom do now? Tell me in the comments.”*
-   + the Like / Follow pill buttons popping in. Never explain the ending.
+   + the Like / Follow pill buttons popping in
+   (German: *„Was soll Tom jetzt tun? Schreib's in die Kommentare.“*). Never explain the ending.
 
 Mandatory: the hero is never hurt and nobody is shown hurt; the horror is the consequence, told with a deadpan
 voice. It is dark comedy that turns uncanny, not gore.
@@ -31,6 +34,17 @@ voice. It is dark comedy that turns uncanny, not gore.
   zoom-in on the object just before.
 - Re-use the same 3–4 camera set-ups again and again (hero close-up, other character close-up, room wide,
   object insert) — repetition makes the escalation readable.
+
+## Movement — the constant hip sway (key to the look)
+Every character on screen is **never still**: the whole body above the hips rocks side to side around the hip
+point, about **1 cycle per second, ±6°**, with a small bob on each side; the head counter-tilts a beat later; legs
+stay planted. Each character has a different phase so they never move in sync (background extras too).
+Happy / smug: bigger and faster (±10–12°, 1.6 cycles/s). The other character's “?” beat: slow (0.6 /s).
+The reversal shot is the **only moment the sway stops** — sudden stillness is what makes it creepy.
+Use `kit.py` (copied into the story folder by bootstrap.py):
+- `ctx.save(); kit.hip_sway(ctx, t, hip_x, hip_y, phase); <torso, arms, head>; ctx.restore()` + `kit.head_lag(t, phase)`
+- `kit.flash(ctx, t, t_use, W, H)` on each use, `kit.question_mark(ctx, x, y, t, t0)` over the confused one,
+  `kit.end_pills(ctx, t, t_end, W, H)` (Gefällt mir / Folgen) for the last 4–5 s.
 
 ## Look
 - **Bright daytime, saturated, toy-like** (classroom, office, supermarket, kitchen, waiting room): warm floor,
@@ -48,5 +62,5 @@ drops out at the reversal (silence makes it creepy).
 The account limits still apply (65–125 s): aim for **65–75 s** (≈ 170–200 words) — 5–7 uses of the object.
 
 ## Title / caption
-Title = the object (*The Skip Lighter*, *The Mute Remote*). Caption = the rule as a question + 4–6 hashtags, e.g.
-*“What would you skip with it? #animation #story #darkcomedy #storytime #creepy”*.
+Title = the object (*Das Sprung-Feuerzeug*, *Die Stumm-Fernbedienung*). Caption = the rule as a question + 4–6 hashtags, e.g.
+*„Was würdest du damit überspringen? #animation #geschichte #schwarzerhumor #storytime #gruselig“*.

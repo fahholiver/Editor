@@ -119,6 +119,11 @@ def main():
             "LANG = 'fr'", "LANG = '%s'" % plan.account_cfg(a.account)['language'][:2])
         open(os.path.join(d, 'kit.py'), 'w').write(kit)
         print('series kit: kit.py (part_tag, red_circle, choice_card)')
+    if a.account and plan.account_cfg(a.account).get('format') == 'cursed_object':
+        kit = open(os.path.join(HERE, 'styles', 'object_kit.py')).read().replace(
+            "LANG = 'de'", "LANG = '%s'" % plan.account_cfg(a.account)['language'][:2])
+        open(os.path.join(d, 'kit.py'), 'w').write(kit)
+        print('object kit: kit.py (hip_sway, head_lag, flash, question_mark, end_pills)')
     style = plan.account_cfg(a.account).get('visual_style') if a.account else None
     if style:
         apply_style(os.path.join(d, 'render.py'), style, d)

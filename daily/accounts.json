@@ -28,12 +28,7 @@
         "post_time": "17:00",
         "tz": "Europe/London"
       }
-    ],
-    "changes_from": {
-      "2026-11-09": {
-        "format": "cursed_object"
-      }
-    }
+    ]
   },
   "anna.20263": {
     "language": "de-DE",
@@ -109,7 +104,12 @@
     "elevenlabs_voice": "",
     "edge_voice": "de-DE-KillianNeural",
     "also_post_to": [],
-    "active_from": "2026-11-08"
+    "active_from": "2026-11-08",
+    "changes_from": {
+      "2026-11-09": {
+        "format": "cursed_object"
+      }
+    }
   },
   "kaelusuxkzx": {
     "language": "fr-FR",
