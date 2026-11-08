@@ -13,6 +13,7 @@ Env: GDRIVE_CLIENT_ID, GDRIVE_CLIENT_SECRET, GDRIVE_REFRESH_TOKEN, optional GDRI
 "TikTok Daily"). Scope is drive.file: the app only sees the files and folders it created itself.
 """
 import json
+import re
 import os
 import sys
 import urllib.parse
@@ -235,6 +236,60 @@ def read_ideas():
     return text.split('---', 1)[1].strip() if '---' in text else text.strip()
 
 
+VISUAL_DOC = 'IDEIAS VISUAIS — cole imagens aqui'
+VISUAL_TEMPLATE = """IDEIAS VISUAIS
+Cole imagens aqui (prints, desenhos, personagens, cenários, paletas de cor, capturas de vídeos que você gosta).
+Embaixo de cada imagem escreva para qual conta (ou "todas") e o que você quer dela. Exemplo:
+[imagem]  todas: quero corredores com essa luz verde e sombras longas
+A rotina diária baixa este documento com as imagens toda manhã e adapta o desenho 2D (estilo, cores, cenários,
+personagens) - sem copiar a arte, só a ideia.
+---
+"""
+
+
+def _make_doc(name, template):
+    d = Drive()
+    root = d.folder(os.environ.get('GDRIVE_ROOT_FOLDER', 'TikTok Daily'))
+    fid = d._find(name, root)
+    if fid:
+        return fid
+    meta = {'name': name, 'parents': [root], 'mimeType': 'application/vnd.google-apps.document'}
+    boundary = 'ideasdoc'
+    body = ('--%s\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n%s\r\n--%s\r\n'
+            'Content-Type: text/plain; charset=UTF-8\r\n\r\n%s\r\n--%s--' % (
+                boundary, json.dumps(meta), boundary, template, boundary)).encode('utf-8')
+    r = requests.post(UPLOAD, headers=dict(d.h, **{'Content-Type': 'multipart/related; boundary=' + boundary}),
+                      params={'uploadType': 'multipart', 'fields': 'id'}, data=body, timeout=60)
+    r.raise_for_status()
+    return r.json()['id']
+
+
+def read_visual_ideas(dest):
+    """export the visual-ideas doc as HTML + images into dest; returns (text, [image paths])"""
+    import io
+    import zipfile
+    import html as _html
+    d = Drive()
+    fid = _make_doc(VISUAL_DOC, VISUAL_TEMPLATE)
+    r = requests.get(API + '/files/%s/export' % fid, headers=d.h, params={'mimeType': 'application/zip'}, timeout=120)
+    r.raise_for_status()
+    os.makedirs(dest, exist_ok=True)
+    zipfile.ZipFile(io.BytesIO(r.content)).extractall(dest)
+    imgs, text = [], ''
+    for root_, _, files in os.walk(dest):
+        for f in sorted(files):
+            p = os.path.join(root_, f)
+            if f.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp')):
+                imgs.append(p)
+            elif f.lower().endswith('.html'):
+                raw = open(p, encoding='utf-8', errors='replace').read()
+                raw = re.sub(r'<img[^>]*src="([^"]+)"[^>]*>', lambda m: '\n[IMAGEM: %s]\n' % m.group(1), raw)
+                text = _html.unescape(re.sub(r'<[^>]+>', '\n', raw))
+                text = re.sub(r'\n\s*\n+', '\n', text)
+    text = text.split('---', 1)[1].strip() if '---' in text else text.strip()
+    return text, imgs
+
+
 if __name__ == '__main__':
     cmd = sys.argv[1] if len(sys.argv) > 1 else ''
     if cmd == 'auth':
@@ -274,6 +329,10 @@ if __name__ == '__main__':
                     if e.get('drive_file_id') and e.get('date', today) < today and unshare(e['drive_file_id']):
                         n += 1
                 print('public links removed:', n)
+    elif cmd == 'visual-ideas' and len(sys.argv) > 2:
+        t, imgs = read_visual_ideas(sys.argv[2])
+        print(t)
+        print('images:', ' '.join(imgs) or 'none')
     elif cmd == 'ideas':
         print(read_ideas())
     elif cmd == 'test':

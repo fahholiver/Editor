@@ -147,3 +147,8 @@ Configurado em `also_post_to` no `accounts.json` (chaves Buffer 2 e 3).
 No Drive, dentro de `TikTok Daily`, há o documento **"IDEIAS — escreva aqui"** (Google Docs). Escreva uma ideia por
 linha, começando pela conta ou "todas" (ex.: `anna.20263: uma história num trem noturno parado no meio do nada`).
 A rotina lê toda manhã, usa no máximo uma ideia nova por conta por dia e registra quais já usou.
+
+## Ideias visuais
+No Drive, em `TikTok Daily`, há o documento **"IDEIAS VISUAIS — cole imagens aqui"**. Cole imagens (prints, desenhos,
+cenários, personagens, cores) e escreva embaixo de cada uma para qual conta é e o que quer dela. A rotina baixa o
+documento com as imagens toda manhã e adapta o desenho 2D (estilo, cores, cenários, personagens) sem copiar a arte.

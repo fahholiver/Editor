@@ -17,6 +17,7 @@ python3 daily/engine.py fetch /home/user/motion               # Motion animation
 python3 daily/gdrive.py get-state stories.jsonl /tmp/stories.jsonl
 python3 daily/gdrive.py get-state insights.md /tmp/insights.md
 python3 daily/gdrive.py get-state inspiration.md /tmp/inspiration.md   # owner's reference videos (may not exist yet)
+python3 daily/gdrive.py visual-ideas /tmp/visual > /tmp/visual.txt  # owner's pasted images + notes ("IDEIAS VISUAIS")
 python3 daily/gdrive.py ideas > /tmp/ideas.txt               # owner's ideas doc in Drive ("IDEIAS — escreva aqui")
 python3 daily/gdrive.py cleanup-links                         # earlier videos: remove their public links
 python3 daily/metrics.py /tmp/stories.jsonl > /tmp/metrics.md  # views, watch time, likes per post
@@ -33,6 +34,11 @@ Save it back at the end: `python3 daily/gdrive.py put-state /tmp/insights.md ins
 is not yet in any `idea` field of `/tmp/stories.jsonl` is pending: use it today for that account (`todas` = the
 best-fitting account), at most one idea per account per day, and pass it to publish.py with `--idea "<line>"`.
 Ideas that are instructions (length, tone, style) apply to that account from today on — also note them in insights.
+**Visual ideas:** `/tmp/visual.txt` lists the owner's notes with `[IMAGEM: …]` markers; the images are under
+`/tmp/visual/`. If there are new ones (not yet noted in insights), look at them (tile several into one image to
+save cost), and adapt the 2D drawing to them — palette, light, sets, props, character look — by writing new
+cairo drawing code in the story's render.py; never trace or copy the artwork itself. Note in insights which
+image was adopted for which account and what changed.
 For each account read its format file and locale file (`daily/locales/<language>.md`) and write the story
 natively in that language to `/home/user/motion/_story_<account>.txt` (dots → underscores), with title, slug
 (new folder, ≤ 20 chars, ASCII) and caption in that language. 65–125 s (≈ 165–290 words). Every story is
