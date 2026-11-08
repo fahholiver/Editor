@@ -20,9 +20,16 @@ python3 daily/gdrive.py get-state inspiration.md /tmp/inspiration.md   # owner's
 python3 daily/gdrive.py visual-ideas /tmp/visual > /tmp/visual.txt  # owner's pasted images + notes ("IDEIAS VISUAIS")
 python3 daily/gdrive.py ideas > /tmp/ideas.txt               # owner's ideas doc in Drive ("IDEIAS — escreva aqui")
 python3 daily/gdrive.py cleanup-links                         # earlier videos: remove their public links
+python3 daily/report.py > /tmp/report.md                     # yesterday's videos: ranking + interactions
 python3 daily/metrics.py /tmp/stories.jsonl > /tmp/metrics.md  # views, watch time, likes per post
 python3 daily/plan.py /tmp/stories.jsonl                       # today's accounts + everything already used
 ```
+**Read the video analysis BEFORE writing anything new (mandatory).** Read `/tmp/report.md` (yesterday) and
+`/tmp/metrics.md` (last 60 days). For EACH account you will make a video for today, write 2–3 lines in
+`/tmp/insights.md` under `## Daily notes <date>`: its worst and best recent video (views, retention), what
+they had in common, and the ONE thing today's story/shots will change or keep because of it. Then write the
+story so that it follows that note. Include these notes in the final report.
+
 Read `/home/user/motion/CLAUDE.md` (engine workflow + QC), `daily/STORY_BRIEF.md`, `/tmp/insights.md` (voices,
 music, rules learned), `/tmp/inspiration.md` (techniques from the owner's reference videos — apply them in
 stories and shots) and `/tmp/metrics.md`. If posts now ≥ 2 days old clearly beat or lose to their account's
