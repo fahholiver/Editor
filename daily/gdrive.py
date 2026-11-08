@@ -324,9 +324,11 @@ if __name__ == '__main__':
             p = os.path.join(tmp, 's.jsonl')
             if get_state('stories.jsonl', p):
                 n = 0
-                for l in open(p, encoding='utf-8'):
-                    e = json.loads(l) if l.strip() else {}
-                    if e.get('drive_file_id') and e.get('date', today) < today and unshare(e['drive_file_id']):
+                ents = [json.loads(l) for l in open(p, encoding='utf-8') if l.strip()]
+                # a file is still needed while any entry from today (e.g. a repost scheduled later) points to it
+                keep = {e.get('drive_file_id') for e in ents if e.get('date', today) >= today}
+                for fid in {e.get('drive_file_id') for e in ents if e.get('date', today) < today} - keep - {None}:
+                    if unshare(fid):
                         n += 1
                 print('public links removed:', n)
     elif cmd == 'visual-ideas' and len(sys.argv) > 2:
