@@ -33,8 +33,9 @@ if __name__ == '__main__':
     import buffer_api
     cfg = json.load(open(os.path.join(HERE, 'accounts.json')))
     chans = buffer_api.all_channels()
-    # every TikTok in Buffer (unknown ones get _default) + Instagram/YouTube only when listed in accounts.json
-    accounts = [c['name'] for c in chans if c['service'] == 'tiktok' or c['name'] in cfg]
+    # only accounts listed in accounts.json get their own new story; other channels (e.g. reposting accounts
+    # on a second Buffer key) only receive copies through also_post_to
+    accounts = [c['name'] for c in chans if c['name'] in cfg and not c['name'].startswith('_')]
     only = os.environ.get('BUFFER_TIKTOK_CHANNELS')
     if only and only != 'all':
         accounts = [a for a in accounts if a in [x.strip() for x in only.split(',')]]
