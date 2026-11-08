@@ -7,7 +7,7 @@ conectada no Buffer, cada conta com seu **formato** de história (todos na anima
 |---|---|---|---|---|
 | mandraketoons | Reino Unido, inglês britânico | confissão em 1ª pessoa | Daniel (ElevenLabs) | 14:00 Londres |
 | anna.20263 | Alemanha, alemão | regra de terror | Conrad (nativa) | 16:00 Berlim (15:00 Londres) |
-| user890997140 | França, francês | terror pela tela do celular | Henri (nativa) | 17:00 Paris (16:00 Londres) |
+| user890997140 | França, francês | série interativa (Partie 1, 2, 3… o público escolhe nos comentários) | Henri (nativa) | 17:00 Paris (16:00 Londres) |
 
 Tudo isso fica em `daily/accounts.json` (idioma, formato, voz, horário, tamanho do texto). Para criar um formato novo,
 adicione um arquivo em `daily/formats/`.

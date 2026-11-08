@@ -30,6 +30,9 @@ median, add the lesson (date, numbers, rule) to `/tmp/insights.md` and apply it 
 Save it back at the end: `python3 daily/gdrive.py put-state /tmp/insights.md insights.md`.
 
 ## 1. Stories (you write them) — all accounts first
+**Series:** for an account with format `interactive_series`, read its last entries in `/tmp/stories.jsonl`
+(`series`, `part`, `choice`) and write the next part, or a new Partie 1 after the final part.
+
 **Owner's ideas first:** `/tmp/ideas.txt` has one idea per line (`<account|todas>: <idea>`). An idea whose text
 is not yet in any `idea` field of `/tmp/stories.jsonl` is pending: use it today for that account (`todas` = the
 best-fitting account), at most one idea per account per day, and pass it to publish.py with `--idea "<line>"`.
@@ -72,7 +75,8 @@ cd /home/user/Editor
 cp /home/user/motion/_story_<account>.txt /home/user/motion/<slug>/story.txt
 python3 daily/publish.py /home/user/motion/output/<slug>_1080x1920.mp4 --account <account> \
   --slug <slug> --title "<Title>" --hook "<first line>" --caption "<caption + hashtags>" \
-  --story /home/user/motion/<slug>/story.txt [--idea "<the idea line used>"]
+  --story /home/user/motion/<slug>/story.txt [--idea "<the idea line used>"] \
+  [--series "<series title>" --part N --choice "A|B"]     # interactive_series accounts
 python3 daily/engine.py save-story /home/user/motion <slug>
 ```
 `publish.py` saves `<day>.mp4` + `<day>.txt` in the account's Drive folder, gives the video a public link

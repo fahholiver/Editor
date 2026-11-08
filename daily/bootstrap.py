@@ -111,6 +111,12 @@ def main():
         s = s.replace('seg = slice(SR * 20, SR * 30)', 'seg = slice(n // 5, n // 5 + min(SR * 10, n // 2))')
         open(os.path.join(d, f), 'w').write(s)
     os.chmod(os.path.join(d, 'finalize.sh'), 0o755)
+    if a.account and plan.account_cfg(a.account).get('format') == 'interactive_series':
+        import shutil
+        kit = open(os.path.join(HERE, 'styles', 'series_kit.py')).read().replace(
+            "LANG = 'fr'", "LANG = '%s'" % plan.account_cfg(a.account)['language'][:2])
+        open(os.path.join(d, 'kit.py'), 'w').write(kit)
+        print('series kit: kit.py (part_tag, red_circle, choice_card)')
     style = plan.account_cfg(a.account).get('visual_style') if a.account else None
     if style:
         apply_style(os.path.join(d, 'render.py'), style, d)
