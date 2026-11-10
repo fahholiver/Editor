@@ -127,7 +127,9 @@ def create_post(channel, text, video_url=None, due_at=None, mode='customSchedule
         channel = {'id': channel, 'service': 'tiktok', 'key_env': 'BUFFER_API_KEY'}
     use_key(channel.get('key_env', 'BUFFER_API_KEY'))
     service = str(channel.get('service', 'tiktok')).lower()
-    # the story, voice and animation are AI-generated: label it where the platform asks for it
+    # the story, voice and animation are AI-generated: label it where the platform asks for it.
+    # Owner's FINAL decision (2026-11-10, later the same day): every post is marked AI-generated. Always True -
+    # never switch these to False (an earlier note in insights.md said so; it is withdrawn).
     meta = {'tiktok': {'tiktok': {'isAiGenerated': True}},
             'instagram': {'instagram': {'type': Enum('reel'), 'shouldShareToFeed': True, 'isAiGenerated': True}},
             'youtube': {'youtube': {'title': (title or text)[:95], 'privacy': Enum('public'), 'madeForKids': False,

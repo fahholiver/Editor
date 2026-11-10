@@ -9,7 +9,7 @@ Accounts pick one with `"engine"` in daily/accounts.json (default `motion` = the
 
     python3 studio.py setup <root> <slug> "<Title>" <story.txt> --account <acc> [--engine vintage|vox]
     python3 studio.py stills <root>/<slug> <sec> [<sec> ...]        # contact sheet -> work/sheet.jpg
-    python3 studio.py finish <root>/<slug> [--workers 2]            # -> <root>/output/<slug>_1080x1920.mp4
+    python3 studio.py finish <root>/<slug> [--workers 2]            # -> <root>/output/<slug>_1080x1920.mp4 (1080x1080 for "aspect": "1:1")
 
 `setup` makes the voice exactly like bootstrap.py (account voice, ElevenLabs or Edge, word times from the
 TTS), copies the kit + tools into <root>/<slug>, converts the voice/word times to the kit's files
@@ -95,9 +95,9 @@ import { DURATION, ThumbA, ThumbB, WindowShort } from "./story/WindowShort";
 export const RemotionRoot: React.FC = () => {
   return (
     <>
-      <Composition id="Story" component={WindowShort} durationInFrames={Math.ceil(DURATION * 30)} fps={30} width={1080} height={1920} />
-      <Still id="StoryThumbA" component={ThumbA} width={1080} height={1920} />
-      <Still id="StoryThumbB" component={ThumbB} width={1080} height={1920} />
+      <Composition id="Story" component={WindowShort} durationInFrames={Math.ceil(DURATION * 30)} fps={30} width={1080} height={%(H)d} />
+      <Still id="StoryThumbA" component={ThumbA} width={1080} height={%(H)d} />
+      <Still id="StoryThumbB" component={ThumbB} width={1080} height={%(H)d} />
     </>
   );
 };
@@ -115,6 +115,8 @@ def setup(a):
     if engine not in ENGINES:
         sys.exit('engine %r is not a studio engine (%s); use bootstrap.py for the Motion engine'
                  % (engine, ', '.join(ENGINES)))
+    square = c.get('aspect', '9:16') == '1:1'
+    H = 1080 if square else 1920
     d = os.path.join(os.path.abspath(a.root), a.slug)
     if os.path.isdir(d) and os.listdir(d):
         sys.exit('%s already exists and is not empty - pick a new slug' % d)
@@ -132,13 +134,33 @@ def setup(a):
     cap = os.path.join(d, 'tools', 'captions.py')
     s = open(cap).read()
     assert 'Style: Cap,Arial Black,' in s, 'captions.py changed - update the font patch'
-    open(cap, 'w').write(s.replace('Style: Cap,Arial Black,', 'Style: Cap,Archivo Black,'))
+    s = s.replace('Style: Cap,Arial Black,', 'Style: Cap,Archivo Black,')
+    if square:   # 1080 x 1080: captions in the lower part of the square, clear of the TikTok UI
+        s = s.replace('PlayResY: 1920', 'PlayResY: 1080').replace('MAXW, MAXC, Y = 3, 16, 430', 'MAXW, MAXC, Y = 3, 16, 150')
+        assert 'PlayResY: 1080' in s and 'Y = 3, 16, 150' in s, 'captions.py changed - update the square patch'
+    open(cap, 'w').write(s)
     shutil.copytree(os.path.join(STUDIO, 'fonts'), os.path.join(d, 'fonts'), dirs_exist_ok=True)
     if engine == 'vintage':
         patch_browser(d)
+        if square:   # the three.js canvas and every Playwright viewport -> 1080 x 1080
+            for f, old, new in [('web/main.js', 'const W = 1080, H = 1920;', 'const W = 1080, H = 1080;'),
+                                ('render.mjs', 'height: 1920', 'height: 1080'),
+                                ('work/probe.mjs', 'height: 1920', 'height: 1080'),
+                                ('work/thumbframes.mjs', 'height: 1920', 'height: 1080')]:
+                p = os.path.join(d, f)
+                t = open(p).read()
+                assert old in t, '%s changed - update the square patch' % f
+                open(p, 'w').write(t.replace(old, new))
     else:
         shutil.copytree(os.path.join(d, 'src', 'window'), os.path.join(d, 'src', 'story'))
-        open(os.path.join(d, 'src', 'Root.tsx'), 'w').write(VOX_ROOT)
+        open(os.path.join(d, 'src', 'Root.tsx'), 'w').write(VOX_ROOT % {'H': H})
+        if square:
+            p = os.path.join(d, 'src', 'story', 'WindowShort.tsx')
+            t = open(p).read()
+            old = 'export const WindowShort: React.FC = () => <Body look={BASE_LOOK} total={DURATION} />;'
+            assert old in t, 'WindowShort.tsx changed - update the square patch'
+            t = t.replace(old, old.replace('BASE_LOOK', 'SQUARE_LOOK')).replace('import { BASE_LOOK,', 'import { BASE_LOOK, SQUARE_LOOK,', 1)
+            open(p, 'w').write(t)
 
     # 2. voice: the account's voice, word times straight from the TTS (no Whisper)
     edge_voice, provider, voice = c.get('edge_voice'), a.provider, a.voice
@@ -158,7 +180,9 @@ def setup(a):
 
     # 3. the channel's background track (same one the Motion videos use), 48 kHz stereo
     bed = sorted(glob.glob(os.path.join(HERE, 'assets', 'background_music.*')))
-    if not bed:
+    if c.get('music_bed') is False:   # this account has its own sound: only the cue music from audio.py
+        bed = ['-']
+    elif not bed:
         try:
             import gdrive
             if gdrive.configured():
@@ -166,23 +190,28 @@ def setup(a):
                 bed = [got] if got else []
         except Exception as ex:  # noqa: BLE001
             print('WARNING: could not fetch the background music from Drive:', ex)
-    if bed:
+    if bed == ['-']:
+        print('background music: off for this account (music_bed: false) - write the music in audio/audio.py')
+    elif bed:
         subprocess.check_call(['ffmpeg', '-y', '-loglevel', 'error', '-i', bed[0], '-ar', '48000', '-ac', '2',
                                '-c:a', 'pcm_s16le', os.path.join(d, 'audio', 'music_bed.wav')])
-    print('background music:', os.path.basename(bed[0]) if bed else 'none')
+        print('background music:', os.path.basename(bed[0]))
+    else:
+        print('background music: none')
 
     # 4. node packages (browsers are not downloaded: the machine's Chromium is used)
     run(['npm', 'install', '--no-audit', '--no-fund', '--loglevel=error'], d)
 
     n = int(round(dur * 30))
     json.dump({'engine': engine, 'slug': a.slug, 'title': a.title, 'account': a.account, 'duration': dur,
-               'frames': n, 'language': c.get('language')}, open(os.path.join(d, 'studio.json'), 'w'), indent=1)
+               'frames': n, 'language': c.get('language'),
+               'width': 1080, 'height': H}, open(os.path.join(d, 'studio.json'), 'w'), indent=1)
     os.makedirs(os.path.join(os.path.abspath(a.root), 'output'), exist_ok=True)
     lo, hi = c.get('seconds', [65, 125])
     if not lo <= dur <= hi:
         print('\n*** LENGTH %.1f s IS OUTSIDE %d-%d s: %s the story and run setup again (new slug or delete %s) ***'
               % (dur, lo, hi, 'lengthen' if dur < lo else 'shorten', d))
-    print('\n%s [%s]: %.3f s -> N = %d frames at 30 fps\n' % (a.slug, engine, dur, n))
+    print('\n%s [%s, 1080x%d]: %.3f s -> N = %d frames at 30 fps\n' % (a.slug, engine, H, dur, n))
     print(' '.join('%s@%.2f' % (w[0], w[1]) for w in words))
     print('\npauses > 0.35 s:')
     for x, y in zip(words, words[1:]):
@@ -281,7 +310,7 @@ def finish(a):
     d = os.path.abspath(a.dir)
     m = meta(d)
     root = os.path.dirname(d)
-    mp4 = os.path.join(root, 'output', '%s_1080x1920.mp4' % m['slug'])
+    mp4 = os.path.join(root, 'output', '%s_1080x%d.mp4' % (m['slug'], m.get('height', 1920)))
     if os.path.exists(mp4):
         os.replace(mp4, mp4.replace('.mp4', '_v1.mp4'))   # keep the previous version
     dur = wav_len(os.path.join(d, 'audio', 'voice48.wav'))

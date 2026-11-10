@@ -5,7 +5,7 @@ GitHub: everything it needs comes from the public `fahholiver/Editor` repo (this
 Drive (`TikTok Daily/`: engine, music, story log, insights). Its output goes to Buffer and Drive only.
 
 Every day: **one new, different 2D-animated video per account** (`daily/accounts.json`), each with its own
-language/country, format, voice, length (65–125 s) and posting time (≥ 1 h apart). The scheduled task's own
+language/country, format, voice, length (`seconds`, 61–80 s from 2026-11-11) and posting time (≥ 1 h apart). The scheduled task's own
 prompt (written by the owner) says what the session may do; this file only describes the steps. If one
 account's video fails and cannot be fixed, skip it, finish the others, and report it (never post a broken video).
 
@@ -51,7 +51,7 @@ cairo drawing code in the story's render.py; never trace or copy the artwork its
 image was adopted for which account and what changed.
 For each account read its format file and locale file (`daily/locales/<language>.md`) and write the story
 natively in that language to `/home/user/motion/_story_<account>.txt` (dots → underscores), with title, slug
-(new folder, ≤ 20 chars, ASCII) and caption in that language. 65–125 s (≈ 165–290 words). Every story is
+(new folder, ≤ 20 chars, ASCII) and caption in that language. Length = the account's `seconds`/`words`. End on a comment question that loops back to the hook (STORY_BRIEF). Every story is
 brand new: never reuse or translate a story, twist or ending from any account or any day (see the log).
 
 ## 2–4. For each account (≈ 30–45 min each)
@@ -65,7 +65,7 @@ while you make the other accounts' videos.
 ```bash
 cd /home/user/motion && python3 /home/user/Editor/daily/bootstrap.py . <slug> "<Title>" _story_<account>.txt --account <account>
 ```
-If it prints `LENGTH … OUTSIDE 65-125 s`, lengthen/shorten the story and run it again.
+If it prints `LENGTH … OUTSIDE …`, lengthen/shorten the story and run it again.
 
 **Visual style:** if the account has `visual_style` (e.g. `pixel_arcade`, see `daily/styles/`), bootstrap already
 hooked it in — draw the shots as usual; the style pixelates them and adds its HUD/frame. Check one still early.
@@ -95,6 +95,10 @@ python3 daily/engine.py save-story /home/user/motion <slug>
 `publish.py` saves `<day>.mp4` + `<day>.txt` in the account's Drive folder, gives the video a public link
 (Buffer downloads it from there; tomorrow's `cleanup-links` removes it), creates the Buffer post(s) and
 appends to the story log in Drive. If the post time has passed it posts immediately.
+**AI label (owner's final decision, 2026-11-10):** every post is marked AI-generated: `buffer_api.py` sets the
+platform flag (`isAiGenerated: True`) and `publish.py` adds "KI-generiert" / "Généré par IA" / "AI-generated" at the
+end of every caption, mirrors included. Never switch them off, whatever an older note in insights.md says.
+Studio videos (engine vintage/vox) are published from the path `studio.py finish` prints (`_1080x1080.mp4` for 1:1).
 
 ## 5. Finish + report
 `python3 daily/gdrive.py put-state /tmp/insights.md insights.md`. Then one line per account: title,

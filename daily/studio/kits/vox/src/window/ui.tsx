@@ -31,8 +31,10 @@ export const C = {
 /* ---------- look: narrator time map + texture level ----------
    Scenes are timed on the base (Andrew) timeline. `real`/`base` map the actual narrator's time onto it,
    so the same scenes follow any read of the same script. rich = heavier Vox texture pack. dy = layout shift. */
-export type Look = { real: number[]; base: number[]; rich: boolean; dy: number; wide?: boolean };
+export type Look = { real: number[]; base: number[]; rich: boolean; dy: number; wide?: boolean; square?: boolean };
 export const BASE_LOOK: Look = { real: [], base: [], rich: false, dy: 0 };
+/** 1:1 (1080 x 1080) layout with the rich paper (daily accounts with "aspect": "1:1") */
+export const SQUARE_LOOK: Look = { real: [], base: [], rich: true, dy: 0, square: true };
 export const LookCtx = createContext<Look>(BASE_LOOK);
 export const useLook = () => useContext(LookCtx);
 const lerpMap = (x: number, xs: number[], ys: number[]) => {
@@ -63,7 +65,7 @@ export const PaperBG: React.FC = () => {
   const L = useLook();
   return (
     <AbsoluteFill style={{ background: C.paper, overflow: "hidden" }}>
-      <Img src={staticFile(paperFile(L))} style={{ width: "100%", height: "100%", transform: `scale(1.06) translate(${Math.sin(f / 70) * 8}px, ${Math.cos(f / 85) * 8}px)` }} />
+      <Img src={staticFile(paperFile(L))} style={{ width: "100%", height: "100%", objectFit: "cover", transform: `scale(1.06) translate(${Math.sin(f / 70) * 8}px, ${Math.cos(f / 85) * 8}px)` }} />
     </AbsoluteFill>
   );
 };
@@ -73,7 +75,7 @@ export const PaperOverlay: React.FC = () => {
   const f = useCurrentFrame();
   const L = useLook();
   const { rich } = L;
-  const VW = L.wide ? 1920 : 1080, VH = L.wide ? 1080 : 1920;
+  const VW = L.wide ? 1920 : 1080, VH = L.wide || L.square ? 1080 : 1920;
   const k = Math.floor(f / 2);
   const dx = (random(`x${k}`) - 0.5) * 8, dy = (random(`y${k}`) - 0.5) * 8;
   const specks = rich ? Array.from({ length: 7 }).map((_, i) => ({
@@ -84,12 +86,12 @@ export const PaperOverlay: React.FC = () => {
   return (
     <>
       <AbsoluteFill style={{ mixBlendMode: "multiply", opacity: rich ? 0.62 : 0.6, pointerEvents: "none", overflow: "hidden" }}>
-        <Img src={staticFile(paperFile(L))} style={{ width: "100%", height: "100%", transform: `scale(1.03) translate(${dx}px, ${dy}px)` }} />
+        <Img src={staticFile(paperFile(L))} style={{ width: "100%", height: "100%", objectFit: "cover", transform: `scale(1.03) translate(${dx}px, ${dy}px)` }} />
       </AbsoluteFill>
       {rich && (
         <>
           <AbsoluteFill style={{ mixBlendMode: "overlay", opacity: 0.32, pointerEvents: "none", overflow: "hidden" }}>
-            <Img src={staticFile(`grain${f % 6}.png`)} style={{ width: "100%", height: "100%", imageRendering: "auto" }} />
+            <Img src={staticFile(`grain${f % 6}.png`)} style={{ width: "100%", height: "100%", objectFit: "cover", imageRendering: "auto" }} />
           </AbsoluteFill>
           <svg viewBox={`0 0 ${VW} ${VH}`} style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}>
             {specks.map((s, i) => <circle key={i} cx={s.x} cy={s.y} r={s.r} fill="#2A2420" opacity={s.o} />)}
@@ -194,15 +196,16 @@ export const CutOut: React.FC<{ children: React.ReactNode; style?: React.CSSProp
 
 /** engineering graph paper (rich look only) */
 export const Grid: React.FC = () => {
-  const { rich, wide } = useLook();
+  const { rich, wide, square } = useLook();
   if (!rich || wide) return null;   // the wide layout draws one full-frame sheet instead (GridFull)
+  const H = square ? 1080 : 1920;
   return (
-    <svg viewBox="0 0 1080 1920" style={{ position: "absolute", left: -60, top: -120, width: 1200, height: 2160, opacity: 0.55 }}>
+    <svg viewBox={`0 0 1080 ${H}`} style={{ position: "absolute", left: -60, top: square ? -60 : -120, width: 1200, height: square ? 1200 : 2160, opacity: 0.55 }}>
       <defs>
         <pattern id="gmin" width={36} height={36} patternUnits="userSpaceOnUse"><path d="M 36 0 L 0 0 0 36" fill="none" stroke="#7FA6C6" strokeWidth={1} /></pattern>
         <pattern id="gmaj" width={180} height={180} patternUnits="userSpaceOnUse"><rect width={180} height={180} fill="url(#gmin)" /><path d="M 180 0 L 0 0 0 180" fill="none" stroke="#5E8DB3" strokeWidth={2.2} /></pattern>
       </defs>
-      <rect width={1080} height={1920} fill="url(#gmaj)" />
+      <rect width={1080} height={H} fill="url(#gmaj)" />
     </svg>
   );
 };

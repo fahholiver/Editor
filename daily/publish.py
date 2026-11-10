@@ -117,6 +117,19 @@ def due_time(at, tz, late):
     return due.astimezone(dt.timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.000Z'), 'customScheduled'
 
 
+AI_NOTE = {'en': 'AI-generated', 'de': 'KI-generiert', 'fr': 'Généré par IA', 'pt': 'Gerado por IA',
+           'es': 'Generado con IA', 'it': 'Generato con IA', 'nl': 'Gegenereerd met AI'}
+
+
+def with_ai_note(caption, language='en'):
+    """owner's final rule (2026-11-10): every post says it is AI-generated - platform label (buffer_api) plus this
+    note at the end of the caption, in the account's language"""
+    note = AI_NOTE.get((language or 'en')[:2], AI_NOTE['en'])
+    if any(n.lower() in caption.lower() for n in AI_NOTE.values()):
+        return caption
+    return '%s\n\n%s' % (caption.rstrip(), note)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('video')
@@ -142,14 +155,17 @@ def main():
                     help="'all' (every TikTok channel in Buffer) or comma-separated names/ids, e.g. anna.20263,strawberry.me27")
     ap.add_argument('--now', action='store_true', help='post immediately instead of at --at')
     a = ap.parse_args()
+    lang = 'en'
     if a.account:
         import plan
         c = plan.account_cfg(a.account)
+        lang = c.get('language', 'en')
         a.channels = a.account
         a.format = a.format or c['format']
         if 'POST_TIME' not in os.environ:
             a.at, a.tz = c['post_time'], c['tz']
 
+    a.caption = with_ai_note(a.caption, lang)
     targets = [] if a.dry_run else buffer_api.find_channels(a.channels)
     if targets:
         print('posting to: ' + ', '.join('%s (%s)' % (c['name'], c['service']) for c in targets))
@@ -210,7 +226,7 @@ def main():
             try:
                 ch = buffer_api.find_channels(m['channel'])[0]
                 m_due, m_mode = (None, 'shareNow') if a.now else due_time(m.get('post_time', a.at), m.get('tz', a.tz), a.late)
-                post = buffer_api.create_post(ch, m.get('caption', a.caption), url, m_due, m_mode, a.thumb_ms, a.title)
+                post = buffer_api.create_post(ch, with_ai_note(m.get('caption', a.caption), lang), url, m_due, m_mode, a.thumb_ms, a.title)
                 posts[ch['name']] = post.get('id')
                 print('mirror post on %s (%s): id=%s dueAt=%s' % (ch['name'], ch['service'], post.get('id'), post.get('dueAt')))
             except BaseException as e:  # noqa: BLE001 - a mirror never blocks the main post

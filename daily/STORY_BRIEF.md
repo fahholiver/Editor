@@ -1,4 +1,4 @@
-# Story brief — rules for every daily short (vertical, 65–125 s, in the account's language)
+# Story brief — rules for every daily short (61–80 s from 2026-11-11, in the account's language)
 
 The story is the narration script for one Motion video. It is read by a TTS voice exactly as written, and
 every word becomes a karaoke caption, so write for the ear.
@@ -8,9 +8,16 @@ Each TikTok account has its own **format** (see `daily/accounts.json`). The form
 `daily/formats/<format>.md` gives the shape, voice and title style; the rules below apply to every format.
 
 ## Rules
-- **Length: every video 65–125 s** (`seconds` in `daily/accounts.json`; ≈ 165–290 words). bootstrap.py prints a
-  warning if the narration is outside — then lengthen/shorten the story and redo it. One sentence or short beat per line; blank lines only for a
+- **Length: 61–80 s** (from 2026-11-11; `seconds` per account in `daily/accounts.json`, `words` is the
+  matching text length). Why: 2026-11-10 analysis — viewers leave at ~12–19 s whatever the length, so the 90–118 s
+  videos were watched only 5–21 % through and never left TikTok's first test pool (~300–900 views). Shorter =
+  higher completion; over 60 s keeps them eligible for the Creator Rewards programme. bootstrap.py / studio.py
+  print a warning if the narration is outside — then lengthen/shorten the story and redo it. One sentence or short beat per line; blank lines only for a
   longer pause (a paragraph break = ~0.75 s silence, a line break = ~0.45 s).
+- **Ending (every format, from 2026-11-11): a question for the comments + a loop.** The last line asks the
+  viewer something they can answer in one word (the interactive series got the best engagement, 7.7 %, from its
+  comment choice; the other formats got 0–1 comments and ~0 shares). And the last line echoes the hook (the same
+  object, number or phrase) so the end runs straight back into the start and people watch it again.
 - **Language & place from the account's locale** (`daily/locales/<language>.md`): write natively in that
   language (never translate an English draft), set it in that country with local places, homes, habits and
   names, so a local viewer recognises their own life. Every on-screen text (tags, phone messages, contact

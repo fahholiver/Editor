@@ -31,7 +31,7 @@ python3 /home/user/Editor/daily/studio.py setup . <slug> "<Title>" _story_<accou
 #   LENGTH ... OUTSIDE -> rewrite the story, delete <slug>/ and run setup again
 # build the video in <slug>/ (below), then:
 python3 /home/user/Editor/daily/studio.py stills <slug> 1.5 4 9 ...   # -> <slug>/work/sheet.jpg (look at it)
-python3 /home/user/Editor/daily/studio.py finish <slug>              # -> output/<slug>_1080x1920.mp4 + QC
+python3 /home/user/Editor/daily/studio.py finish <slug>              # -> output/<slug>_1080x1920.mp4 (or _1080x1080) + QC
 #   prints the length check and black/freeze check, writes <slug>/work/final_sheet.jpg (12 frames) to look at
 ```
 Then `publish.py` and `engine.py save-story /home/user/motion <slug>` exactly as for Motion videos.
@@ -57,7 +57,21 @@ per sentence, 2–9 s, every element timed to absolute seconds from `work/words.
 the example scenes you no longer import. Headlines are in the account's language. Split them so each one is
 20 characters or less, because German words are long.
 
+## Square (1:1) and own music
+`"aspect": "1:1"` → `setup` makes everything 1080×1080: vox registers `Story` at 1080×1080 and switches
+`src/story/WindowShort.tsx` to `SQUARE_LOOK` (rich paper, square overlay and grid); vintage sets the three.js
+canvas and every Playwright viewport to 1080×1080 (cameras: the frame is wider than 9:16, so two characters fit
+side by side); captions move to the lower part of the square. Lay out every scene for 1080×1080 with a 60 px
+margin and keep the bottom 140 px free.
+`"music_bed": false` → no channel background track; only the music you write in `audio/audio.py`.
+
+## Accounts (from 2026-11-11)
+- **thai.1382** → `vox`, 1:1, format `survival_guide` (German blackout / cyberattack guide, not horror).
+- **kaelusuxkzx** → `vintage`, 1:1, format `parable` (French La Fontaine-style fables with a trending angle).
+Both: no fast-cut opening and no channel music; the format files give their own pacing (3–6 s scenes).
+
 ## Horror rules for these looks (on top of STORY_BRIEF.md and the format file)
+(only for horror formats; `survival_guide` and `parable` follow their own format files instead)
 Both plugins were made for explainers. For our horror shorts:
 - **Hook in the first frame**, cuts every 0.5–1.0 s in the first 7 s (same as Motion), the twist line gets
   silence + one hard hit (sfx), not music.
