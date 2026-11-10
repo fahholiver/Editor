@@ -130,7 +130,9 @@ def setup(a):
         shutil.copy2(os.path.join(STUDIO, 'tools', f), os.path.join(d, 'audio', f))
     # captions in a bundled font that has every accent (Arial Black is not installed on the cloud machine)
     cap = os.path.join(d, 'tools', 'captions.py')
-    open(cap, 'w').write(open(cap).read().replace('Style: Cap,Arial Black,', 'Style: Cap,Archivo Black,'))
+    s = open(cap).read()
+    assert 'Style: Cap,Arial Black,' in s, 'captions.py changed - update the font patch'
+    open(cap, 'w').write(s.replace('Style: Cap,Arial Black,', 'Style: Cap,Archivo Black,'))
     shutil.copytree(os.path.join(STUDIO, 'fonts'), os.path.join(d, 'fonts'), dirs_exist_ok=True)
     if engine == 'vintage':
         patch_browser(d)
