@@ -11,7 +11,7 @@ Every video from this plugin ends the same way unless the user asks for somethin
 ## Sound: voice first
 - Write the music + SFX cue sheet in `audio/audio.py` (it already has a worked example; keep the synths, rewrite the cues for the new story). It writes `music.wav` and `sfx.wav`.
 - Convert the voice first: `ffmpeg -y -i voice.mp3 -ar 48000 -ac 2 audio/voice48.wav`, then inside `audio/`: `python audio.py` and `python mix.py voice48.wav music.wav sfx.wav`.
-- `mix.py` sets the music bed at -16 dB under the voice with a dip at 1-4 kHz, ducks it about 5 dB more while the voice talks, keeps SFX at -11 dB with peaks below the voice, and finishes at -14 LUFS with a -1 dBFS limiter. Check the printed levels. If the user says the voice is hard to hear, lower `MUSIC` (0.12) and `DUCK` (-7).
+- `mix.py` sets the music bed at **-24 dB** under the voice with a dip at 1-4 kHz, ducks it about **8 dB** more while the voice talks, keeps SFX at **-18 dB** with peaks about 9 dB below the voice peak, and finishes at -14 LUFS with a -1 dBFS limiter (owner 2026-11-10: music and effects low, the voice-over always clear). Check the printed levels.
 - Lock the picture timing before the sound. Any timing change means re-running audio.py and mix.py.
 
 ## Captions

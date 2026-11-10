@@ -34,8 +34,14 @@ sys.path.insert(0, HERE)
 ENGINES = ('vintage', 'vox')
 SHARED = ['tts.py', 'words.py', 'captions.py', 'srt.py', 'thumbnail.mjs', 'sheet.py', 'align.py', 'paper.py',
           'textures.py']
-AUDIO = ['dsp.py', 'instruments.py', 'mix.py']
+AUDIO = ['dsp.py', 'instruments.py', 'mix.py', 'score.py']
 BED_SHARE = 0.6   # background track's share of the music stem (the cue music in audio.py is the rest)
+
+AUDIO_RUNNER = '''# Music + SFX stems for this video, from the scene-by-scene score in ../work/score.json (see score.py for the
+# moods and SFX names). The kit's original hand-written cue sheet is kept as audio_example.py for reference.
+import subprocess, sys
+subprocess.check_call([sys.executable, 'score.py', '../work/score.json', 'voice48.wav'])
+'''
 
 
 def chromium():
@@ -130,6 +136,9 @@ def setup(a):
         shutil.copy2(os.path.join(STUDIO, 'tools', f), os.path.join(d, 'tools', f))
     for f in AUDIO:
         shutil.copy2(os.path.join(STUDIO, 'tools', f), os.path.join(d, 'audio', f))
+    # music written per scene: audio.py runs score.py on work/score.json (rewritten for each video)
+    os.replace(os.path.join(d, 'audio', 'audio.py'), os.path.join(d, 'audio', 'audio_example.py'))
+    open(os.path.join(d, 'audio', 'audio.py'), 'w').write(AUDIO_RUNNER)
     # captions in a bundled font that has every accent (Arial Black is not installed on the cloud machine)
     cap = os.path.join(d, 'tools', 'captions.py')
     s = open(cap).read()
@@ -191,7 +200,7 @@ def setup(a):
         except Exception as ex:  # noqa: BLE001
             print('WARNING: could not fetch the background music from Drive:', ex)
     if bed == ['-']:
-        print('background music: off for this account (music_bed: false) - write the music in audio/audio.py')
+        print('background music: off for this account (music_bed: false) - compose the music in work/score.json')
     elif bed:
         subprocess.check_call(['ffmpeg', '-y', '-loglevel', 'error', '-i', bed[0], '-ar', '48000', '-ac', '2',
                                '-c:a', 'pcm_s16le', os.path.join(d, 'audio', 'music_bed.wav')])
@@ -203,6 +212,9 @@ def setup(a):
     run(['npm', 'install', '--no-audit', '--no-fund', '--loglevel=error'], d)
 
     n = int(round(dur * 30))
+    starter = {'key': 'D', 'bpm': 92, 'music': [{'at': 0.0, 'to': round(dur, 2), 'mood': 'calm'}], 'sfx': [],
+               '_todo': 'replace with one music cue per scene (mood that fits it) and the scene SFX - see score.py'}
+    json.dump(starter, open(os.path.join(d, 'work', 'score.json'), 'w'), indent=1)
     json.dump({'engine': engine, 'slug': a.slug, 'title': a.title, 'account': a.account, 'duration': dur,
                'frames': n, 'language': c.get('language'),
                'width': 1080, 'height': H}, open(os.path.join(d, 'studio.json'), 'w'), indent=1)
@@ -220,10 +232,10 @@ def setup(a):
     guide = os.path.join(STUDIO, 'skills', engine + '.md')
     if engine == 'vintage':
         print('\nnext: read %s steps 3-6 and daily/studio/README.md; write work/PLAN.md, web/story.js (N = %d), '
-              'web/main.js world, web/cast.js, audio/audio.py cues; then studio.py stills / finish' % (guide, n))
+              'web/main.js world, web/cast.js, work/score.json (music per scene + sfx); then studio.py stills / finish' % (guide, n))
     else:
         print('\nnext: read %s steps 3-5 and daily/studio/README.md; rewrite src/story/ (DURATION = %d), '
-              'audio/audio.py cues; then studio.py stills / finish' % (guide, -(-n // 30)))
+              'work/score.json (music per scene + sfx); then studio.py stills / finish' % (guide, -(-n // 30)))
 
 
 def sheet(d, src, out):

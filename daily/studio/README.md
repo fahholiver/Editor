@@ -44,7 +44,8 @@ the example first). In short:
 `work/PLAN.md` (one row per shot) → `web/story.js` (`N` = the frames that setup printed, `SHOTS`, `camAt`,
 `lightFor`, `flashAt`, `dofAt`, `worldAt`, `actorsAt`, `fxAt`) → the world in `web/main.js` (between
 `// ---------- world ----------` and `// ---------- cards ----------`, plus `applyWorld()`) → the cast in
-`web/cast.js` → the cue table in `audio/audio.py` (keep the instruments; it reads `voice48.wav`).
+`web/cast.js` → the music per scene + SFX in `work/score.json` (`audio/audio.py` runs `score.py` on it; the kit's
+own cue sheet stays as `audio/audio_example.py` for reference).
 Debug: `node work/probe.mjs "<js>"` (set `CHROMIUM_PATH=$(ls /opt/pw-browsers/chromium-*/chrome-linux*/chrome)` and
 `SWIFTSHADER=1` when you run the node scripts yourself). On-screen signs (`paint.sign`) are in the account's language.
 
@@ -63,7 +64,7 @@ the example scenes you no longer import. Headlines are in the account's language
 canvas and every Playwright viewport to 1080×1080 (cameras: the frame is wider than 9:16, so two characters fit
 side by side); captions move to the lower part of the square. Lay out every scene for 1080×1080 with a 60 px
 margin and keep the bottom 140 px free.
-`"music_bed": false` → no channel background track; only the music you write in `audio/audio.py`.
+`"music_bed": false` → no channel background track; only the music you compose in `work/score.json`.
 
 ## Accounts (from 2026-11-11)
 - **thai.1382** → `vox`, 1:1, format `survival_guide` (German blackout / cyberattack guide, not horror).

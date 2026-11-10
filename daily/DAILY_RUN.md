@@ -70,8 +70,9 @@ If it prints `LENGTH … OUTSIDE …`, lengthen/shorten the story and run it aga
 **Visual style:** if the account has `visual_style` (e.g. `pixel_arcade`, see `daily/styles/`), bootstrap already
 hooked it in — draw the shots as usual; the style pixelates them and adds its HUD/frame. Check one still early.
 
-**Animation** — `SHOTS` in `<slug>/render.py`, `CUES`/`build_music` in `<slug>/audio.py` (the background
-track already plays; keep `build_music` to stingers/risers). Reuse the engine's rigs/sets and the existing
+**Animation** — `SHOTS` in `<slug>/render.py`, `CUES` in `<slug>/audio.py` and the **music per scene** in
+`<slug>/score.json` (see "Music and sound" below; the background track already plays under it; keep
+`build_music` for one-off stingers/risers). Reuse the engine's rigs/sets and the existing
 story folders as examples. All on-screen text in the account's language. Then:
 ```bash
 cd /home/user/motion/<slug>
@@ -99,6 +100,19 @@ appends to the story log in Drive. If the post time has passed it posts immediat
 platform flag (`isAiGenerated: True`) and `publish.py` adds "KI-generiert" / "Généré par IA" / "AI-generated" at the
 end of every caption, mirrors included. Never switch them off, whatever an older note in insights.md says.
 Studio videos (engine vintage/vox) are published from the path `studio.py finish` prints (`_1080x1080.mp4` for 1:1).
+
+## Music and sound (owner, 2026-11-10: compose for the scenes; music and effects LOW under the voice)
+- **Compose the music for the scenes.** After the shot list is fixed (`render.py timeline` / the studio scene
+  table), write `score.json`: one music cue per scene or per group of scenes that share a feeling, each with the
+  mood that fits what is shown and said (calm, curious, mystery, tense, danger, sad, hopeful, storybook, mischief,
+  triumph, silence), one key for the whole video, a `build` on the climb to the twist, and a short `silence` cue
+  right before the key line. List the scene SFX in the same file (`daily/studio/tools/score.py` has the moods and
+  SFX names). Motion: `<slug>/score.json` (audio.py adds it to the background track). Studios: `work/score.json`.
+- **Levels are fixed by the mixer, don't raise them:** music ≈ 24 dB under the voice and ducked ≈ 8 dB more while
+  it speaks; effects ≈ 18 dB under the voice, their peaks ≈ 9 dB under the voice peak. Fewer effects: only for
+  actions you see (a door, a slam on a headline, a page turn), never on every cut.
+- Check the printed levels (Motion `audio.py`, studio `mix.py`) and listen to the first 10 s of the final MP4 if
+  anything sounds busy. The voice must always be the clearest thing.
 
 ## 5. Finish + report
 `python3 daily/gdrive.py put-state /tmp/insights.md insights.md`. Then one line per account: title,

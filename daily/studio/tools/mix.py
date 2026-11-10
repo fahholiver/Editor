@@ -1,7 +1,7 @@
 # python3 mix.py voice48.wav music.wav sfx.wav -> mix.wav
-# Voice first: music bed = MUSIC x the voice's gated RMS (0.16 = -16 dB),
+# Voice first: music bed = MUSIC x the voice's gated RMS (0.063 = -24 dB),
 # with a 1-4 kHz dip so it doesn't mask speech, and ducked a further DUCK dB while the voice is talking (back up in the gaps).
-# SFX = SFX x gated RMS (0.28 = -11 dB), peaks capped at 0.5x the voice peak. Voice untouched.
+# SFX = SFX x gated RMS (0.125 = -18 dB), peaks capped at 0.35x the voice peak. Voice untouched.
 # Then ONE linear gain to about -14 LUFS plus a -1 dBFS peak limiter on the whole mix.
 import sys
 import numpy as np
@@ -41,18 +41,18 @@ def speech_gain(v, duck_db, att=0.04, rel=0.45):
         k = ka if talk[i] > cur else kr; cur = k * cur + (1 - k) * talk[i]; g[i] = cur
     return 10 ** (duck_db * g / 20), g
 
-MUSIC, DUCK, SFX = 0.16, -5.0, 0.28
+MUSIC, DUCK, SFX = 0.063, -8.0, 0.125   # owner 2026-11-10: music and effects LOW under the voice (-24 dB, -18 dB)
 db = lambda r: 20 * np.log10(max(r, 1e-12))
 v, _ = read_wav(sys.argv[1]); m, _ = read_wav(sys.argv[2]); s, _ = read_wav(sys.argv[3])
 n = v.shape[1]; m = m[:, :n]; s = s[:, :n]
 if v.shape[0] == 1: v = np.concatenate([v, v])
 rv, pv = gated_rms(v), np.abs(v).max()
 m = m - 0.45 * bp(m, 1000, 4000)                                            # ~-5 dB presence dip: leave room for the voice
-m = m * (MUSIC * rv / gated_rms(m))
+m = m * (MUSIC * rv / (gated_rms(m) or 1.0))   # silent stem stays silent
 dg, talk = speech_gain(v, DUCK)
 m = m * dg
-s = s * (SFX * rv / gated_rms(s))
-s, gmin = limit(s, 0.5 * pv)
+s = s * (SFX * rv / (gated_rms(s) or 1.0))
+s, gmin = limit(s, 0.35 * pv)                                  # effect peaks stay ~9 dB under the voice peak
 rm, rs = gated_rms(m), gated_rms(s)
 on, off = talk > 0.9, talk < 0.1
 rms = lambda x, k: float(np.sqrt((x[:, k] ** 2).mean())) if k.any() else 0.0

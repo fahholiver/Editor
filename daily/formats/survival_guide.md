@@ -38,8 +38,9 @@ attacks or companies. If a fact can't be confirmed, leave it out.
 ## Pacing and sound (different from the horror accounts — on purpose)
 - **No fast-cut opening.** One idea per scene, **3–6 s per scene**, calm camera drift; the energy comes from
   the headlines slamming in on their word and the marks drawing themselves on.
-- **No channel background track** (`music_bed: false`): the Vox cue music only — curious pizzicato under the
-  tips, a drone under the "NICHT" part, a hard stop before the key number, a hopeful resolve at the end.
+- **No channel background track** (`music_bed: false`). Compose the music per scene in `work/score.json`:
+  `curious` under the hook, `calm` under the tips, `tense` under the "NICHT" part, a `silence` cue right before
+  the key number, `hopeful` at the end. Low under the voice (the mixer sets it).
   Paper/tape sounds on cut-outs, pen scratches on ticks and crosses.
 - Voice: the account's voice (Killian), neutral and reassuring, a bit slower than the horror videos.
 

@@ -34,8 +34,9 @@ victims. Note the trend you used in insights.
 - **No fast-cut opening.** It is storybook pacing: **one shot per sentence, 3–6 s**, smooth gliding cameras,
   something always moving (a breeze, a blink, a bird). The light follows the story: golden for the setup,
   dusk for the mistake, a warm dawn for the morale.
-- **No channel background track** (`music_bed: false`): the vintage kit's own music (gentle pizzicato /
-  music box / warm pads), with a small hit on the turn. Burned-in word captions as the kit does them.
+- **No channel background track** (`music_bed: false`). Compose the music per scene in `work/score.json`:
+  `storybook` (3/4 waltz) for the setup, `mischief` for the trick/temptation, `sad` or `tense` for the mistake,
+  a short `silence` before the turn, `hopeful` for the morale. Low under the voice (the mixer sets it). Burned-in word captions as the kit does them.
 - Voice: the account's voice (Rémy), warm storyteller tone.
 
 ## Look (vintage, 1:1)

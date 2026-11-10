@@ -11,6 +11,7 @@ Prints the word timings, the pauses and the frame count to plan the shots from.
 import argparse
 import glob
 import os
+import shutil
 import subprocess
 import sys
 
@@ -58,7 +59,6 @@ STYLE_HOOK_NEW = '''    if STYLE:   # account visual style (daily/styles/<style>
 
 def apply_style(render_py, style, dest):
     """copy daily/styles/<style>.py to dest/style.py and hook it into render.py's render_frame"""
-    import shutil
     shutil.copy(os.path.join(HERE, 'styles', style + '.py'), os.path.join(dest, 'style.py'))
     s = open(render_py).read()
     if 'STYLE.after_scene' not in s:
@@ -72,6 +72,58 @@ def apply_style(render_py, style, dest):
                       'if STYLE and hasattr(STYLE, "font"):\n    font = STYLE.font  # captions in the style font\n\nFPS = 30\n', 1)
     open(render_py, 'w').write(s)
 
+
+MIX_OLD = """    sfx_d = sfx * (1 - 0.6 * sp)        # effects dip under speech
+    mus_d = mus * (1 - 0.55 * sp) * 0.3  # music sits well below the voice
+    # keep added layers well below the narration and below full scale
+    lim = 0.5
+    sfx_d = np.tanh(sfx_d / lim) * lim
+"""
+MIX_NEW = """    sfx_d, mus_d = level_layers(sfx, mus, sp)   # voice first: music and effects LOW (owner, 2026-11-10)
+"""
+LEVELS = '''
+# ---- daily pipeline: levels relative to the narration (owner 2026-11-10: music and effects must stay low)
+MUSIC_DB, MUSIC_DUCK = -24.0, 0.6   # music RMS this far under the voice, and dipped 60 % (~-8 dB) while it speaks
+SFX_DB, SFX_DUCK, SFX_PEAK = -18.0, 0.6, 0.35   # effects RMS under the voice; their peaks <= 0.35 x voice peak
+
+
+def _act_rms(x, thr=1e-4):
+    a = x[np.abs(x) > thr]
+    return float(np.sqrt(np.mean(a ** 2))) if len(a) else 0.0
+
+
+def level_layers(sfx, mus, sp):
+    v = _act_rms(NARR, 0.01) or 0.1
+    m = mus * (1 - MUSIC_DUCK * sp)
+    rm = _act_rms(m)
+    if rm:
+        m *= v * 10 ** (MUSIC_DB / 20) / rm
+    s = sfx * (1 - SFX_DUCK * sp)
+    rs = _act_rms(s)
+    if rs > v * 10 ** (SFX_DB / 20):
+        s *= v * 10 ** (SFX_DB / 20) / rs
+    pk, cap = float(np.abs(s).max()), SFX_PEAK * float(np.abs(NARR).max())
+    if pk > cap:
+        s *= cap / pk
+    return s, m
+
+
+def scene_music(path=os.path.join(HERE, 'score.json')):
+    """music written per scene (score.json, same format as daily/studio/tools/score.py), at the narration rate"""
+    if not os.path.exists(path):
+        return np.zeros(N)
+    import json
+    import sys
+    from math import gcd
+    from scipy.signal import resample_poly
+    sys.path.insert(0, HERE)
+    import score
+    mus48, _ = score.build(json.load(open(path, encoding='utf-8')), int(round(N * 48000 / SR)) + 1)
+    x = mus48.mean(0)
+    g = gcd(SR, 48000)
+    x = resample_poly(x, SR // g, 48000 // g)[:N]
+    return np.pad(x, (0, N - len(x)))
+'''
 
 ENGINE_FILES = ('render.py', 'audio.py', 'finalize.sh', 'verify_audio.py', 'gfx.py', 'gfx_emma.py', 'gfx_adam.py')
 
@@ -107,14 +159,17 @@ def main():
         s = open(os.path.join(tpl, f)).read()
         s = s.replace('{{TITLE}}', a.title).replace('{{SLUG}}', a.slug).replace('{{SR}}', str(sr))
         if f == 'audio.py':  # background music track (daily/assets/background_music.*) under every story
-            s = s.replace('    mus = build_music()\n', '    mus = build_music() + music_bed()\n')
-            s = s.replace('\ndef main():', MUSIC_BED + '\n\ndef main():', 1)
+            s = s.replace('    mus = build_music()\n', '    mus = build_music() + music_bed() + scene_music()\n')
+            s = s.replace('\ndef main():', MUSIC_BED + LEVELS + '\n\ndef main():', 1)
+            assert MIX_OLD in s, 'Motion audio.py mix changed - update MIX_OLD in bootstrap.py'
+            s = s.replace(MIX_OLD, MIX_NEW)
         # the engine's audio check compares 20-30 s; make it fit short videos too
         s = s.replace('seg = slice(SR * 20, SR * 30)', 'seg = slice(n // 5, n // 5 + min(SR * 10, n // 2))')
         open(os.path.join(d, f), 'w').write(s)
     os.chmod(os.path.join(d, 'finalize.sh'), 0o755)
+    for f in ('dsp.py', 'instruments.py', 'score.py'):   # scene-by-scene music (score.json in the story folder)
+        shutil.copy(os.path.join(HERE, 'studio', 'tools', f), os.path.join(d, f))
     if a.account and plan.account_cfg(a.account).get('format') == 'interactive_series':
-        import shutil
         kit = open(os.path.join(HERE, 'styles', 'series_kit.py')).read().replace(
             "LANG = 'fr'", "LANG = '%s'" % plan.account_cfg(a.account)['language'][:2])
         open(os.path.join(d, 'kit.py'), 'w').write(kit)
@@ -125,7 +180,6 @@ def main():
         open(os.path.join(d, 'kit.py'), 'w').write(kit)
         print('object kit: kit.py (hip_sway, head_lag, flash, question_mark, end_pills)')
     if a.account and plan.account_cfg(a.account).get('format') == 'map_tales':
-        import shutil
         shutil.copy(os.path.join(HERE, 'styles', 'map_kit.py'), os.path.join(d, 'kit.py'))
         print('map kit: kit.py (camera, face, year_label, big_year, place_label, crown, fill_grow, page_turn)')
     style = plan.account_cfg(a.account).get('visual_style') if a.account else None
