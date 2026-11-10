@@ -10,6 +10,10 @@ No `visual_style` = the default Motion look (flat 2D, dark slate/teal, red key w
 
 | `map_kit` (helper) | talking-map look: continuous zoom/pan camera, cartoon faces on any shape (`face`, 8 moods, blink), serif years with arrows, crown, place tags, colour-fill spread, page-turn wipe | GeoGlobeTales Short (2026-11-08) | — (available; `face()` also fits horror objects/houses) |
 
+Other engines (not styles of the Motion engine): `"engine": "vintage"` (2D Vintage cartoon, three.js) and
+`"engine": "vox"` (Vox paper-collage case file, Remotion). They are set per account and are made with
+`daily/studio.py`. See `daily/studio/README.md`.
+
 Helpers for formats (not styles): `series_kit.py` → copied as `kit.py` for `interactive_series` accounts;
 `object_kit.py` → copied as `kit.py` for `cursed_object` accounts (hip_sway, head_lag, flash, question_mark, end_pills);
 `map_kit.py` → copied as `kit.py` for `map_tales` accounts (any SHOTS may also import its `face()`).

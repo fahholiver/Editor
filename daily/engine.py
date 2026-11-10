@@ -16,7 +16,8 @@ sys.path.insert(0, HERE)
 import gdrive  # noqa: E402
 
 HEAVY = ('.wav', '.mp3', '.mkv', '.mp4', '.png', '.jpg')
-SKIP_DIRS = {'build', 'stills', 'stems', 'output', '__pycache__', '.git'}
+SKIP_DIRS = {'build', 'stills', 'stems', 'output', '__pycache__', '.git',
+             'node_modules', 'frames', 'out', 'thumb'}   # studio projects (daily/studio.py)
 
 
 def _filter(ti):

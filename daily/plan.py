@@ -59,8 +59,10 @@ if __name__ == '__main__':
     if len(sys.argv) > 1 and os.path.exists(sys.argv[1]):
         log = [json.loads(l) for l in open(sys.argv[1], encoding='utf-8') if l.strip()]
     for c in p:
-        print('%-16s %s  %s  post %s %s  %d-%d words' % (c['account'], c['language'], c['format'], c['post_time'],
-                                                        c['tz'], c['words'][0], c['words'][1]))
+        print('%-16s %s  %s  engine %s%s  post %s %s  %d-%d words' % (
+            c['account'], c['language'], c['format'], c.get('engine', 'motion'),
+            (' style ' + c['visual_style']) if c.get('visual_style') else '', c['post_time'], c['tz'],
+            c['words'][0], c['words'][1]))
         print('    brief=%s locale=%s' % (c['brief'], c['locale']))
         for e in [e for e in log if e.get('channels') == c['account'] or e.get('account') == c['account']][-15:]:
             print('    already used (%s): %s - %s' % (e.get('date'), e.get('title'), e.get('hook')))

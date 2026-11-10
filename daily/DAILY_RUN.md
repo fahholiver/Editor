@@ -55,6 +55,12 @@ natively in that language to `/home/user/motion/_story_<account>.txt` (dots → 
 brand new: never reuse or translate a story, twist or ending from any account or any day (see the log).
 
 ## 2–4. For each account (≈ 30–45 min each)
+**Engine:** `plan.py` prints each account's `engine`. `motion` (the default) → the steps below.
+`vintage` or `vox` (Lumenstick studio looks) → read `daily/studio/README.md` and use
+`daily/studio.py setup / stills / finish` in place of "Voiceover + engine folder" and "Animation". Publish and
+save-story stay the same. A `vintage` render takes ≈ 90 min, so set it up first and let it render in the background
+while you make the other accounts' videos.
+
 **Voiceover + engine folder** (voice, language and background music come from the account / Drive)
 ```bash
 cd /home/user/motion && python3 /home/user/Editor/daily/bootstrap.py . <slug> "<Title>" _story_<account>.txt --account <account>
