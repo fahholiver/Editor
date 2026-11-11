@@ -155,12 +155,12 @@ documento com as imagens toda manhã e adapta o desenho 2D (estilo, cores, cená
 
 ## Fila de vídeos prontos (strawberry.me27, 14:00 Londres)
 Uma tarefa agendada separada posta **um vídeo por dia** da pasta do Drive
-`https://drive.google.com/drive/folders/1Rl38oJZVI8cM8TcaefGtoXCfHKaueAKA`, sem legenda, na conta **strawberry.me27**
+`https://drive.google.com/drive/folders/1Rl38oJZVI8cM8TcaefGtoXCfHKaueAKA`, com as tags `#emotional #respectpeople`, na conta **strawberry.me27** (via Buffer)
 às 14:00 (Londres). A ordem é pelo nome do arquivo (use `01_`, `02_`… para controlar). Depois que o Buffer confirma o
 envio, o vídeo vai para a **lixeira** do Drive (recuperável por 30 dias). Se falhar, o arquivo fica para o dia seguinte.
 ```bash
 python3 daily/queue_post.py --folder 1Rl38oJZVI8cM8TcaefGtoXCfHKaueAKA --list     # ver a fila
-python3 daily/queue_post.py --folder 1Rl38oJZVI8cM8TcaefGtoXCfHKaueAKA --channel strawberry.me27
+python3 daily/queue_post.py --folder 1Rl38oJZVI8cM8TcaefGtoXCfHKaueAKA --channel strawberry.me27 --caption "#emotional #respectpeople"
 ```
 Precisa de `GDRIVE_FULL_REFRESH_TOKEN` (acesso completo ao Drive: o token normal só enxerga arquivos criados pelo app):
 `python3 daily/gdrive.py auth --full` → autorizar → `python3 daily/gdrive.py token --full '<endereço localhost>'`.
