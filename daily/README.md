@@ -152,3 +152,15 @@ A rotina lê toda manhã, usa no máximo uma ideia nova por conta por dia e regi
 No Drive, em `TikTok Daily`, há o documento **"IDEIAS VISUAIS — cole imagens aqui"**. Cole imagens (prints, desenhos,
 cenários, personagens, cores) e escreva embaixo de cada uma para qual conta é e o que quer dela. A rotina baixa o
 documento com as imagens toda manhã e adapta o desenho 2D (estilo, cores, cenários, personagens) sem copiar a arte.
+
+## Fila de vídeos prontos (strawberry.me27, 14:00 Londres)
+Uma tarefa agendada separada posta **um vídeo por dia** da pasta do Drive
+`https://drive.google.com/drive/folders/1Rl38oJZVI8cM8TcaefGtoXCfHKaueAKA`, sem legenda, na conta **strawberry.me27**
+às 14:00 (Londres). A ordem é pelo nome do arquivo (use `01_`, `02_`… para controlar). Depois que o Buffer confirma o
+envio, o vídeo vai para a **lixeira** do Drive (recuperável por 30 dias). Se falhar, o arquivo fica para o dia seguinte.
+```bash
+python3 daily/queue_post.py --folder 1Rl38oJZVI8cM8TcaefGtoXCfHKaueAKA --list     # ver a fila
+python3 daily/queue_post.py --folder 1Rl38oJZVI8cM8TcaefGtoXCfHKaueAKA --channel strawberry.me27
+```
+Precisa de `GDRIVE_FULL_REFRESH_TOKEN` (acesso completo ao Drive: o token normal só enxerga arquivos criados pelo app):
+`python3 daily/gdrive.py auth --full` → autorizar → `python3 daily/gdrive.py token --full '<endereço localhost>'`.
