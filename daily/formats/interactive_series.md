@@ -25,6 +25,8 @@ Reference: owner's video of 2026-11-08 (school bus "Part 2": head count, driver 
 - `kit.red_circle(ctx, x, y, r, t, t0)` when the suspicious object is named.
 - `kit.choice_card(ctx, t, t0, question, a, b, n_next)` for the final 6–8 s.
 - Phone texts / calls / checklists with the engine's phone UI and `checklist()`.
+- Engine `cartoon` (user890997140): the same three overlays from `work/overlay.json` (see `daily/studio/README.md`);
+  phones, texts and lists are diegetic props in the 3D set (a phone card, a sign), in French.
 
 ## Log (publish.py)
 Pass `--series "<series title>" --part N --choice "OUVRIR|FERMER"` so tomorrow's run knows where the story stands.

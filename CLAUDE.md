@@ -1,6 +1,6 @@
 # Editor — notes for Claude
 
-This repo holds the owner's daily horror-shorts pipeline in `daily/` (see `daily/README.md`, `daily/DAILY_RUN.md`).
+This repo holds the owner's daily horror-shorts pipeline in `daily/` (see `daily/README.md`; the daily run is the skill `.claude/skills/daily-shorts/SKILL.md`).
 The owner (fahholiver) writes in Portuguese; answer in Portuguese.
 
 ## When the owner sends a video (or several) as inspiration

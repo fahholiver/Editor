@@ -1,20 +1,14 @@
 {
-  "_comment": "One entry per TikTok account (Buffer channel name). language -> daily/locales/<language>.md; format -> daily/formats/<format>.md. post_time is local time in tz (keep >= 1 h apart in UTC). words = story length range. voices: ElevenLabs id first (library voices need a paid ElevenLabs plan), Edge voice as the free fallback with the right accent. Voices are fixed per account (see insights.md > Voices) - keep them unless the owner asks. Video length = seconds (61-80 s from 2026-11-11, see insights.md 2026-11-10 analysis); words is the matching text length. also_post_to: the same video is re-posted (no new story) to these channels of any Buffer key, e.g. {\"channel\": \"my_insta\", \"post_time\": \"19:00\", \"tz\": \"Europe/Berlin\"}. visual_style: optional look from daily/styles/ (e.g. pixel_arcade). engine: motion (default, bootstrap.py) | vintage | vox (Lumenstick studio looks, daily/studio.py + daily/studio/README.md); modern is not available (needs the aiTrends plugin). changes_from: {\"YYYY-MM-DD\": {overrides}} applied from that date (London); active_from: the account gets stories from that date. aspect: 9:16 (default) | 1:1 (studio engines only, 1080x1080). music_bed: false = no channel background track (the engine cue music only).",
+  "_comment": "One entry per account with its own daily story (Buffer channel name). language -> locales/<language>.md, format -> formats/<format>.md, post_time in tz (>= 1 h apart). seconds = video length, words = matching text length. Voices are fixed per account (ElevenLabs id first, Edge voice = free fallback). engine: motion (default, bootstrap.py) | vintage | vox | cartoon (daily/studio.py). visual_style: Motion look from styles/. aspect 9:16 (default) | 1:1 (vintage/vox). music_bed false = no channel background track. also_post_to: copies of the same video on other channels. changes_from {date: overrides} / active_from: dated changes (London date). Ready-made videos from the Drive queue are not here (daily/queue_post.py).",
   "mandraketoons": {
     "language": "en-GB",
     "format": "confession",
     "post_time": "14:00",
     "tz": "Europe/London",
-    "words": [
-      165,
-      290
-    ],
+    "words": [150, 195],
     "elevenlabs_voice": "JBFqnCBsd6RMkjVDRZzb",
     "edge_voice": "en-GB-ThomasNeural",
-    "seconds": [
-      65,
-      125
-    ],
+    "seconds": [61, 80],
     "also_post_to": [
       {
         "channel": "6aefc64de29c69a1719d1ab1",
@@ -28,35 +22,17 @@
         "post_time": "17:00",
         "tz": "Europe/London"
       }
-    ],
-    "changes_from": {
-      "2026-11-11": {
-        "seconds": [
-          61,
-          80
-        ],
-        "words": [
-          150,
-          195
-        ]
-      }
-    }
+    ]
   },
   "anna.20263": {
     "language": "de-DE",
     "format": "rule_horror",
     "post_time": "16:00",
     "tz": "Europe/Berlin",
-    "words": [
-      165,
-      290
-    ],
+    "words": [120, 155],
     "elevenlabs_voice": "",
     "edge_voice": "de-DE-ConradNeural",
-    "seconds": [
-      65,
-      125
-    ],
+    "seconds": [61, 80],
     "also_post_to": [
       {
         "channel": "6aefc634e29c69a1719d1a29",
@@ -65,37 +41,17 @@
         "tz": "Europe/Berlin"
       }
     ],
-    "changes_from": {
-      "2026-11-09": {
-        "visual_style": "pixel_arcade"
-      },
-      "2026-11-11": {
-        "seconds": [
-          61,
-          80
-        ],
-        "words": [
-          120,
-          155
-        ]
-      }
-    }
+    "visual_style": "pixel_arcade"
   },
   "user890997140": {
     "language": "fr-FR",
-    "format": "phone_horror",
+    "format": "interactive_series",
     "post_time": "17:00",
     "tz": "Europe/Paris",
-    "words": [
-      165,
-      290
-    ],
+    "words": [130, 175],
     "elevenlabs_voice": "N2lVS1w4EtoT3dr4eOWO",
     "edge_voice": "fr-FR-HenriNeural",
-    "seconds": [
-      65,
-      125
-    ],
+    "seconds": [61, 85],
     "also_post_to": [
       {
         "channel": "6aefc608e29c69a1719d1915",
@@ -104,115 +60,42 @@
         "tz": "Europe/Paris"
       }
     ],
-    "changes_from": {
-      "2026-11-09": {
-        "format": "interactive_series"
-      },
-      "2026-11-11": {
-        "seconds": [
-          61,
-          85
-        ],
-        "words": [
-          130,
-          175
-        ]
-      }
-    }
+    "engine": "cartoon"
   },
   "thai.1382": {
     "language": "de-DE",
-    "format": "phone_horror",
+    "format": "survival_guide",
     "post_time": "21:00",
     "tz": "Europe/Berlin",
-    "words": [
-      165,
-      290
-    ],
-    "seconds": [
-      65,
-      125
-    ],
+    "words": [105, 135],
     "elevenlabs_voice": "",
+    "seconds": [61, 80],
     "edge_voice": "de-DE-KillianNeural",
-    "also_post_to": [],
-    "active_from": "2026-11-08",
-    "changes_from": {
-      "2026-11-09": {
-        "format": "cursed_object",
-        "words": [
-          210,
-          270
-        ],
-        "seconds": [
-          80,
-          110
-        ]
-      },
-      "2026-11-11": {
-        "format": "survival_guide",
-        "engine": "vox",
-        "aspect": "1:1",
-        "music_bed": false,
-        "seconds": [
-          61,
-          80
-        ],
-        "words": [
-          105,
-          135
-        ]
-      }
-    }
+    "engine": "vox",
+    "aspect": "1:1",
+    "music_bed": false
   },
   "kaelusuxkzx": {
     "language": "fr-FR",
-    "format": "confession",
+    "format": "parable",
     "post_time": "22:00",
     "tz": "Europe/Paris",
-    "words": [
-      165,
-      290
-    ],
-    "seconds": [
-      65,
-      125
-    ],
+    "words": [130, 175],
     "elevenlabs_voice": "",
+    "seconds": [61, 85],
     "edge_voice": "fr-FR-RemyMultilingualNeural",
-    "also_post_to": [],
-    "active_from": "2026-11-08",
-    "changes_from": {
-      "2026-11-11": {
-        "format": "parable",
-        "engine": "vintage",
-        "aspect": "1:1",
-        "music_bed": false,
-        "seconds": [
-          61,
-          85
-        ],
-        "words": [
-          130,
-          175
-        ]
-      }
-    }
+    "engine": "vintage",
+    "aspect": "1:1",
+    "music_bed": false
   },
   "_default": {
     "language": "en-GB",
     "format": "rule_horror",
     "post_time": "19:00",
     "tz": "Europe/London",
-    "words": [
-      165,
-      290
-    ],
+    "words": [165, 290],
     "elevenlabs_voice": "onwK4e9ZLuTAKqWW03F9",
     "edge_voice": "en-GB-RyanNeural",
-    "seconds": [
-      65,
-      125
-    ]
+    "seconds": [65, 125]
   }
 }

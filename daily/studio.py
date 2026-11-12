@@ -5,9 +5,9 @@ publish and archive steps as the Motion engine, only the picture is made by anot
 Accounts pick one with `"engine"` in daily/accounts.json (default `motion` = the Motion engine):
     vintage   2D Vintage  - flat cartoon characters in a hand-painted three.js world (Playwright frames)
     vox       Vox Style   - paper-collage case file: cut-outs, tape, grain, slamming headlines (Remotion)
-    modern    2D Modern   - needs the third-party aiTrends 2D Studio plugin; not available in the daily run
+    cartoon   bean-head cards in an inked, painted three.js world with DOF (.claude/skills/cartoon-audio-short)
 
-    python3 studio.py setup <root> <slug> "<Title>" <story.txt> --account <acc> [--engine vintage|vox]
+    python3 studio.py setup <root> <slug> "<Title>" <story.txt> --account <acc> [--engine vintage|vox|cartoon]
     python3 studio.py stills <root>/<slug> <sec> [<sec> ...]        # contact sheet -> work/sheet.jpg
     python3 studio.py finish <root>/<slug> [--workers 2]            # -> <root>/output/<slug>_1080x1920.mp4 (1080x1080 for "aspect": "1:1")
 
@@ -31,7 +31,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 STUDIO = os.path.join(HERE, 'studio')
 sys.path.insert(0, HERE)
 
-ENGINES = ('vintage', 'vox')
+ENGINES = ('vintage', 'vox', 'cartoon')
+FRAME_ENGINES = ('vintage', 'cartoon')   # Playwright frame renderers (render.mjs)
+CARTOON_KIT = os.path.join(os.path.dirname(HERE), '.claude', 'skills', 'cartoon-audio-short', 'kit')
 SHARED = ['tts.py', 'words.py', 'captions.py', 'srt.py', 'thumbnail.mjs', 'sheet.py', 'align.py', 'paper.py',
           'textures.py']
 AUDIO = ['dsp.py', 'instruments.py', 'mix.py', 'score.py']
@@ -115,9 +117,6 @@ def setup(a):
     import voiceover
     c = plan.account_cfg(a.account) if a.account else {}
     engine = a.engine or c.get('engine') or 'motion'
-    if engine == 'modern':
-        sys.exit('engine "modern" (2D Modern) runs on the aiTrends 2D Studio plugin, which is not part of this '
-                 'repo and cannot run in the daily session. Use vintage or vox (or motion) for %s.' % a.account)
     if engine not in ENGINES:
         sys.exit('engine %r is not a studio engine (%s); use bootstrap.py for the Motion engine'
                  % (engine, ', '.join(ENGINES)))
@@ -127,9 +126,18 @@ def setup(a):
     if os.path.isdir(d) and os.listdir(d):
         sys.exit('%s already exists and is not empty - pick a new slug' % d)
 
-    # 1. kit + tools (same layout as the plugin's new_project.py)
-    shutil.copytree(os.path.join(STUDIO, 'kits', engine), d, dirs_exist_ok=True,
-                    ignore=shutil.ignore_patterns('node_modules', '__pycache__'))
+    # 1. kit + tools
+    if engine == 'cartoon':
+        if square:
+            sys.exit('engine cartoon is 9:16 only')
+        subprocess.check_call(['bash', os.path.join(CARTOON_KIT, 'tools', 'setup.sh'), d])
+        os.makedirs(os.path.join(d, 'audio'), exist_ok=True)
+        os.replace(os.path.join(d, 'audio.py'), os.path.join(d, 'audio', 'audio.py'))   # becomes audio_example.py below
+        for f in ('timing.py', 'mix.py', 'finish.sh', 'sheet.py'):   # the daily run makes voice, timing and mix itself
+            os.remove(os.path.join(d, f))
+    else:
+        shutil.copytree(os.path.join(STUDIO, 'kits', engine), d, dirs_exist_ok=True,
+                        ignore=shutil.ignore_patterns('node_modules', '__pycache__'))
     for sub in ('tools', 'audio', 'work', 'out', 'thumb', 'stills'):
         os.makedirs(os.path.join(d, sub), exist_ok=True)
     for f in SHARED:
@@ -160,6 +168,13 @@ def setup(a):
                 t = open(p).read()
                 assert old in t, '%s changed - update the square patch' % f
                 open(p, 'w').write(t.replace(old, new))
+    elif engine == 'cartoon':
+        if c.get('format') == 'interactive_series':   # part tag / red circle / choice card over the frames
+            kit = open(os.path.join(HERE, 'styles', 'series_kit.py')).read().replace(
+                "LANG = 'fr'", "LANG = '%s'" % c['language'][:2])
+            open(os.path.join(d, 'tools', 'kit.py'), 'w').write(kit)
+            shutil.copy2(os.path.join(STUDIO, 'tools', 'overlay.py'), os.path.join(d, 'tools', 'overlay.py'))
+            json.dump({'part': 1, 'circles': [], 'choice': None}, open(os.path.join(d, 'work', 'overlay.json'), 'w'))
     else:
         shutil.copytree(os.path.join(d, 'src', 'window'), os.path.join(d, 'src', 'story'))
         open(os.path.join(d, 'src', 'Root.tsx'), 'w').write(VOX_ROOT % {'H': H})
@@ -209,7 +224,8 @@ def setup(a):
         print('background music: none')
 
     # 4. node packages (browsers are not downloaded: the machine's Chromium is used)
-    run(['npm', 'install', '--no-audit', '--no-fund', '--loglevel=error'], d)
+    if engine != 'cartoon':   # cartoon: setup.sh linked the machine's Playwright
+        run(['npm', 'install', '--no-audit', '--no-fund', '--loglevel=error'], d)
 
     n = int(round(dur * 30))
     starter = {'key': 'D', 'bpm': 92, 'music': [{'at': 0.0, 'to': round(dur, 2), 'mood': 'calm'}], 'sfx': [],
@@ -230,7 +246,12 @@ def setup(a):
         if y[1] - x[2] > 0.35:
             print('  %.2f-%.2f  after "%s"' % (x[2], y[1], x[0]))
     guide = os.path.join(STUDIO, 'skills', engine + '.md')
-    if engine == 'vintage':
+    if engine == 'cartoon':
+        print('\nnext: read %s steps 4.2-4.6; write work/PLAN.md, web/story.js (TOTAL = %d), the world in web/main.js, '
+              'the cast in web/roman.js (then cat web/toonbase.js web/roman.js > web/toon.js), work/score.json%s; '
+              'then studio.py stills / finish' % (os.path.join(os.path.dirname(CARTOON_KIT), 'SKILL.md'), n,
+                                                  ', work/overlay.json' if c.get('format') == 'interactive_series' else ''))
+    elif engine == 'vintage':
         print('\nnext: read %s steps 3-6 and daily/studio/README.md; write work/PLAN.md, web/story.js (N = %d), '
               'web/main.js world, web/cast.js, work/score.json (music per scene + sfx); then studio.py stills / finish' % (guide, n))
     else:
@@ -249,7 +270,7 @@ def stills(a):
     out = os.path.join(d, 'stills', 'check')
     shutil.rmtree(out, ignore_errors=True)
     os.makedirs(out)
-    if m['engine'] == 'vintage':
+    if m['engine'] in FRAME_ENGINES:
         frames = ','.join(str(min(m['frames'] - 1, int(round(float(s) * 30)))) for s in a.secs)
         run(['node', 'render.mjs', out, frames], d)
     else:
@@ -326,8 +347,8 @@ def finish(a):
     if os.path.exists(mp4):
         os.replace(mp4, mp4.replace('.mp4', '_v1.mp4'))   # keep the previous version
     dur = wav_len(os.path.join(d, 'audio', 'voice48.wav'))
-    if m['engine'] == 'vintage':
-        n = int(re.search(r'export const N = (\d+)', open(os.path.join(d, 'web', 'story.js')).read()).group(1))
+    if m['engine'] in FRAME_ENGINES:
+        n = int(re.search(r'\b(?:N|TOTAL) = (\d+)', open(os.path.join(d, 'web', 'story.js')).read()).group(1))
         if n < round(dur * 30):
             sys.exit('web/story.js N = %d but the voice needs %d frames' % (n, round(dur * 30)))
         frames = os.path.join(d, 'frames')
@@ -343,9 +364,17 @@ def finish(a):
         if any(p.wait() for p in procs):
             sys.exit('frame render failed (RESUME keeps finished frames: run finish again)')
         mix = sound(d)
-        run([sys.executable, 'tools/captions.py', 'work/words.json', 'work/captions.ass'], d)
-        run(['ffmpeg', '-y', '-loglevel', 'error', '-framerate', '30', '-i', 'frames/f%04d.jpg', '-i', mix,
-             '-vf', 'subtitles=work/captions.ass:fontsdir=fonts', '-c:v', 'libx264', '-profile:v', 'high',
+        src, vf = 'frames', ['-vf', 'subtitles=work/captions.ass:fontsdir=fonts']
+        if m['engine'] == 'cartoon':   # no captions (skill rule); series overlays drawn on the frames
+            vf = []
+            ov = os.path.join(d, 'work', 'overlay.json')
+            if os.path.exists(ov) and os.path.exists(os.path.join(d, 'tools', 'overlay.py')):
+                run([sys.executable, 'tools/overlay.py'], d)
+                src = 'frames_ov'
+        else:
+            run([sys.executable, 'tools/captions.py', 'work/words.json', 'work/captions.ass'], d)
+        run(['ffmpeg', '-y', '-loglevel', 'error', '-framerate', '30', '-i', src + '/f%04d.jpg', '-i', mix]
+            + vf + ['-c:v', 'libx264', '-profile:v', 'high',
              '-crf', '18', '-preset', 'slow', '-pix_fmt', 'yuv420p', '-r', '30', '-c:a', 'aac', '-b:a', '192k',
              '-shortest', '-movflags', '+faststart', mp4], d)
     else:
@@ -372,7 +401,7 @@ def main():
     s.add_argument('title')
     s.add_argument('story')
     s.add_argument('--account')
-    s.add_argument('--engine', choices=ENGINES + ('modern',))
+    s.add_argument('--engine', choices=ENGINES)
     s.add_argument('--provider', default='auto', choices=['auto', 'elevenlabs', 'edge'])
     s.add_argument('--voice')
     t = sub.add_parser('stills')

@@ -1,7 +1,7 @@
 # Studio engines (Lumenstick animation plugins) in the daily run
 
-Three extra visual engines from the owner's Lumenstick Studio plugins (MIT, see `LICENSE` and
-`THIRD-PARTY.md`). They make the **picture** only. Everything else stays the same as for a Motion video:
+Extra visual engines: `vintage` and `vox` from the owner's Lumenstick Studio plugins (MIT, see `LICENSE` and
+`THIRD-PARTY.md`), `cartoon` from the owner's skill `.claude/skills/cartoon-audio-short` (its `kit/` is the source). They make the **picture** only. Everything else stays the same as for a Motion video:
 story (format + locale + brief), account voice (ElevenLabs/Edge, word times from the TTS), the channel's
 background track, `publish.py`, the story log, insights, metrics.
 
@@ -13,7 +13,7 @@ An account picks one with `"engine"` in `daily/accounts.json`. You can date it w
 |---|---|---|---|---|
 | `vintage` | 2D Vintage: flat bean-head cartoon characters with plum ink outlines in a hand-painted 3D world (three.js), gliding cameras, light presets day/golden/dusk/night/dawn | Playwright + Chromium (SwiftShader) | **≈ 90 min** with 2 workers, so start it first and in the background | burned in, word-highlight (Archivo Black, spoken word yellow) |
 | `vox` | Vox Style: paper collage, cut-outs with white border and tape, film grain, self-drawing red arrows and circles, yellow highlighter, slamming Oswald headlines | Remotion | ≈ 10 min | none: the headlines carry the words |
-| `modern` | 2D Modern: cinematic stick figures | **not available**: it needs the separate aiTrends 2D Studio plugin (another creator, not bundled). `studio.py` refuses it. | — | — |
+| `cartoon` | bean-head cards in an inked, painted three.js world with depth of field (newer than vintage: ink pass, DOF, Roman/medieval-style cast `roman.js`) | Playwright + Chromium (SwiftShader), ≈ 3.2 s/frame | **≈ 45–60 min** for 75 s with 3 workers (`finish --workers 3`): start it first, in the background | none (skill rule); `interactive_series` overlays (Partie N, red circle, choice card) from `work/overlay.json` |
 
 Files: `kits/vintage`, `kits/vox` (read-only templates, the example video of each plugin), `tools/` (shared
 tools: words/tts/captions/srt/sheet/thumbnail + audio engine dsp/instruments/mix), `skills/*.md` (the
@@ -23,7 +23,7 @@ Changes against the plugins, all for the headless cloud run: Vox fonts are bundl
 machine's Chromium (`/opt/pw-browsers`) instead of downloading one, and captions use the bundled Archivo Black
 (it has all German/French accents).
 
-## Workflow (replaces "Voiceover + engine folder" and "Animation" in DAILY_RUN.md for these accounts)
+## Workflow (replaces "Voiceover + engine folder" and "Animation" in the daily-shorts skill for these accounts)
 ```bash
 cd /home/user/motion   # same root as the Motion stories, so output/ and save-story work unchanged
 python3 /home/user/Editor/daily/studio.py setup . <slug> "<Title>" _story_<account>.txt --account <account>
@@ -48,6 +48,18 @@ the example first). In short:
 own cue sheet stays as `audio/audio_example.py` for reference).
 Debug: `node work/probe.mjs "<js>"` (set `CHROMIUM_PATH=$(ls /opt/pw-browsers/chromium-*/chrome-linux*/chrome)` and
 `SWIFTSHADER=1` when you run the node scripts yourself). On-screen signs (`paint.sign`) are in the account's language.
+
+### cartoon: what to write
+Follow `.claude/skills/cartoon-audio-short/SKILL.md` steps 4.2–4.6 (look at `kit/example/soldier/stills.jpg`
+and read `web/story.js` of the example first). `setup` already made voice, `work/words.json` and the project
+(`web/` engine + example story, `audio/audio_example.py` = the kit's synth cue sheet for reference). Write
+`work/PLAN.md` → `web/story.js` (`TOTAL` = the frames setup printed, `SHOTS`, `camAt`, `dofAt`, `lightFor`,
+`worldAt`, `actorsAt`, `fxAt`) → the world in `web/main.js` → new outfits/props in `web/roman.js` (then
+`cat web/toonbase.js web/roman.js > web/toon.js`) → `work/score.json` (music per scene + SFX, daily levels).
+Sets and signs fit the story's country (French streets, flats, school buses, cafés for fr-FR), signs in its
+language. `interactive_series`: fill `work/overlay.json` (`part`, red `circles` on the suspicious object with
+screen x/y/r and t0/t1, `choice` card for the last 6–8 s); `finish` draws it on the frames.
+Horror look = the vintage rules below ("cosy turns wrong"), plus DOF to hide/reveal the threat.
 
 ### vox: what to write
 Follow `skills/vox.md` steps 3–5. `setup` already copied the example to `src/story/` and registered it as
@@ -87,6 +99,6 @@ Both plugins were made for explainers. For our horror shorts:
   redacted lines (black bars), red string between clues. Use the Slam headlines for the key words (the time,
   the floor number, the wrong detail). **No photos**: draw everything as SVG cut-outs. Wikimedia photos need
   credits and checks the daily run cannot do, and real places of tragedy are forbidden anyway.
-  Fits `map_tales`, `cursed_object` and true-story-style `confession` formats best.
+  Fits true-story-style `confession` formats best.
 - Every on-screen word (headlines, tags, signs, labels) is in the account's language. No brands, no real people.
 - Captions: vintage burns them in (like Motion); vox has none, so make sure the headlines carry the story.

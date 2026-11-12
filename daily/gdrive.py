@@ -21,6 +21,7 @@ import urllib.parse
 import requests
 
 SCOPE = 'https://www.googleapis.com/auth/drive.file'
+FULL_SCOPE = 'https://www.googleapis.com/auth/drive'   # only for queue_post.py (reads + trashes the owner's own folder)
 REDIRECT = 'http://localhost'
 API = 'https://www.googleapis.com/drive/v3'
 UPLOAD = 'https://www.googleapis.com/upload/drive/v3/files'
@@ -38,11 +39,15 @@ def _client():
     return cid, sec
 
 
-def access_token():
+def access_token(full=False):
+    """full=True: token from GDRIVE_FULL_REFRESH_TOKEN (scope drive, sees folders the owner made by hand)"""
     cid, sec = _client()
+    env = 'GDRIVE_FULL_REFRESH_TOKEN' if full else 'GDRIVE_REFRESH_TOKEN'
+    if not os.environ.get(env):
+        sys.exit('%s is not set (python3 daily/gdrive.py auth%s, see daily/README.md)' % (env, ' --full' if full else ''))
     r = requests.post('https://oauth2.googleapis.com/token', timeout=30, data={
         'client_id': cid, 'client_secret': sec, 'grant_type': 'refresh_token',
-        'refresh_token': os.environ['GDRIVE_REFRESH_TOKEN']})
+        'refresh_token': os.environ[env]})
     if r.status_code != 200:
         raise RuntimeError('Google token refresh failed %d: %s' % (r.status_code, r.text[:300]))
     return r.json()['access_token']
@@ -292,10 +297,13 @@ def read_visual_ideas(dest):
 
 if __name__ == '__main__':
     cmd = sys.argv[1] if len(sys.argv) > 1 else ''
+    full = '--full' in sys.argv
+    if full:
+        sys.argv.remove('--full')
     if cmd == 'auth':
         cid, _ = _client()
         print('https://accounts.google.com/o/oauth2/v2/auth?' + urllib.parse.urlencode({
-            'client_id': cid, 'redirect_uri': REDIRECT, 'response_type': 'code', 'scope': SCOPE,
+            'client_id': cid, 'redirect_uri': REDIRECT, 'response_type': 'code', 'scope': FULL_SCOPE if full else SCOPE,
             'access_type': 'offline', 'prompt': 'consent'}))
     elif cmd == 'token' and len(sys.argv) > 2:
         cid, sec = _client()
@@ -307,7 +315,7 @@ if __name__ == '__main__':
         j = r.json()
         if 'refresh_token' not in j:
             sys.exit('failed: %s' % json.dumps(j)[:400])
-        print('GDRIVE_REFRESH_TOKEN=' + j['refresh_token'])
+        print(('GDRIVE_FULL_REFRESH_TOKEN=' if full else 'GDRIVE_REFRESH_TOKEN=') + j['refresh_token'])
     elif cmd == 'put-asset' and len(sys.argv) > 3:
         print('uploaded', put_asset(sys.argv[2], sys.argv[3]))
     elif cmd == 'get-asset' and len(sys.argv) > 3:

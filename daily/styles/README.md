@@ -1,19 +1,11 @@
-# Visual styles (repertoire)
+# Visual styles and format helpers (Motion engine)
 
-Set per account in `daily/accounts.json` as `"visual_style": "<name>"`; `bootstrap.py` hooks it into the engine.
-No `visual_style` = the default Motion look (flat 2D, dark slate/teal, red key words).
+`"visual_style": "<name>"` in `daily/accounts.json`; `bootstrap.py` hooks it in. None = the default Motion look.
 
-| style | look | reference | used by |
-|---|---|---|---|
-| `pixel_arcade` | 16-bit pixel game: pixelated scene, 32-colour palette, pixel captions, health-bar HUD, console bezel, scanlines | jared_tomkins + operationco (2026-11-08) | anna.20263 |
-| `cinematic_cartoon` | desaturated cinematic 2D, teal shadows, night→dawn colour arc (`style.DAWN`), white captions with one yellow key word, close-ups of hands/objects, slow push-ins, "THE END — …?" card | gas-station "FINAL PART" (2026-11-08) | — (available) |
+| file | what | used by |
+|---|---|---|
+| `pixel_arcade.py` | 16-bit pixel game: pixelated scene, 32-colour palette, pixel captions, health-bar HUD, bezel, scanlines | anna.20263 |
+| `series_kit.py` | `interactive_series` helpers: `part_tag`, `red_circle`, `choice_card` (copied as `kit.py`; the cartoon engine draws them with `studio/tools/overlay.py`) | user890997140 |
 
-| `map_kit` (helper) | talking-map look: continuous zoom/pan camera, cartoon faces on any shape (`face`, 8 moods, blink), serif years with arrows, crown, place tags, colour-fill spread, page-turn wipe | GeoGlobeTales Short (2026-11-08) | — (available; `face()` also fits horror objects/houses) |
-
-Other engines (not styles of the Motion engine): `"engine": "vintage"` (2D Vintage cartoon, three.js) and
-`"engine": "vox"` (Vox paper-collage case file, Remotion). They are set per account and are made with
-`daily/studio.py`. See `daily/studio/README.md`.
-
-Helpers for formats (not styles): `series_kit.py` → copied as `kit.py` for `interactive_series` accounts;
-`object_kit.py` → copied as `kit.py` for `cursed_object` accounts (hip_sway, head_lag, flash, question_mark, end_pills);
-`map_kit.py` → copied as `kit.py` for `map_tales` accounts (any SHOTS may also import its `face()`).
+Other engines (vintage, vox, cartoon) are made with `daily/studio.py`, see `daily/studio/README.md`.
+Removed looks (cinematic_cartoon, map_kit, object_kit) are in the git history if a format needs them again.
