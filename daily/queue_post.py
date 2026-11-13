@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Post ready-made videos from ONE Google Drive folder: a DIFFERENT video to each channel, every day.
 
-    python3 daily/queue_post.py --folder <id> --channel strawberry.me27,user971745690815,stevevrcxj0 \\
+    python3 daily/queue_post.py --folder <id> --channel strawberry.me27,julia__lives,stevevrcxj0 \\
         --caption "#emotional #respectpeople" --at 14:00 --tz Europe/London
     python3 daily/queue_post.py --folder <id> --list          # show the queue, post nothing
 

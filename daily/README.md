@@ -14,7 +14,7 @@ posta no Buffer e arquiva no Drive (`TikTok Daily/`).
 | kaelusuxkzx | francês | parábola | vintage 1:1 | 22:00 Paris | — |
 
 ## Contas da fila do Drive (vídeos prontos, sem história)
-strawberry.me27, user971745690815, stevevrcxj0 — todo dia às 14:00 Londres, legenda `#emotional #respectpeople`.
+strawberry.me27, julia__lives, stevevrcxj0 — todo dia às 14:00 Londres, legenda `#emotional #respectpeople`.
 `queue_post.py` dá **um vídeo diferente para cada conta** (ordem pelo nome do arquivo: 01_, 02_…), manda cada um
 para a lixeira do Drive depois que o Buffer confirma o envio e segura os que ainda estão esperando, então o mesmo
 vídeo nunca vai para duas contas. Se houver menos vídeos que contas, as primeiras da lista recebem.

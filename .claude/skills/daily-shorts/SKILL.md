@@ -9,7 +9,7 @@ A fresh session runs this every morning with no repository attached: the pipelin
 `fahholiver/Editor` repo, state (engine, music, story log, insights, ideas) from Drive `TikTok Daily/`, output
 goes to Buffer + Drive only. The scheduled task's prompt says what is authorised. If one account fails and
 cannot be fixed, skip it, finish the others, report it. Never post a broken video.
-Ready-made videos (strawberry.me27, user971745690815, stevevrcxj0) are NOT part of this run: a separate
+Ready-made videos (strawberry.me27, julia__lives, stevevrcxj0) are NOT part of this run: a separate
 task posts them with `daily/queue_post.py` (one different file per channel, see the end).
 
 ## 0. Setup + read (before writing anything)
@@ -91,7 +91,7 @@ duration, post time, Buffer post id, plus what the metrics taught (or what faile
 ## Drive queue (separate task, 14:00 London)
 ```bash
 python3 daily/queue_post.py --folder 1Rl38oJZVI8cM8TcaefGtoXCfHKaueAKA \
-  --channel strawberry.me27,user971745690815,stevevrcxj0 --caption "#emotional #respectpeople" --at 14:00 --tz Europe/London
+  --channel strawberry.me27,julia__lives,stevevrcxj0 --caption "#emotional #respectpeople" --at 14:00 --tz Europe/London
 ```
 Each channel gets a different file; a file is trashed once Buffer sent it and is held back while it waits, so
 no video ever reaches two accounts. Run it once a day, in the foreground (waits up to ~90 min). Needs
