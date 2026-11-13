@@ -43,6 +43,29 @@ Each TikTok account has its own **format** (see `daily/accounts.json`). The form
   find new tells (a detail only the real person would know, a sound that's wrong, a reflection, a
   timestamp, a floor number, a photo, a pet's behaviour…).
 
+## The 5-step viral formula (every format, from 2026-11-13 — owner's reference scripts)
+Owner's model scripts: the "What do you do when a killer has seen your face?" series (parts 1–6), the mall
+mannequins, the deer + porch light, and the curiosity "o governo começou a pagar R$ 1…". Every story, horror
+or not, follows these five steps (the format file says how they look in that format):
+1. **Impact hook (0–3 s):** start *inside* an extreme, dangerous or absurd situation — no intro, no name, no
+   "one night…". A question or a statement the viewer can't leave unanswered (*"What do you do when a killer has
+   seen your face?"*, *"I got locked in the mall overnight."*, *"In our town, there's one rule."*).
+2. **Clear rules or an absurd premise (by ~8 s):** one or two rules/mechanics the viewer must remember
+   (*"The mannequins move when the lights go out. And the lights go out when you stop moving."*). Say them
+   plainly; later beats test them. Numbered rules (*"Rule one: kill the light."*) are spoken alone on a line and
+   shown as a big on-screen tag.
+3. **Escalation by micro-conflicts:** a new obstacle every 5–8 s — a sound, a footstep, a text, a price, a
+   count, a time that repeats (*9:41*). Each beat is one concrete fact, never a mood. No beat repeats the last.
+4. **Critical choice / cliffhanger:** end when the danger lands or when the character has two bad options —
+   each option with one advantage and one cost (*"A, the balcony: one metre gap, six floors. B, the bathroom:
+   one lock — and she has a key to every room."*). A rule is broken or turns out to be a trap
+   (*"If help is already waiting for you, it isn't help."*).
+5. **CTA for the algorithm:** the last line asks for a one-word comment (*"A or B — comment now."*) and/or
+   promises the next part (*"Follow for part two."*), and echoes the hook so the video loops.
+
+Pacing rule of thumb from the references: ~2.5 spoken words per second, a twist or new fact every 10 s,
+the rule/premise stated before 10 s, the choice or sting in the last 8–15 s.
+
 ## Also produce
 - **Title** — 2–4 words, in the style the format file gives.
 - **slug** — lowercase, underscores, ≤ 20 chars (`check_radiator`).

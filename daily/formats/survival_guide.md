@@ -50,6 +50,13 @@ of the street going dark block by block, a phone with no bars, a "Kassenbon" sho
 "Tag 1 / Tag 2 / Tag 3". Green ✓ and red ✗ stamps. Keep everything inside the square with a 60 px margin, the
 bottom 140 px free (TikTok UI). Headlines ≤ 20 characters per line (German words are long — split them).
 
+## Viral formula (owner, 2026-11-13)
+Apply the 5-step formula in `STORY_BRIEF.md`: the hook is the situation already happening (Tag 2, the tap
+rattles); the "rules" are the Mach das / Mach das NICHT tags, numbered (*„Regel eins: …“*); each beat raises
+the stake with a number (hours of battery, litres, degrees); before the key number, a cliffhanger question
+(*„Was machst du zuerst – A: … oder B: …?“*) and the ending asks *„A oder B? Schreib's in die Kommentare.“* plus
+the next part.
+
 ## Title / caption
 Title = the series + the topic (*„Blackout – Teil 2: Wasser“*). Caption = the hook question + 3–5 hashtags,
 e.g. *„Hast du 20 Liter Wasser zu Hause? #blackout #stromausfall #notfallvorsorge #krisenvorsorge #wissen“*.

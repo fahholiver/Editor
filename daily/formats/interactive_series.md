@@ -3,21 +3,33 @@
 Reference: owner's video of 2026-11-08 (school bus "Part 2": head count, driver vs Mum, tuba case). A serial in
 2–4 parts on consecutive days; each part ends with a binary choice the viewer answers in the comments.
 
+Follow the 5-step formula in `STORY_BRIEF.md`. Second model (owner, 2026-11-13): *"What do you do when a killer has
+seen your face?"* parts 1–6 — the same question opens every part, numbered rules accumulate across parts
+(*Rule one: kill the light … Rule seven: a locked door keeps you in just as well as it keeps him out*), and the
+help that appears is always part of the trap.
+
 ## Shape
 1. **Recap hook (Part ≥ 2), first 3 s:** what happened + the choice from last time, then the consequence at once.
    We cannot read the comments, so never invent a vote result: say "Si tu as dit RESTER…" / "Tu as choisi de
    rester." — or, for Part 1, a hook that drops the viewer into a strange rule or count (*"Le chauffeur compte
    les élèves. Il en compte deux. Tu es seul."*).
 2. **Second person ("tu"), present tense.** The viewer is the character.
+2b. **One new numbered rule per part, said alone on a line** (*"Règle trois : ne bois jamais ce qu'un inconnu
+   te donne."*) — then the very next beats test it. Rules keep their numbers across parts (Part 2 starts at
+   rule three), so returning viewers feel the series growing. Show it as a big tag (`kit.part_tag` style).
 3. **Two voices that contradict each other** — an authority on site (driver, concierge, nurse, guard) vs someone
    trusted far away on the phone (Maman, a sister, a best friend). Each gives a rule; both sound reasonable.
 4. **One suspicious object or place, shown again and again** (a case, a cupboard, a lift door) — circle it in
    red each time it matters.
 5. **Escalation by small facts** (a count that is off by one, a ringtone, a light, a text), each a beat.
-6. **Cliffhanger + choice (last 6–8 s):** a question card: *"À QUI TU FAIS CONFIANCE ?"* + two one-word options in
+6. **Cliffhanger + choice (last 8–15 s):** each option = where + one advantage + one cost, read aloud
+   (*"A, le balcon : un mètre de vide, six étages. B, la salle de bain : un verrou… et elle a la clé de toutes
+   les pièces."*). Both must be tempting and both must be dangerous. Then a question card: *"À QUI TU FAIS CONFIANCE ?"* + two one-word options in
    caps (*OUVRIR / FERMER*, *RESTER / DESCENDRE*), *"Commente OUVRIR ou FERMER"*, *"Partie N+1 bientôt"*.
 7. **Next day:** continue the same series (read the account's last log entry: `series`, `part`, `choice`).
-   Follow the option that makes the better story, phrased as above. After Part 3 or 4, end the series with a real
+   Follow the option that makes the better story, phrased as above. The chosen option's cost always comes
+   due, and the safe-looking escape (the neighbour, the policeman, the three men) turns out to be part of the
+   trap — once per part at most, never the same mechanism twice. After Part 3 or 4, end the series with a real
    ending (no question) and start a new series the day after.
 
 ## On screen (use `kit.py`, copied into the story folder)

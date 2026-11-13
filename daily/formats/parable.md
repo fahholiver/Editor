@@ -45,6 +45,12 @@ sets built from the kit's primitives and paint.js textures: a village square wit
 front, a vineyard, a Paris roof with zinc and chimneys, a market. Signs and labels are painted in French.
 Keep faces out of the bottom 140 px (TikTok UI).
 
+## Viral formula (owner, 2026-11-13)
+Apply the 5-step formula in `STORY_BRIEF.md`: the hook drops us into the modern situation with a number;
+the fable's rule (the temptation) is clear by 8 s; each mistake beat is bigger than the last and has a number
+or a visible object; the turn is ironic (the one who ignored the hype wins); the last line brings back a line
+said at the start, reversed, then the one-word comment question (see also `curiosity.md`).
+
 ## Title / caption
 Title = a modern twist on the fable title (*« Le Renard et ses abonnés »*). Caption = the comment question
 + 3–5 hashtags, e.g. *« Cigale ou fourmi ? #fable #lafontaine #morale #histoire #animation »*.
