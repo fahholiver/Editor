@@ -67,20 +67,24 @@ if __name__ == '__main__':
     chans = buffer_api.all_channels()
     # only the sheet's gerar=s accounts get their own new story; repost accounts only receive copies
     # (also_post_to), gerar=n accounts get the ready-made Drive queue videos (queue_post.py)
-    names = {c['name'] for c in chans}
-    for a in cfg:
-        if not a.startswith('_') and a not in names:
-            print('WARNING: %s is in the sheet but not connected in Buffer - skipped' % a)
-    accounts = [c['name'] for c in chans if c['name'] in cfg and not c['name'].startswith('_') and is_active(c['name'])]
+    names = {c['name'].lower() for c in chans}
+    accounts = []
+    for a, c in cfg.items():   # key = account, or <account>-2 for its 2nd post of the day (a different story)
+        if a.startswith('_') or not is_active(a):
+            continue
+        if c.get('channel', a).lower() not in names:
+            print('WARNING: %s is in the sheet but not connected in Buffer - skipped' % c.get('channel', a))
+            continue
+        accounts.append(a)
     only = os.environ.get('BUFFER_TIKTOK_CHANNELS')
     if only and only != 'all':
-        accounts = [a for a in accounts if a in [x.strip() for x in only.split(',')]]
+        accounts = [a for a in accounts if cfg[a].get('channel', a) in [x.strip() for x in only.split(',')]]
     p = plan(accounts)
     log = []
     if len(sys.argv) > 1 and os.path.exists(sys.argv[1]):
         log = [json.loads(l) for l in open(sys.argv[1], encoding='utf-8') if l.strip()]
     for c in p:
-        print('%-16s %s  %s  engine %s%s  post %s %s  %d-%d words' % (
+        print('%-18s %s  %s  engine %s%s  post %s %s  %d-%d words' % (
             c['account'], c['language'], c['format'], c.get('engine', 'motion'),
             (' style ' + c['visual_style']) if c.get('visual_style') else '', c['post_time'], c['tz'],
             c['words'][0], c['words'][1]))

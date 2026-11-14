@@ -10,8 +10,9 @@
 1. lists the videos in the folder (not trashed), by file name (01_, 02_ ... sets the order)
 2. drops every file already in the Drive log `queue_posted.jsonl` that was sent or is still waiting at Buffer
    (sent -> trashed now), so a video is never offered twice, to the same or another channel
-3. gives account 1 the first video, account 2 the second, ... (fewer videos than accounts: the first ones only);
-   the account's repost channels get the same file
+3. gives row 1 the first video, row 2 the second, ... (rows by time; fewer videos than rows: the first ones
+   only); the row's repost channels get the same file. An account on two rows (14:00 and 20:00) gets two
+   different files
 4. once every post of a file is done and at least one was sent, moves that file to the Drive trash (30 days
    recoverable) and logs it. A file whose posts all failed stays in the folder for the next run.
 
@@ -168,9 +169,10 @@ def main():
     print('accounts: ' + '; '.join('%s %s%s' % (g[0], g[2], (' + ' + ', '.join(g[1])) if g[1] else '') for g in gs))
     if a.list:
         return
-    names = [g[0] for g in gs] + [r for g in gs for r in g[1]]
-    if len(set(n.lower() for n in names)) != len(names):
-        sys.exit('an account is listed twice (as main or repost)')
+    # an account may have several rows (several posts a day): each row gets its own file
+    slots = [(n.lower(), g[2]) for g in gs for n in [g[0]] + g[1]]
+    if len(set(slots)) != len(slots):
+        sys.exit('an account is listed twice at the same time (as main or repost)')
     known = buffer_api.all_channels()
     bad = 0
 

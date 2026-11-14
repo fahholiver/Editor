@@ -14,6 +14,8 @@ Uma linha por conta, todas as horas em horário de Londres:
 
 - **Gerar = s**: história nova todo dia (sessão diária). **Gerar = n**: vídeo pronto da fila do Drive
   (`queue_post.py`, um arquivo diferente para cada conta, que vai para a lixeira depois de postado).
+- **Mesma conta em várias linhas** (ex. 14:00 e 20:00) = várias postagens no dia, **cada uma um vídeo diferente**
+  (história nova para cada horário, ou um arquivo diferente da fila).
 - **Conta repostagem**: nomes dos canais no Buffer separados por vírgula; postam o mesmo vídeo no mesmo horário.
 - **País-Língua**: UK/Inglês, Alemanha/Alemão, França/Francês (ou en-GB, de-DE, fr-FR).
 - **Modelo-skill**: formato (`confession`, `rule_horror`, `interactive_series`, `survival_guide`, `parable`,

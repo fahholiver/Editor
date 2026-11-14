@@ -15,6 +15,9 @@ reads it; accounts.json only adds voices/lengths. Never edit accounts.json to ad
 the sheet. Accounts with Gerar = n are NOT part of this run: a separate task posts the ready-made Drive videos to
 them with `daily/queue_post.py` (one different file per account, see the end). `SHEET:` warnings from plan.py go
 into the final report.
+An account on several Gerar = s rows posts several times a day, each a DIFFERENT new story: plan.py lists the
+2nd one as `<account>-2` (3rd `-3`); use that key everywhere (`--account <account>-2`, story file, slug), it
+posts on the same channel at its own time. Every slot is its own brand-new story.
 
 ## 0. Setup + read (before writing anything)
 ```bash

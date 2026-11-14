@@ -160,7 +160,7 @@ def main():
         import plan
         c = plan.account_cfg(a.account)
         lang = c.get('language', 'en')
-        a.channels = a.account
+        a.channels = c.get('channel', a.account)   # <account>-2 = 2nd video of the day on the same channel
         a.format = a.format or c['format']
         if 'POST_TIME' not in os.environ:
             a.at, a.tz = c['post_time'], c['tz']

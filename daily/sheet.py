@@ -12,6 +12,8 @@
   visual style (styles/*.py), separated by / or + (e.g. "parable/vintage")
 - Gerar = s: a new story every day (daily-shorts skill); n: the ready-made videos from the Drive queue
   (queue_post.py), one different file per account
+- the same account on several rows = several posts a day, each a DIFFERENT video (a new story each, or a
+  different queue file each); its 2nd story is planned under the key <account>-2, 3rd <account>-3 ...
 
 The sheet can stay private: it is read with the owner's own Google login (GDRIVE_FULL_REFRESH_TOKEN). Each
 successful read is cached in Drive _state/accounts_sheet.csv; if Google fails the run uses that copy.
@@ -163,12 +165,18 @@ def parse(text):
             'model': _model(cell(r, 'model'), errors, acc),
             'generate': gen[:1] in ('s', 'y', '1', 't', 'x'),   # s / sim / yes / TRUE (checkbox)
         })
-    seen = set()
+    # TikTok names are lowercase: "Mandraketoons" is the channel mandraketoons. The same account on several rows
+    # = several posts a day, each a DIFFERENT video; the same account twice at the same time is a mistake.
+    out, seen = [], set()
     for row in rows:
-        if row['account'].lower() in seen:
-            errors.append('%s: listed twice (the last row wins)' % row['account'])
-        seen.add(row['account'].lower())
-    return rows, errors
+        row['account'] = row['account'].lower()
+        k = (row['account'], row['post_time'], row['generate'])
+        if k in seen:
+            errors.append('%s %s: listed twice at the same time - second row skipped' % k[:2])
+            continue
+        seen.add(k)
+        out.append(row)
+    return out, errors
 
 
 _CACHE = {}
@@ -184,7 +192,7 @@ def rows():
             r, errors = parse(text)
             for e in errors:
                 print('SHEET: ' + e, file=sys.stderr)
-            _CACHE['rows'] = {x['account']: x for x in r} if r else None
+            _CACHE['rows'] = r or None
     return _CACHE['rows']
 
 
@@ -205,10 +213,14 @@ def merged(cfg, today):
         return None
     langs = cfg.get('_languages', {})
     out = {k: v for k, v in cfg.items() if k.startswith('_')}
-    for acc, row in sheet.items():
-        if not row['generate']:
-            continue
-        old = _past_changes(cfg.get(acc, {}), today)
+    slots = {}
+    for row in sorted((r for r in sheet if r['generate']), key=lambda r: r['post_time']):
+        acc = row['account']
+        slots[acc] = slots.get(acc, 0) + 1
+        # 2nd, 3rd ... post of the same account that day: its own story under the key <account>-2 (TikTok names
+        # never contain "-"), posted on the same channel, with its own Drive folder and log entries
+        key = acc if slots[acc] == 1 else '%s-%d' % (acc, slots[acc])
+        old = _past_changes(cfg.get(key) or cfg.get(acc, {}), today)
         lang = row['language'] or old.get('language') or cfg.get('_default', {}).get('language', 'en-GB')
         c = dict(old)
         if lang != old.get('language'):   # new account or a new language: voices + lengths from that language
@@ -223,16 +235,16 @@ def merged(cfg, today):
         c.update(m)
         if m.get('engine') == 'motion' and 'visual_style' not in m:
             c.pop('visual_style', None)
-        c.update(language=lang, post_time=row['post_time'], tz=TZ,
+        c.update(channel=acc, slot=slots[acc], language=lang, post_time=row['post_time'], tz=TZ,
                  also_post_to=[{'channel': n, 'name': n, 'post_time': row['post_time'], 'tz': TZ} for n in row['reposts']])
-        out[acc] = c
+        out[key] = c
     return out
 
 
 def queue_rows():
     """gerar=n rows (the Drive queue accounts), or None when there is no sheet"""
     sheet = rows()
-    return None if sheet is None else [r for r in sheet.values() if not r['generate']]
+    return None if sheet is None else sorted((r for r in sheet if not r['generate']), key=lambda r: r['post_time'])
 
 
 if __name__ == '__main__':
@@ -245,7 +257,7 @@ if __name__ == '__main__':
     for acc, c in cfg.items():
         if acc.startswith('_'):
             continue
-        print('NEW STORY  %-18s %s %s %s  %s  engine %s%s  reposts: %s' % (
+        print('NEW STORY  %-20s %s %s %s  %s  engine %s%s  reposts: %s' % (
             acc, c['post_time'], c['tz'], c['language'], c['format'], c.get('engine', 'motion'),
             (' style ' + c['visual_style']) if c.get('visual_style') else '',
             ', '.join(m['name'] for m in c.get('also_post_to', [])) or '-'))
