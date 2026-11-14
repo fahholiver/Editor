@@ -4,24 +4,30 @@ Todo dia uma sessão agendada do Claude segue a skill [`.claude/skills/daily-sho
 lê as métricas, as ideias e as inspirações, escreve uma história nova por conta, narra (ElevenLabs/Edge), anima,
 posta no Buffer e arquiva no Drive (`TikTok Daily/`).
 
-## Contas com história própria (`accounts.json`)
-| conta | idioma | formato | visual (engine) | posta às | cópias |
-|---|---|---|---|---|---|
-| mandraketoons | inglês UK | confissão | Motion | 14:00 Londres | Coyote's Jazz (YT), proper_laughs_uk (IG) 17:00 |
-| anna.20263 | alemão | regra de terror | Motion + pixel_arcade | 16:00 Berlim | Melhores Mensagens (YT) 19:00 |
-| user890997140 | francês | série interativa | **cartoon** (skill `cartoon-audio-short`) | 17:00 Paris | Algorithmic Capital (YT) 20:00 |
-| thai.1382 | alemão | guia de sobrevivência | vox 1:1 | 21:00 Berlim | — |
-| kaelusuxkzx | francês | parábola | vintage 1:1 | 22:00 Paris | — |
+## Quem posta, quando e o quê: a planilha "Buffer Contas" (Google Sheets, pode ser privada)
+Uma linha por conta, todas as horas em horário de Londres:
 
-## Contas da fila do Drive (vídeos prontos, sem história)
-strawberry.me27, julia__lives, stevevrcxj0 — todo dia às 14:00 Londres, legenda `#emotional #respectpeople`.
-`queue_post.py` dá **um vídeo diferente para cada conta** (ordem pelo nome do arquivo: 01_, 02_…), manda cada um
-para a lixeira do Drive depois que o Buffer confirma o envio e segura os que ainda estão esperando, então o mesmo
-vídeo nunca vai para duas contas. Se houver menos vídeos que contas, as primeiras da lista recebem.
+| Conta principal | Hora de postagem | Conta repostagem | País-Língua | Modelo-skill | Gerar s/n |
+|---|---|---|---|---|---|
+| mandraketoons | 14:00 | Coyote's Jazz, proper_laughs_uk | UK-Inglês | confession | s |
+| strawberry.me27 | 14:00 | | | | n |
+
+- **Gerar = s**: história nova todo dia (sessão diária). **Gerar = n**: vídeo pronto da fila do Drive
+  (`queue_post.py`, um arquivo diferente para cada conta, que vai para a lixeira depois de postado).
+- **Conta repostagem**: nomes dos canais no Buffer separados por vírgula; postam o mesmo vídeo no mesmo horário.
+- **País-Língua**: UK/Inglês, Alemanha/Alemão, França/Francês (ou en-GB, de-DE, fr-FR).
+- **Modelo-skill**: formato (`confession`, `rule_horror`, `interactive_series`, `survival_guide`, `parable`,
+  `curiosity`) e/ou engine (`motion`, `vintage`, `vox`, `cartoon`) e/ou estilo (`pixel_arcade`), separados por `/`:
+  ex. `parable/vintage`.
+- Lida com o seu login do Google (`GDRIVE_FULL_REFRESH_TOKEN`); cada leitura fica salva em Drive
+  `_state/accounts_sheet.csv` e é usada se o Google falhar. Planilha vazia/cabeçalho errado → `accounts.json` como antes.
+  Conferir: `python3 daily/sheet.py`.
+- A fila do Drive roda às 13:35 de Londres: uma conta Gerar = n com horário antes disso posta quando a tarefa roda.
 
 ## Como mudar
-- **Conta / formato / voz / horário / tamanho**: `accounts.json` (formatos em `formats/`, países em `locales/`).
-  Mudança com data: `"changes_from": {"AAAA-MM-DD": {...}}`; conta nova: `"active_from"`.
+- **Conta / horário / formato / repostagem / gerar**: a planilha (acima).
+- **Voz / tamanho por conta**: `accounts.json` (conta nova sem entrada usa `_languages`); formatos em `formats/`,
+  países em `locales/`.
 - **Visual**: `engine` = `motion` | `vintage` | `vox` | `cartoon` (`studio/README.md`); `visual_style` para o Motion.
 - **Ideias**: documento do Drive "IDEIAS — escreva aqui" (`conta: ideia`, uma por linha) e "IDEIAS VISUAIS" (imagens).
 - **Inspiração**: mande o vídeo no chat dizendo para qual conta; vira uma ficha em `_state/inspiration.md`.

@@ -1,5 +1,5 @@
 {
-  "_comment": "One entry per account with its own daily story (Buffer channel name). language -> locales/<language>.md, format -> formats/<format>.md, post_time in tz (>= 1 h apart). seconds = video length, words = matching text length. Voices are fixed per account (ElevenLabs id first, Edge voice = free fallback). engine: motion (default, bootstrap.py) | vintage | vox | cartoon (daily/studio.py). visual_style: Motion look from styles/. aspect 9:16 (default) | 1:1 (vintage/vox). music_bed false = no channel background track. also_post_to: copies of the same video on other channels. changes_from {date: overrides} / active_from: dated changes (London date). Ready-made videos from the Drive queue are not here (daily/queue_post.py).",
+  "_comment": "Technical details per account. WHO posts, WHEN (London time), the format/engine, the repost accounts and whether a story is generated come from the owner's Google Sheet 'Buffer Contas' (daily/sheet.py); the sheet's values replace post_time/tz/language/format/engine/visual_style/also_post_to here, and only its Gerar=s accounts get a story. A sheet account missing here takes _languages[<language>] (voices, words, seconds) + _default. language -> locales/<language>.md, format -> formats/<format>.md. seconds = video length, words = matching text length. Voices: ElevenLabs id first, Edge voice = free fallback. engine: motion | vintage | vox | cartoon (daily/studio.py). aspect 9:16 | 1:1 (vintage/vox). music_bed false = no channel background track. Without the sheet (and no cached copy in Drive _state/accounts_sheet.csv) this file alone is used, as before.",
   "mandraketoons": {
     "language": "en-GB",
     "format": "confession",
@@ -97,5 +97,25 @@
     "elevenlabs_voice": "onwK4e9ZLuTAKqWW03F9",
     "edge_voice": "en-GB-RyanNeural",
     "seconds": [65, 125]
+  },
+  "_languages": {
+    "en-GB": {
+      "elevenlabs_voice": "onwK4e9ZLuTAKqWW03F9",
+      "edge_voice": "en-GB-RyanNeural",
+      "words": [150, 195],
+      "seconds": [61, 80]
+    },
+    "de-DE": {
+      "elevenlabs_voice": "",
+      "edge_voice": "de-DE-ConradNeural",
+      "words": [120, 155],
+      "seconds": [61, 80]
+    },
+    "fr-FR": {
+      "elevenlabs_voice": "",
+      "edge_voice": "fr-FR-HenriNeural",
+      "words": [130, 175],
+      "seconds": [61, 85]
+    }
   }
 }

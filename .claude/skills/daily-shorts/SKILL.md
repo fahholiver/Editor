@@ -1,6 +1,6 @@
 ---
 name: daily-shorts
-description: The owner's daily run - one brand-new 2D-animated short per account in daily/accounts.json (own language, format, engine, voice, length, post time), scheduled through Buffer and archived in Google Drive. Use for the scheduled daily session or when asked to make/post today's videos.
+description: The owner's daily run - one brand-new 2D-animated short per account with Gerar = s in the owner's Google Sheet 'Buffer Contas' (own language, format, engine, voice, length, post time), scheduled through Buffer and archived in Google Drive. Use for the scheduled daily session or when asked to make/post today's videos.
 ---
 
 # Daily shorts
@@ -9,8 +9,12 @@ A fresh session runs this every morning with no repository attached: the pipelin
 `fahholiver/Editor` repo, state (engine, music, story log, insights, ideas) from Drive `TikTok Daily/`, output
 goes to Buffer + Drive only. The scheduled task's prompt says what is authorised. If one account fails and
 cannot be fixed, skip it, finish the others, report it. Never post a broken video.
-Ready-made videos (strawberry.me27, julia__lives, stevevrcxj0) are NOT part of this run: a separate
-task posts them with `daily/queue_post.py` (one different file per channel, see the end).
+**Who, when, what:** the owner's Google Sheet "Buffer Contas" (`daily/sheet.py`; columns Conta principal, Hora de
+postagem (London), Conta repostagem (comma-separated, same time), País-Língua, Modelo-skill, Gerar s/n). `plan.py`
+reads it; accounts.json only adds voices/lengths. Never edit accounts.json to add/remove accounts: the owner uses
+the sheet. Accounts with Gerar = n are NOT part of this run: a separate task posts the ready-made Drive videos to
+them with `daily/queue_post.py` (one different file per account, see the end). `SHEET:` warnings from plan.py go
+into the final report.
 
 ## 0. Setup + read (before writing anything)
 ```bash
@@ -22,7 +26,7 @@ python3 daily/gdrive.py visual-ideas /tmp/visual > /tmp/visual.txt
 python3 daily/gdrive.py ideas > /tmp/ideas.txt
 python3 daily/gdrive.py cleanup-links                      # remove earlier days' public links
 python3 daily/report.py > /tmp/report.md; python3 daily/metrics.py /tmp/stories.jsonl > /tmp/metrics.md
-python3 daily/plan.py /tmp/stories.jsonl                   # today's accounts (+ engine, format) + what each already used
+python3 daily/plan.py /tmp/stories.jsonl                   # today's accounts from the sheet (+ engine, format, reposts) + what each already used
 ```
 Read `/tmp/report.md` + `/tmp/metrics.md`, then for EACH account write 2–3 lines in `/tmp/insights.md` under
 `## Daily notes <date>`: worst and best recent video (views, retention), what they share, the ONE thing today
@@ -80,7 +84,7 @@ python3 daily/publish.py /home/user/motion/output/<slug>_1080x1920.mp4 --account
   [--idea "<idea line>"] [--series "<series>" --part N --choice "A|B"]
 python3 daily/engine.py save-story /home/user/motion <slug>
 ```
-publish.py: Drive copy (`<day>.mp4/.txt`), temporary public link, Buffer post(s) + `also_post_to` copies, log
+publish.py: Drive copy (`<day>.mp4/.txt`), temporary public link, Buffer post(s) + the sheet's repost accounts (same time), log
 entry; posts now if the time has passed. Every post is marked AI-generated (platform flag + caption note,
 owner's final decision 2026-11-10): never switch it off. 1:1 studio videos: use the `_1080x1080.mp4` path.
 
@@ -88,11 +92,11 @@ owner's final decision 2026-11-10): never switch it off. 1:1 studio videos: use 
 `python3 daily/gdrive.py put-state /tmp/insights.md insights.md`, then one line per account: title, language,
 duration, post time, Buffer post id, plus what the metrics taught (or what failed and where).
 
-## Drive queue (separate task, 14:00 London)
+## Drive queue (separate task, 13:35 London)
 ```bash
-python3 daily/queue_post.py --folder 1Rl38oJZVI8cM8TcaefGtoXCfHKaueAKA \
-  --channel strawberry.me27,julia__lives,stevevrcxj0 --caption "#emotional #respectpeople" --at 14:00 --tz Europe/London
+python3 daily/queue_post.py --folder 1Rl38oJZVI8cM8TcaefGtoXCfHKaueAKA --caption "<caption>"
 ```
-Each channel gets a different file; a file is trashed once Buffer sent it and is held back while it waits, so
-no video ever reaches two accounts. Run it once a day, in the foreground (waits up to ~90 min). Needs
+Accounts = the sheet's Gerar = n rows, each at its own London time; the row's repost accounts get the same
+file. Each main account gets a different file; a file is trashed once all its posts are done (one sent) and is
+held back while any waits, so no video ever reaches two main accounts. Run it once a day, in the foreground (waits up to ~90 min). Needs
 `GDRIVE_FULL_REFRESH_TOKEN`. On an error report it; never repost or delete to work around it.

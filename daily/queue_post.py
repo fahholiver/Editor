@@ -1,16 +1,19 @@
 #!/usr/bin/env python3
-"""Post ready-made videos from ONE Google Drive folder: a DIFFERENT video to each channel, every day.
+"""Post ready-made videos from ONE Google Drive folder: a DIFFERENT video to each account, every day.
 
-    python3 daily/queue_post.py --folder <id> --channel strawberry.me27,julia__lives,stevevrcxj0 \\
-        --caption "#emotional #respectpeople" --at 14:00 --tz Europe/London
+    python3 daily/queue_post.py --folder <id> --caption "#emotional #respectpeople"
+        # accounts = the owner's sheet rows with Gerar = n (daily/sheet.py): each at its own London time, and
+        # the row's repost accounts get the same file at the same time
+    python3 daily/queue_post.py --folder <id> --channel a,b,c --at 14:00   # without the sheet
     python3 daily/queue_post.py --folder <id> --list          # show the queue, post nothing
 
 1. lists the videos in the folder (not trashed), by file name (01_, 02_ ... sets the order)
 2. drops every file already in the Drive log `queue_posted.jsonl` that was sent or is still waiting at Buffer
    (sent -> trashed now), so a video is never offered twice, to the same or another channel
-3. gives channel 1 the first video, channel 2 the second, ... (fewer videos than channels: the first ones only)
-4. after Buffer reports a post as sent, moves that file to the Drive trash (30 days recoverable) and logs it.
-   A failed post leaves its file in the folder for the next run.
+3. gives account 1 the first video, account 2 the second, ... (fewer videos than accounts: the first ones only);
+   the account's repost channels get the same file
+4. once every post of a file is done and at least one was sent, moves that file to the Drive trash (30 days
+   recoverable) and logs it. A file whose posts all failed stays in the folder for the next run.
 
 Needs GDRIVE_CLIENT_ID/SECRET + GDRIVE_FULL_REFRESH_TOKEN (scope drive: `python3 daily/gdrive.py auth --full`)
 and the Buffer key(s) of the channels.
@@ -107,37 +110,50 @@ def log(entries):
 
 
 def free_videos(d, vids):
-    """files from earlier runs: sent -> trash; still waiting at Buffer -> held back; all errors -> free again"""
+    """files from earlier runs: all posts done + one sent -> trash; any still waiting at Buffer -> held back; all errors -> free again"""
     ids = {v['id'] for v in vids}
     held, chans, out = set(), None, []
     for e in read_log():   # the log must be readable: without it a video could go out twice
-        if e.get('file_id') not in ids or e.get('trashed'):
+        if e.get('file_id') not in ids or e.get('trashed') or e.get('file_id') in held:
             continue
         chans = chans or {c['name']: c for c in buffer_api.all_channels()}
         st = []
         for p in e.get('posts', []):
             ch = chans.get(p['channel'])
             st.append(str(post_status(ch, p['id']).get('status', '')).lower() if ch else 'unknown')
-        if 'sent' in st:
+        if any(s not in ('sent', 'error') for s in st):
+            print('earlier run: %s still waiting at Buffer (%s) -> held back' % (e['file'], ', '.join(st)))
+            held.add(e['file_id'])
+        elif 'sent' in st:
             d.trash(e['file_id'])
             print('earlier run: %s went out after all -> trashed' % e['file'])
             out.append(dict(e, trashed=True, date=dt.date.today().isoformat()))
-            held.add(e['file_id'])
-        elif any(s != 'error' for s in st):
-            print('earlier run: %s still waiting at Buffer (%s) -> held back' % (e['file'], ', '.join(st)))
             held.add(e['file_id'])
     log(out)
     return [v for v in vids if v['id'] not in held]
 
 
+def groups(a):
+    """[(account, [repost names], 'HH:MM')]: the sheet's Gerar = n rows, or --channel"""
+    if a.channel:
+        return [(n.strip(), [], a.at) for n in a.channel.split(',') if n.strip()]
+    import sheet
+    rows = sheet.queue_rows()
+    if rows is None:
+        sys.exit('no accounts sheet (and no cached copy): pass --channel')
+    return [(r['account'], r['reposts'], r['post_time']) for r in sorted(rows, key=lambda r: r['post_time'])]
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--folder', required=True, help='Drive folder id (the part after /folders/ in its link)')
-    ap.add_argument('--channel', default='strawberry.me27', help='Buffer channel names, comma-separated: one video each')
+    ap.add_argument('--channel', default='', help='Buffer channel names, comma-separated (default: the sheet\'s Gerar = n rows)')
     ap.add_argument('--caption', default='')
-    ap.add_argument('--at', default='14:00')
+    ap.add_argument('--at', default='14:00', help='time for --channel (the sheet has its own times)')
     ap.add_argument('--tz', default='Europe/London')
-    ap.add_argument('--wait', type=int, default=90, help='minutes to wait for Buffer to send them')
+    ap.add_argument('--wait', type=int, default=90, help='minutes to wait for Buffer after the last due time')
+    ap.add_argument('--max-wait', type=int, default=240, help='never wait longer than this (minutes); later posts '
+                    'are confirmed and trashed by the next run')
     ap.add_argument('--list', action='store_true')
     a = ap.parse_args()
 
@@ -148,66 +164,112 @@ def main():
     print('%d video(s) in the queue' % len(vids))
     for v in vids[:20]:
         print('  %-50s %6.1f MB' % (v['name'], int(v.get('size', 0)) / 1e6))
+    gs = groups(a)
+    print('accounts: ' + '; '.join('%s %s%s' % (g[0], g[2], (' + ' + ', '.join(g[1])) if g[1] else '') for g in gs))
     if a.list:
         return
-    names = [c.strip() for c in a.channel.split(',') if c.strip()]
-    if len(set(names)) != len(names):
-        sys.exit('a channel is listed twice')
-    found = {c['name']: c for c in buffer_api.find_channels(','.join(names))}
-    missing = [n for n in names if n not in found]
-    if missing:
-        sys.exit('not connected in Buffer: ' + ', '.join(missing))
-    if len(vids) < len(names):
-        print('ONLY %d video(s) for %d channels: %s get nothing today' % (len(vids), len(names), ', '.join(names[len(vids):])))
-    pairs = list(zip([found[n] for n in names], vids))   # one distinct file per channel
+    names = [g[0] for g in gs] + [r for g in gs for r in g[1]]
+    if len(set(n.lower() for n in names)) != len(names):
+        sys.exit('an account is listed twice (as main or repost)')
+    known = buffer_api.all_channels()
+    bad = 0
+
+    def chan(n):
+        want = n.lower().lstrip('@')
+        m = [c for c in known if want in (str(c.get('name', '')).lower().lstrip('@'), str(c['id']).lower())]
+        return m[0] if len(m) == 1 else None
+    ok = []
+    for acc, reps, at in gs:
+        if not chan(acc):
+            print('NOT CONNECTED in Buffer: %s - skipped' % acc)
+            bad += 1
+            continue
+        rc = []
+        for r in reps:
+            if chan(r):
+                rc.append(chan(r))
+            else:
+                print('NOT CONNECTED in Buffer: %s (repost of %s) - skipped' % (r, acc))
+                bad += 1
+        ok.append((chan(acc), rc, at))
+    if len(vids) < len(ok):
+        print('ONLY %d video(s) for %d accounts: %s get nothing today' % (
+            len(vids), len(ok), ', '.join(g[0]['name'] for g in ok[len(vids):])))
+    pairs = list(zip(ok, vids))   # one distinct file per main account (+ its reposts)
     if not pairs:
         print('QUEUE EMPTY - nothing posted')
-        return
+        sys.exit(1 if bad else 0)
 
-    due, mode = due_time(a.at, a.tz, 'now')
     today = dt.date.today().isoformat()
-    jobs = []
-    for ch, v in pairs:
-        try:
-            url = d.share(v['id'])
-            p = buffer_api.create_post(ch, a.caption, video_url=url, due_at=due, mode=mode, title=a.caption or v['name'])
-            print('Buffer post %s -> %s: %s (%s)' % (p['id'], ch['name'], v['name'], p.get('dueAt') or 'now'))
-            jobs.append((ch, v, p))
-        except Exception as e:  # noqa: BLE001
+    jobs = []   # (file, [(channel, post, due)])
+    for (main_ch, reps, at), v in pairs:
+        due, mode = due_time(at, a.tz, 'now')
+        url, posts = None, []
+        for ch in [main_ch] + reps:
+            try:
+                url = url or d.share(v['id'])
+                p = buffer_api.create_post(ch, a.caption, video_url=url, due_at=due, mode=mode, title=a.caption or v['name'])
+                print('Buffer post %s -> %s: %s (%s)' % (p['id'], ch['name'], v['name'], p.get('dueAt') or 'now'))
+                posts.append((ch, p, due))
+            except Exception as e:  # noqa: BLE001
+                print('FAILED %s: %s' % (ch['name'], e))
+                bad += 1
+        if posts:
+            jobs.append((v, posts))
+        elif url:
             d.unshare(v['id'])
-            print('FAILED %s: %s (file stays in the queue)' % (ch['name'], e))
-    # log before waiting, so a crash during the wait can never free these files for another channel
+    # log before waiting, so a crash during the wait can never free these files for another account
     log([{'date': today, 'file': v['name'], 'file_id': v['id'],
-          'posts': [{'channel': ch['name'], 'id': p['id'], 'status': 'pending'}]} for ch, v, p in jobs])
+          'posts': [{'channel': ch['name'], 'id': p['id'], 'status': 'pending'} for ch, p, _ in posts]}
+         for v, posts in jobs])
 
-    end = time.time() + 60 * a.wait + (max(0, (dt.datetime.fromisoformat(due.replace('Z', '+00:00')) -
-                                               dt.datetime.now(dt.timezone.utc)).total_seconds()) if due else 0)
-    pending = {p['id']: (ch, v) for ch, v, p in jobs}
+    def at_utc(due):
+        return dt.datetime.fromisoformat(due.replace('Z', '+00:00')) if due else dt.datetime.now(dt.timezone.utc)
+    now = dt.datetime.now(dt.timezone.utc)
+    last = max(at_utc(due) for _, posts in jobs for _, _, due in posts)
+    end = time.time() + min(60 * a.max_wait, max(0, (last - now).total_seconds()) + 60 * a.wait)
+    status = {p['id']: '' for _, posts in jobs for _, p, _ in posts}
+    open_files = {v['id']: (v, posts) for v, posts in jobs}
     done = []
-    while pending and time.time() < end:
+    while open_files and time.time() < end:
         time.sleep(60)
-        for pid, (ch, v) in list(pending.items()):
-            s = post_status(ch, pid)
-            st = str(s.get('status', '')).lower()
-            if st not in ('sent', 'error'):
+        for fid, (v, posts) in list(open_files.items()):
+            for ch, p, _ in posts:
+                if status[p['id']] in ('sent', 'error'):
+                    continue
+                s = post_status(ch, p['id'])
+                status[p['id']] = str(s.get('status', '')).lower()
+                if status[p['id']] == 'sent':
+                    print('POSTED %s -> %s %s' % (v['name'], ch['name'], s.get('externalLink') or ''))
+                elif status[p['id']] == 'error':
+                    print('FAILED %s -> %s: %s' % (v['name'], ch['name'], (s.get('error') or {}).get('message', '')))
+                    bad += 1
+            st = [status[p['id']] for _, p, _ in posts]
+            if any(x not in ('sent', 'error') for x in st):
                 continue
-            pending.pop(pid)
-            e = {'date': today, 'file': v['name'], 'file_id': v['id'],
-                 'posts': [{'channel': ch['name'], 'id': pid, 'status': st, 'link': s.get('externalLink')}]}
-            if st == 'sent':
-                d.trash(v['id'])
+            open_files.pop(fid)
+            e = {'date': today, 'file': v['name'], 'file_id': fid,
+                 'posts': [{'channel': ch['name'], 'id': p['id'], 'status': status[p['id']]} for ch, p, _ in posts]}
+            if 'sent' in st:
+                d.trash(fid)
                 e['trashed'] = True
-                print('POSTED %s -> %s %s (trashed)' % (v['name'], ch['name'], s.get('externalLink') or ''))
+                print('%s: all posts done -> trashed' % v['name'])
             else:
-                d.unshare(v['id'])
-                print('FAILED %s -> %s: %s (stays for the next run)' % (v['name'], ch['name'], (s.get('error') or {}).get('message', '')))
+                d.unshare(fid)
+                print('%s: every post failed -> stays for the next run' % v['name'])
             done.append(e)
     log(done)
-    for pid, (ch, v) in pending.items():
-        print('NOT CONFIRMED %s -> %s: Buffer has not sent it yet (held back from other channels)' % (v['name'], ch['name']))
-    left = len(d.videos(a.folder))
-    print('%d video(s) left in the folder' % left)
-    if pending or any(e['posts'][0]['status'] != 'sent' for e in done) or len(jobs) < len(names):
+    late = 0
+    for v, posts in open_files.values():
+        for ch, p, due in posts:
+            if status[p['id']] in ('sent', 'error'):
+                continue
+            overdue = (dt.datetime.now(dt.timezone.utc) - at_utc(due)).total_seconds() > 60 * a.wait
+            late += overdue
+            print('%s %s -> %s: %s' % ('NOT SENT YET' if overdue else 'SCHEDULED', v['name'], ch['name'],
+                                       'Buffer is late' if overdue else 'the next run confirms it and trashes the file'))
+    print('%d video(s) left in the folder' % len(d.videos(a.folder)))
+    if bad or late:
         sys.exit(1)
 
 
