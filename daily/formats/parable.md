@@ -31,7 +31,7 @@ victims. Note the trend you used in insights.
    es plutôt cigale ou fourmi ? »*.
 
 ## Pacing and sound (different from the horror accounts — on purpose)
-- **No fast-cut opening.** It is storybook pacing: **one shot per sentence, 3–6 s**, smooth gliding cameras,
+- **Except the first 2–3 s** (the double-meaning shock opening, STORY_BRIEF.md), **no fast cuts.** It is storybook pacing: **one shot per sentence, 3–6 s**, smooth gliding cameras,
   something always moving (a breeze, a blink, a bird). The light follows the story: golden for the setup,
   dusk for the mistake, a warm dawn for the morale.
 - **No channel background track** (`music_bed: false`). Compose the music per scene in `work/score.json`:

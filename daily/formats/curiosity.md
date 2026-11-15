@@ -22,7 +22,8 @@ Follow the 5-step formula in `STORY_BRIEF.md`.
    (*"Would you have quit your job? Yes or no."*).
 
 ## Rules
-- TikTok-safe and brand-safe: the premise may be absurd, never sexual, political, or about real people,
+- TikTok-safe and brand-safe: the premise may be absurd and the hook may insinuate (see
+  "Double-meaning hook" in STORY_BRIEF.md: suggestive, never explicit), never political, or about real people,
   parties, brands or apps. No financial advice. Keep it light.
 - Numbers drive the story: show each one big on screen as it is said (prices, counts, years).
 - Read the log: never repeat a premise or the same real-world lesson (inflation, supply and demand, the

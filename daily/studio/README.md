@@ -81,7 +81,8 @@ margin and keep the bottom 140 px free.
 ## Accounts (from 2026-11-11)
 - **thai.1382** → `vox`, 1:1, format `survival_guide` (German blackout / cyberattack guide, not horror).
 - **kaelusuxkzx** → `vintage`, 1:1, format `parable` (French La Fontaine-style fables with a trending angle).
-Both: no fast-cut opening and no channel music; the format files give their own pacing (3–6 s scenes).
+Both: no channel music; the format files give their own pacing (3–6 s scenes) **after the hook** — the first
+2–3 s are the confusing double-meaning shock opening from STORY_BRIEF.md (3–5 fast cuts, odd crop, hard hit, reveal).
 
 ## Horror rules for these looks (on top of STORY_BRIEF.md and the format file)
 (only for horror formats; `survival_guide` and `parable` follow their own format files instead)
