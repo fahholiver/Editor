@@ -19,11 +19,19 @@ An account on several Gerar = s rows posts several times a day, each a DIFFERENT
 2nd one as `<account>-2` (3rd `-3`); use that key everywhere (`--account <account>-2`, story file, slug), it
 posts on the same channel at its own time. Every slot is its own brand-new story.
 
+## Token economy (owner 2026-11-16: the plan limit runs out — follow always)
+- Long or noisy commands (pip, engine fetch, render, audio, finalize, studio finish, publish) run as
+  `cmd > /tmp/log_<step>.txt 2>&1; echo exit=$?; tail -n 5 /tmp/log_<step>.txt`. Read more of the log only on error.
+- Images: ONE contact sheet per video before rendering and ONE QC sheet after; never single frames one by
+  one. Tile several images into one picture before looking at them.
+- Read each file once; `head`/`grep` big ones (stories.jsonl, metrics) for the account you need, never `cat` whole.
+- No subagents. No long explanations in chat; the final report stays one line per account.
+
 ## 0. Setup + read (before writing anything)
 ```bash
 cd /home/user && git clone -q --depth 1 -b claude/buffer-tiktok-video-generation-lrudue https://github.com/fahholiver/Editor Editor
-cd /home/user/Editor && pip install -q -r daily/requirements.txt
-python3 daily/engine.py fetch /home/user/motion            # Motion engine from Drive
+cd /home/user/Editor && pip install -q -r daily/requirements.txt > /tmp/log_pip.txt 2>&1; tail -n 2 /tmp/log_pip.txt
+python3 daily/engine.py fetch /home/user/motion > /tmp/log_fetch.txt 2>&1; tail -n 2 /tmp/log_fetch.txt   # Motion engine from Drive
 for f in stories.jsonl insights.md inspiration.md; do python3 daily/gdrive.py get-state $f /tmp/$f; done
 python3 daily/gdrive.py visual-ideas /tmp/visual > /tmp/visual.txt
 python3 daily/gdrive.py ideas > /tmp/ideas.txt
@@ -35,8 +43,8 @@ Read `/tmp/report.md` + `/tmp/metrics.md`, then for EACH account write 2–3 lin
 `## Daily notes <date>`: worst and best recent video (views, retention), what they share, the ONE thing today
 changes or keeps. Write the story to follow that note. A post ≥ 2 days old that clearly beats/loses to its
 account median → add the lesson (date, numbers, rule) to insights; one change at a time.
-Also read `daily/STORY_BRIEF.md`, `/tmp/insights.md` (voices, rules), `/tmp/inspiration.md` (techniques from the
-owner's reference videos) and, for Motion accounts, `/home/user/motion/CLAUDE.md`.
+Also read `daily/STORY_BRIEF.md`, `/tmp/insights.md` (voices, rules), `/tmp/inspiration.md` (rules from the
+owner's reference videos; short on purpose — never fetch `inspiration_archive.md`) and, for Motion accounts, `/home/user/motion/CLAUDE.md`.
 
 ## 1. Stories (all accounts first)
 - **Owner's ideas first:** a line of `/tmp/ideas.txt` (`<account|todas>: <idea>`) not yet in any `idea` field of

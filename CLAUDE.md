@@ -14,7 +14,8 @@ nesse estilo" etc. Then, without asking first:
    colours, sound/music, ending) and **concrete rules to apply** in our 2D engine. Never copy its story,
    characters, art or music — only techniques.
 4. `python3 daily/inspire.py <video> --save-card card.md` — archives the video in Drive `TikTok Daily/_inspiration/`
-   and appends the card to Drive `_state/inspiration.md`, which every daily run reads.
+   and appends the full card to `_state/inspiration_archive.md`; `_state/inspiration.md` (read by every daily run)
+   keeps only the rules of the newest 8 cards, ≤ 60 lines — so put the rules under a heading with "Regras"/"Rules".
 5. If it changes a format or the rules, also update `daily/formats/*.md` / `daily/STORY_BRIEF.md` on the
    pipeline branch `claude/buffer-tiktok-video-generation-lrudue` and push.
 Tell the owner in 3–5 lines what you learned and what changes from the next video on.
