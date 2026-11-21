@@ -25,7 +25,12 @@ financial advice, no promises of money.
 - One idea per sentence; every sentence must be drawable as one literal visual metaphor.
 - Read the log: never repeat a hook claim or the same closing mirror.
 
-## Look (9:16 vertical, beats the 16:9 originals)
+## Look (9:16 vertical, beats the 16:9 originals) — visual style `spotlight_line`
+Set `visual_style: spotlight_line` (sheet Modelo-skill `mindset_explainer/spotlight_line`). Shots use the style as a
+kit: `import style as K` (see the docstring of `daily/styles/spotlight_line.py`). Set `K.HOOK = ("<2-4 WORD TITLE>", 0, 3)`
+and `K.THOUSANDS = '.'` for pt/de/fr/es, `'cap_y': 1580` on every shot. One shot per sentence, each a
+`K.glide()` between two camera keys (no cuts needed); all characters stand on `K.FLOOR_Y`.
+Reference demo (pt-BR, 38 s): Drive `_inspiration/demo_spotlight_line.mp4`.
 - Pure black, white glowing line-art with soft bloom, one faceless white figure under a cone spotlight.
 - Literal metaphors per line: a counter ticking up ($0 → $1,000,000, MONTH 1 → MONTH 6), a thought cloud with a
   number, a boulder pushed up a curve, stairs labelled FAILS, a dial OUTCOME, a funnel INPUT → OUTCOME, a family
