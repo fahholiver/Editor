@@ -153,25 +153,5 @@ No Drive, em `TikTok Daily`, há o documento **"IDEIAS VISUAIS — cole imagens 
 cenários, personagens, cores) e escreva embaixo de cada uma para qual conta é e o que quer dela. A rotina baixa o
 documento com as imagens toda manhã e adapta o desenho 2D (estilo, cores, cenários, personagens) sem copiar a arte.
 
-## Postagem pela planilha (GitHub Actions, grátis, todo dia às 17:00 de Brasília)
-Independente da rotina dos vídeos: você coloca vídeos prontos no Drive, escreve uma linha por post na planilha
-**"Postagens (robô Buffer)"** (Drive → `TikTok Daily/`) e o robô [`planilha.py`](planilha.py) confere e agenda no
-Buffer, em qualquer um dos canais de todas as chaves (`canal` = nome, vários com vírgula, `todos`, `todos tiktok`…).
-As instruções para quem preenche estão na aba **Como usar** da planilha; a lista de canais na aba **Canais**.
-
-Checagem de cada linha antes de postar: data/hora, fuso, canal existe no Buffer, vídeo existe no Drive e é vídeo,
-legenda (limites de TikTok/Instagram/YouTube), mesmo vídeo não vai duas vezes ao mesmo canal. O robô escreve
-`agendado` → `postado` (com o link) ou `erro` (motivo na coluna `detalhe`). Corrigiu? Apague o status e ele tenta de novo.
-
-**Configuração (uma vez):**
-1. Ative a **Google Sheets API** no projeto do Google Cloud do login do Drive (o robô mostra o link se faltar).
-2. GitHub → repositório → Settings → Secrets and variables → Actions → *New repository secret*:
-   `PLANILHA_ID`, `GDRIVE_FOLDER_ID` (pasta "Para postar"), `GDRIVE_CLIENT_ID`, `GDRIVE_CLIENT_SECRET`,
-   `GDRIVE_FULL_REFRESH_TOKEN` (ou, no lugar dos três, `GDRIVE_CREDENTIALS` = JSON de uma conta de serviço com
-   a planilha e a pasta compartilhadas com ela como Editor), e `BUFFER_API_KEY`, `BUFFER_API_KEY_2`… (qualquer
-   `BUFFER_API_KEY_<NOME>` vale — o workflow lê todos os secrets, não precisa editar o YAML).
-3. O workflow [`.github/workflows/postagem-planilha.yml`](../.github/workflows/postagem-planilha.yml) só roda sozinho
-   quando está na branch padrão (`main`). Teste em Actions → *Postagem pela planilha* → **Run workflow** (`checar` primeiro).
-
-À mão: `python3 daily/planilha.py checar` (só confere) · `rodar --dry-run` · `rodar` · `canais` (atualiza a aba Canais).
-Atenção: este repositório é público, então os logs do Actions (nomes de canais, nomes dos vídeos) são visíveis; os secrets não.
+## Postagem pela planilha
+Fica no repositório **fahholiver/TikTok-drive-buffer** (GitHub Actions, todo dia às 17:00 de Londres).
