@@ -1,0 +1,39 @@
+name: Postagem pela planilha (Drive + Buffer)
+
+on:
+  schedule:
+    # 17:00 em Brasília (BRT, UTC-3) = 20:00 UTC. O GitHub pode atrasar alguns minutos.
+    - cron: '0 20 * * *'
+  workflow_dispatch:          # botão "Run workflow" para testar na hora
+    inputs:
+      modo:
+        description: 'rodar = posta de verdade · checar = só confere a planilha'
+        default: rodar
+        type: choice
+        options: [rodar, checar]
+
+concurrency:
+  group: postagem-planilha    # nunca duas rodadas ao mesmo tempo (evita post duplicado)
+  cancel-in-progress: false
+
+jobs:
+  postar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Instalar dependências
+        run: pip install requests google-auth
+
+      - name: Rodar a rotina
+        env:
+          # todos os secrets de uma vez: uma chave nova BUFFER_API_KEY_<NOME> funciona sem mexer aqui
+          SECRETS_JSON: ${{ toJSON(secrets) }}
+          PLANILHA_FUSO: America/Sao_Paulo
+          PLANILHA_JANELA_HORAS: '24'
+        run: python daily/planilha.py ${{ github.event.inputs.modo || 'rodar' }}
