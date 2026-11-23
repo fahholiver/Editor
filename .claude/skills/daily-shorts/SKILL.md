@@ -65,7 +65,8 @@ No video is made from a script the lab has not approved: `bootstrap.py` / `studi
    shows it): 0–10 per criterion, where 10 = top 1 % of the niche and an ordinary good script is 6–7. Be the
    harshest editor; never inflate to pass. Then
    `python3 daily/viral_lab.py evaluate --account <acc> /home/user/motion/_cand_<acc>_*.txt --judge /tmp/viral/judge_<acc>.json`
-   (an independent Gemini judge is averaged in when `GEMINI_API_KEY` is set; measured checks are 25 %).
+   (YOU are the only judge - owner 2026-11-23, no Gemini/other model; every 9-10 needs a concrete reason in `why`;
+   measured checks are 25 %).
 5. **Improve** the best one on its lowest criteria + the printed notes (`> …` lines), save as a new file
    (`_cand_<acc>_4.txt`…), score it again (fresh rubric, honest). Up to 3 rounds; still below the bar → 3 new
    scripts and repeat once. Still below after that → skip the account today and report it (never post a script

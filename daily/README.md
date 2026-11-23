@@ -30,13 +30,13 @@ Uma linha por conta, todas as horas em horário de Londres:
 Ciclo por conta: **pesquisar** vídeos virais das últimas 24 h no nicho da conta (TikTok via Apify, palavras do
 formato + idioma em `viral/niches.json`) → **padrões** (hashtags, temas, ganchos, duração, velocidade de views) →
 **3 roteiros originais** → **avaliar** (rubrica de 9 critérios: gancho, retenção, payoff, trend, originalidade,
-comentários, loop, emoção, visual; juiz da sessão + juiz Gemini independente + checagens medidas) → **melhorar** →
+comentários, loop, emoção, visual; análise feita pelo Claude + checagens medidas) → **melhorar** →
 **selecionar** o melhor. Só um roteiro **aprovado** (nota ≥ `viral_threshold`, padrão 80) vira vídeo: o
 `bootstrap.py`/`studio.py` recusam o resto. A nota vai para o log e o `metrics.py` compara com as views reais.
 - Por conta em `accounts.json` (opcional): `niche_keywords` (palavras extras), `viral_min_plays` (padrão 100000),
   `viral_threshold` (padrão 80).
 - Chaves do Apify (rotativas): variável `APIFY_TOKENS` com várias chaves separadas por vírgula; usa a 1ª com crédito e,
-  quando acaba (limite do mês / 402 / 403), passa para a próxima — igual às chaves da ElevenLabs. Uma só: `APIFY_TOKEN`; `GEMINI_API_KEY` (juiz independente), `APIFY_ACTOR`
+  quando acaba (limite do mês / 402 / 403), passa para a próxima — igual às chaves da ElevenLabs. Uma só: `APIFY_TOKEN`; `APIFY_ACTOR`
   (padrão `themineworks~tiktok-search-scraper`).
 - Histórico em Drive `_state/viral_lab.jsonl` e `_state/viral_research_<formato>_<língua>.json`.
 - A nota é uma avaliação heurística do roteiro, **não** uma probabilidade real de viralizar.

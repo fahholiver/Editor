@@ -22,8 +22,8 @@ The report lists the top videos, hashtags, recurring words, typical length and o
 only: never copy a story, line or character. Cached per format+language for the day and in Drive
 `_state/viral_research_<format>_<lang>.json`; if Apify fails, the newest cached research (<= 3 days) is used.
 
-evaluate: `--judge` is the strict rubric scoring written by the session (JSON, see JUDGE_TEMPLATE / `judge-template`);
-if GEMINI_API_KEY is set an independent Gemini judge scores the same rubric and the two are averaged. Plus
+evaluate: `--judge` is the strict rubric scoring written by Claude in the session (JSON, see JUDGE_TEMPLATE /
+`judge-template`; no other model judges - owner 2026-11-23); every 9-10 needs its reason in "why". Plus
 measured checks (length, hook length, final question, loop back to the hook, line length, trend fit,
 similarity to the account's past hooks). final = 0.75 * judge + 0.25 * checks. A hard fail (wrong length, no
 final question, near-copy of an earlier hook) blocks approval whatever the score.
@@ -464,91 +464,41 @@ def judge_score(j):
     missing = [k for k in RUBRIC if k not in s]
     if missing:
         sys.exit('judge is missing criteria: %s (see `viral_lab.py judge-template`)' % ', '.join(missing))
+    why = j.get('why') or {}
+    lazy = [k for k in RUBRIC if float(s[k]) >= 9 and len(str(why.get(k, '')).split()) < 6]
+    if lazy:
+        sys.exit('a 9-10 needs a concrete reason in "why" (what exactly is top-1%%): %s' % ', '.join(lazy))
     return round(sum(RUBRIC[k][0] * max(0.0, min(10.0, float(s[k]))) / 10 for k in RUBRIC), 1)
-
-
-def gemini_judge(c, text, research_md):
-    key = os.environ.get('GEMINI_API_KEY')
-    if not key:
-        return None
-    prompt = ('You are a strict, sceptical TikTok short-form script editor. Score this ORIGINAL %s script (format %s) '
-              'for a 2D-animated short, 0-10 per criterion (10 = top 1%% of the niche; most scripts are 4-7). '
-              'Criteria: %s. Today\'s niche research:\n%s\n\nReturn JSON {"scores":{criterion:number},'
-              '"improve":[string]} only.\n\nSCRIPT:\n%s') % (
-        lang2(c), c.get('format'), '; '.join('%s = %s' % (k, v[1]) for k, v in RUBRIC.items()), research_md[:4000], text)
-    body = json.dumps({'contents': [{'parts': [{'text': prompt}]}],
-                       'generationConfig': {'responseMimeType': 'application/json', 'temperature': 0.2}}).encode()
-    models = [m for m in [os.environ.get('GEMINI_MODEL'), 'gemini-flash-latest', 'gemini-3-flash-preview',
-                          'gemini-flash-lite-latest'] if m]
-    try:
-        d, err = None, None
-        for model in models:   # 429/503 = overloaded model: retry once, then the next model
-            for wait in (5, 0):
-                req = urllib.request.Request(
-                    'https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent' % urllib.parse.quote(model),
-                    data=body, headers={'content-type': 'application/json', 'x-goog-api-key': key}, method='POST')
-                try:
-                    with urllib.request.urlopen(req, timeout=120) as r:
-                        d = json.loads(r.read().decode('utf-8'))
-                    break
-                except urllib.error.HTTPError as e:
-                    err = '%s %s' % (model, e.code)
-                    if e.code not in (429, 500, 503) or not wait:
-                        break
-                    time.sleep(wait)
-            if d:
-                break
-        if not d:
-            raise RuntimeError(err)
-        raw = ''.join(p.get('text', '') for p in d['candidates'][0]['content']['parts'])
-        return json.loads(raw)
-    except Exception as e:  # noqa: BLE001
-        print('WARNING: Gemini judge failed (%s) - using the session judge only' % str(e)[:200])
-        return None
 
 
 def evaluate(a):
     c = account(a.account)
     rpath = acc_file(a.account, 'research.json')
     rdata = json.load(open(rpath, encoding='utf-8')) if os.path.exists(rpath) else None
-    rmd = open(acc_file(a.account, 'research.md'), encoding='utf-8').read() if rdata else ''
     if rdata is None:
         print('WARNING: no research for %s yet - run `viral_lab.py research --account %s` first' % (a.account, a.account))
-    judges = json.load(open(a.judge, encoding='utf-8')) if a.judge else None
+    judges = json.load(open(a.judge, encoding='utf-8'))
     if isinstance(judges, dict):
         judges = [judges]
-    if judges is not None and len(judges) != len(a.stories):
+    if len(judges) != len(a.stories):
         sys.exit('--judge must hold one rubric object per story (a JSON list in the same order)')
     rows = []
     for i, sp in enumerate(a.stories):
         text = open(sp, encoding='utf-8').read().strip()
         chk, res = checks(a.account, c, text, rdata)
-        js = []
-        if judges:
-            js.append(('session', judge_score(judges[i]), judges[i].get('improve', [])))
-        g = None if a.no_gemini else gemini_judge(c, text, rmd)
-        if g:
-            try:
-                js.append(('gemini', judge_score(g), g.get('improve', [])))
-            except SystemExit:
-                print('WARNING: Gemini judge returned an incomplete rubric - ignored')
-        if not js:
-            sys.exit('no judge: pass --judge <json> (session rubric) and/or set GEMINI_API_KEY')
+        js = [('claude', judge_score(judges[i]), judges[i].get('improve', []))]
         jscore = sum(s for _, s, _ in js) / len(js)
         final = round(0.75 * jscore + 0.25 * chk, 1)
         hard = [n for n, _, _, h, note in res if h]
         rec = {'date': today(), 'account': a.account, 'format': c.get('format'), 'file': sp, 'hash': story_hash(text),
                'hook': text.split('\n')[0][:200], 'final': final, 'judge': {n: s for n, s, _ in js}, 'checks': chk,
                'hard_fail': hard, 'threshold': threshold(c),
-               'criteria': (judges[i].get('scores', judges[i]) if judges else (g or {}).get('scores')),
+               'criteria': judges[i].get('scores', judges[i]),
                'improve': [x for _, _, imp in js for x in imp][:6],
                'notes': {n: note for n, pt, w, h, note in res if pt < 1}}
         rows.append(rec)
         with open(acc_file(a.account, 'evals.jsonl'), 'a', encoding='utf-8') as f:
             f.write(json.dumps(rec, ensure_ascii=False) + '\n')
-        if len(js) == 2 and abs(js[0][1] - js[1][1]) > 15:
-            print('NOTE: judges disagree on %s (%s) - be stricter, re-read the rubric' % (
-                sp, ', '.join('%s %.0f' % (n, s) for n, s, _ in js)))
     rows.sort(key=lambda r: (not r['hard_fail'], r['final']), reverse=True)
     print('# Evaluation - %s (threshold %d)\n' % (a.account, threshold(c)))
     for r in rows:
@@ -680,8 +630,7 @@ def main():
     e = sp.add_parser('evaluate')
     e.add_argument('--account', required=True)
     e.add_argument('stories', nargs='+')
-    e.add_argument('--judge', help='session rubric JSON: one object, or a list (one per story, same order)')
-    e.add_argument('--no-gemini', action='store_true')
+    e.add_argument('--judge', required=True, help='Claude\'s rubric JSON: one object, or a list (one per story, same order)')
     p = sp.add_parser('approve')
     p.add_argument('--account', required=True)
     p.add_argument('story')
