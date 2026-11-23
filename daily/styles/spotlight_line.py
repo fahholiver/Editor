@@ -555,6 +555,302 @@ def ring(ctx, x, y, r, k, a=1.0):
     ctx.restore()
 
 
+# ------------------------------------------------------------------ dynamics: more life in every shot
+
+def pop(lt, t0, d=0.35):
+    """0 before t0, overshoots to ~1.12 then settles at 1 (use as a scale for things that appear)"""
+    x = (lt - t0) / d
+    if x <= 0:
+        return 0.0
+    if x >= 1:
+        return 1.0
+    return 1 + 0.12 * math.sin(math.pi * x) - (1 - x) ** 3 * (1 - 0.12 * math.sin(math.pi * x))
+
+
+def popin(ctx, x, y, lt, t0, draw, d=0.35):
+    """draw(ctx) centred at (x, y), popping in at lt == t0 (with overshoot)"""
+    k = pop(lt, t0, d)
+    if k <= 0:
+        return
+    ctx.save()
+    ctx.translate(x, y)
+    ctx.scale(k, k)
+    draw(ctx)
+    ctx.restore()
+
+
+def dust(ctx, t, x, floor=FLOOR_Y, w=260, n=26, seed=2, a=1.0):
+    """slow specks floating in the light cone (the stage is never still)"""
+    rng = random.Random(seed)
+    for i in range(n):
+        ph = (t * (0.02 + rng.random() * 0.04) + rng.random()) % 1
+        yy = floor - 60 - ph * 900
+        spread = w * (1 - ph * 0.85)
+        xx = x + (rng.random() - 0.5) * 2 * spread + 18 * math.sin(t * 0.7 + i)
+        ctx.arc(xx, yy, 1.5 + rng.random() * 2.5, 0, 2 * math.pi)
+        _rgb(ctx, INK, a * 0.45 * math.sin(math.pi * ph))
+        ctx.fill()
+
+
+def grid(ctx, a=0.07, step=120):
+    """faint background grid (depth behind the stage)"""
+    for x in range(-1200, 2400, step):
+        ctx.move_to(x, -1200)
+        ctx.line_to(x, 3200)
+    for y in range(-1200, 3200, step):
+        ctx.move_to(-1200, y)
+        ctx.line_to(2400, y)
+    _stroke(ctx, 1.5, INK, a)
+
+
+def timeline(ctx, k, labels, y=170, x0=140, x1=940, a=1.0):
+    """time bar (MONTH 1 ... MONTH 12): ticks for each label, a white dot that travels with k; screen space"""
+    ctx.move_to(x0, y)
+    ctx.line_to(x1, y)
+    _stroke(ctx, 4, DIM, a)
+    ctx.move_to(x0, y)
+    ctx.line_to(lerp(x0, x1, clamp(k)), y)
+    _stroke(ctx, 6, FIG, a)
+    n = len(labels)
+    for i, lb in enumerate(labels):
+        x = lerp(x0, x1, i / max(1, n - 1))
+        on = clamp(k) >= i / max(1, n - 1) - 1e-6
+        ctx.arc(x, y, 9, 0, 2 * math.pi)
+        _rgb(ctx, FIG if on else DIM, a)
+        ctx.fill()
+        text(ctx, lb.upper(), x, y + 44, 22, '#ffffff' if on else '#6a6a6a', weight='x', a=a)
+    ctx.arc(lerp(x0, x1, clamp(k)), y, 16, 0, 2 * math.pi)
+    _rgb(ctx, FIG, a)
+    ctx.fill()
+
+
+def tag(ctx, s, lt=1.0, t0=0.0, x=70, y=110):
+    """time/place tag top-left (MÊS 3, 3 ANOS DEPOIS) popping in; screen space"""
+    k = pop(lt, t0, 0.25)
+    if k <= 0:
+        return
+    s = s.upper()
+    font(ctx, 30, weight='x')
+    w = ctx.text_extents(s).x_advance
+    ctx.save()
+    ctx.identity_matrix()
+    ctx.translate(x, y)
+    ctx.scale(k, k)
+    rrect(ctx, 0, -38, w + 40, 54, 10)
+    _rgb(ctx, INK)
+    ctx.fill()
+    text(ctx, s, 20, 0, 30, '#111111', align='l', weight='x')
+    ctx.restore()
+
+
+def concept_card(ctx, title, sub=None, lt=1.0, t0=0.0, x=540, y=430, a=1.0):
+    """knowledge card: the name of the real concept the video teaches (EFEITO COMPOSTO / VIÉS DE SOBREVIVÊNCIA)"""
+    k = pop(lt, t0, 0.4)
+    if k <= 0:
+        return
+    font(ctx, 54, weight='b')
+    w = max(ctx.text_extents(title.upper()).x_advance, 300) + 220
+    ctx.save()
+    ctx.translate(x, y)
+    ctx.scale(k, k)
+    rrect(ctx, -w / 2, -80, w, 150 if sub else 120, 22)
+    _rgb(ctx, BG, 0.95 * a)
+    ctx.fill_preserve()
+    _stroke(ctx, 5, INK, a)
+    book(ctx, -w / 2 + 70, -22, 0.55, a)
+    text(ctx, title.upper(), 50, -4, 54, '#ffffff', weight='b', a=a)
+    if sub:
+        text(ctx, sub, 50, 48, 30, '#bdbdbd', weight='x', a=a)
+    # shine sweep
+    sx = -w / 2 + (w + 200) * clamp((lt - t0 - 0.3) / 0.6) - 100
+    if -w / 2 < sx < w / 2:
+        g = cairo.LinearGradient(sx - 60, 0, sx + 60, 0)
+        g.add_color_stop_rgba(0, 1, 1, 1, 0)
+        g.add_color_stop_rgba(0.5, 1, 1, 1, 0.25)
+        g.add_color_stop_rgba(1, 1, 1, 1, 0)
+        rrect(ctx, -w / 2, -80, w, 150 if sub else 120, 22)
+        ctx.set_source(g)
+        ctx.fill()
+    ctx.restore()
+
+
+def graph(ctx, x, y, w, h, fns, k=1.0, labels=None, axes=('', ''), a=1.0, dots=True):
+    """line chart drawn from left to right with k; fns = list of f(u)->0..1 (u 0..1); the first is white,
+    the others grey; labels at the line ends"""
+    ctx.move_to(x, y - h - 20)
+    ctx.line_to(x, y)
+    ctx.line_to(x + w + 20, y)
+    _stroke(ctx, 4, INK, a)
+    if axes[0]:
+        text(ctx, axes[0].upper(), x + w, y + 44, 24, '#9a9a9a', align='r', weight='x', a=a)
+    if axes[1]:
+        text(ctx, axes[1].upper(), x + 10, y - h - 34, 24, '#9a9a9a', align='l', weight='x', a=a)
+    kk = clamp(k)
+    for j, f in enumerate(fns):
+        ctx.move_to(x, y - h * f(0))
+        for i in range(1, 61):
+            u = i / 60 * kk
+            ctx.line_to(x + w * u, y - h * f(u))
+        _stroke(ctx, 7 if j == 0 else 5, FIG if j == 0 else DIM, a)
+        ex, ey = x + w * kk, y - h * f(kk)
+        if dots and kk > 0:
+            ctx.arc(ex, ey, 12 if j == 0 else 9, 0, 2 * math.pi)
+            _rgb(ctx, FIG if j == 0 else DIM, a)
+            ctx.fill()
+        if labels and j < len(labels) and kk > 0.95:
+            label(ctx, labels[j], ex - 20, ey - 40, 24, a, inverted=(j == 0))
+
+
+def speech(ctx, x, y, s, lt=1.0, t0=0.0, size=34):
+    """speech bubble with a short line (what someone says: "AMANHÃ EU COMEÇO")"""
+    k = pop(lt, t0, 0.3)
+    if k <= 0:
+        return
+    s = s.upper()
+    font(ctx, size, weight='x')
+    w = ctx.text_extents(s).x_advance + 50
+    ctx.save()
+    ctx.translate(x, y)
+    ctx.scale(k, k)
+    rrect(ctx, -w / 2, -size * 1.6, w, size * 1.9, 20)
+    ctx.move_to(-20, size * 0.3)
+    ctx.line_to(-38, size * 1.1)
+    ctx.line_to(4, size * 0.3)
+    _rgb(ctx, INK)
+    ctx.fill()
+    text(ctx, s, 0, -size * 0.35, size, '#111111', weight='x')
+    ctx.restore()
+
+
+def check(ctx, x, y, s=1.0, ok=True, a=1.0):
+    ctx.save()
+    ctx.translate(x, y)
+    ctx.scale(s, s)
+    ctx.arc(0, 0, 40, 0, 2 * math.pi)
+    _rgb(ctx, FIG if ok else BG, a)
+    ctx.fill_preserve()
+    _stroke(ctx, 5, INK, a)
+    if ok:
+        ctx.move_to(-18, 0)
+        ctx.line_to(-5, 14)
+        ctx.line_to(20, -14)
+        _stroke(ctx, 8, (0.07, 0.07, 0.07), a)
+    else:
+        ctx.move_to(-14, -14)
+        ctx.line_to(14, 14)
+        ctx.move_to(14, -14)
+        ctx.line_to(-14, 14)
+        _stroke(ctx, 8, INK, a)
+    ctx.restore()
+
+
+def phone(ctx, x, y, s=1.0, a=1.0, t=0.0, glow=True):
+    ctx.save()
+    ctx.translate(x, y)
+    ctx.scale(s, s)
+    rrect(ctx, -50, -95, 100, 190, 16)
+    _rgb(ctx, BG)
+    ctx.fill_preserve()
+    _stroke(ctx, 6, INK, a)
+    if glow:
+        for i in range(4):
+            ctx.rectangle(-32, -70 + i * 34, 64 * (0.5 + 0.5 * math.sin(t * 3 + i) ** 2), 14)
+            _rgb(ctx, INK, 0.6 * a)
+            ctx.fill()
+    ctx.restore()
+
+
+def book(ctx, x, y, s=1.0, a=1.0):
+    ctx.save()
+    ctx.translate(x, y)
+    ctx.scale(s, s)
+    ctx.move_to(0, -40)
+    ctx.curve_to(-30, -52, -60, -50, -70, -44)
+    ctx.line_to(-70, 50)
+    ctx.curve_to(-60, 44, -30, 42, 0, 54)
+    ctx.curve_to(30, 42, 60, 44, 70, 50)
+    ctx.line_to(70, -44)
+    ctx.curve_to(60, -50, 30, -52, 0, -40)
+    ctx.close_path()
+    _stroke(ctx, 6, INK, a)
+    ctx.move_to(0, -40)
+    ctx.line_to(0, 54)
+    _stroke(ctx, 5, INK, a)
+    ctx.restore()
+
+
+def clock(ctx, x, y, r=60, t=0.0, speed=1.0, a=1.0):
+    ctx.arc(x, y, r, 0, 2 * math.pi)
+    _rgb(ctx, BG)
+    ctx.fill_preserve()
+    _stroke(ctx, 6, INK, a)
+    for an, ln, w in ((t * speed * 2 * math.pi / 12, r * 0.5, 7), (t * speed * 2 * math.pi, r * 0.78, 5)):
+        ctx.move_to(x, y)
+        ctx.line_to(x + math.sin(an) * ln, y - math.cos(an) * ln)
+        _stroke(ctx, w, INK, a)
+
+
+def bulb(ctx, x, y, s=1.0, on=1.0, a=1.0):
+    ctx.save()
+    ctx.translate(x, y)
+    ctx.scale(s, s)
+    if on > 0:
+        r = cairo.RadialGradient(0, -20, 10, 0, -20, 140)
+        r.add_color_stop_rgba(0, 1, 1, 1, 0.45 * on * a)
+        r.add_color_stop_rgba(1, 1, 1, 1, 0)
+        ctx.arc(0, -20, 140, 0, 2 * math.pi)
+        ctx.set_source(r)
+        ctx.fill()
+    ctx.arc(0, -20, 50, math.radians(140), math.radians(40))
+    ctx.line_to(20, 50)
+    ctx.line_to(-20, 50)
+    ctx.close_path()
+    _rgb(ctx, FIG if on > 0.5 else BG, a)
+    ctx.fill_preserve()
+    _stroke(ctx, 6, INK, a)
+    for yy in (62, 76):
+        ctx.move_to(-18, yy)
+        ctx.line_to(18, yy)
+        _stroke(ctx, 6, INK, a)
+    ctx.restore()
+
+
+def coin(ctx, x, y, r=34, a=1.0, sym='$'):
+    ctx.arc(x, y, r, 0, 2 * math.pi)
+    _rgb(ctx, FIG, a)
+    ctx.fill()
+    text(ctx, sym, x, y + r * 0.38, r * 1.05, '#111111', weight='b', a=a)
+
+
+def arrow(ctx, x0, y0, x1, y1, k=1.0, a=1.0, w=6):
+    """arrow drawn from (x0,y0) toward (x1,y1) as k grows"""
+    ex, ey = lerp(x0, x1, clamp(k)), lerp(y0, y1, clamp(k))
+    ctx.move_to(x0, y0)
+    ctx.line_to(ex, ey)
+    _stroke(ctx, w, INK, a)
+    if k > 0.05:
+        an = math.atan2(y1 - y0, x1 - x0)
+        for s_ in (-1, 1):
+            ctx.move_to(ex, ey)
+            ctx.line_to(ex - 26 * math.cos(an + s_ * 0.5), ey - 26 * math.sin(an + s_ * 0.5))
+        _stroke(ctx, w, INK, a)
+
+
+def flash_number(ctx, s, lt, t0, x=540, y=960, size=220):
+    """a big number/word that slams in and fades (for the key fact: 37x, 80/20, 72)"""
+    if lt < t0:
+        return
+    k = (lt - t0) / 1.4
+    if k > 1:
+        return
+    sc = 1.6 - 0.6 * ease_out(k * 4)
+    ctx.save()
+    ctx.translate(x, y)
+    ctx.scale(sc, sc)
+    text(ctx, s, 0, size * 0.35, size, '#ffffff', weight='b', a=1 - smooth((k - 0.7) / 0.3))
+    ctx.restore()
+
+
 # ------------------------------------------------------------------ engine hooks (bootstrap.apply_style)
 
 def after_scene(surf, W, H):
