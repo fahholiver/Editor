@@ -12,6 +12,8 @@ Cycle per account (see .claude/skills/daily-shorts/SKILL.md, step 1):
     python3 viral_lab.py sync                                  # append today's evaluations to Drive _state/viral_lab.jsonl
     python3 viral_lab.py research --account <acc> --sample items.json   # offline test with saved Apify items
 
+Apify keys rotate: APIFY_TOKENS=key1,key2,... (the first with credit is used; out of credit -> the next one).
+
 research: TikTok search (Apify actor, default `themineworks~tiktok-search-scraper`, override with APIFY_ACTOR)
 for the keywords of the account's format + language (daily/viral/niches.json, + "niche_keywords" in
 accounts.json), videos of the last 24 h with >= "viral_min_plays" views (default 100000). Each video gets a
@@ -116,10 +118,21 @@ def keywords(c):
     return out[:MAX_KEYWORDS]
 
 
-def _apify(method, path, body=None, timeout=90):
-    tok = os.environ.get('APIFY_TOKEN') or os.environ.get('APIFY_API_TOKEN')
-    if not tok:
-        raise RuntimeError('APIFY_TOKEN is not set (environment variable)')
+def apify_tokens():
+    """APIFY_TOKENS = several keys separated by commas, used in order: when one runs out of credit (or is
+    refused) the next one takes over - like ELEVENLABS_API_KEYS. APIFY_TOKEN with a single key also works;
+    with none, a placeholder that the proxy replaces with a network secret saved for api.apify.com."""
+    toks = []
+    for name in ('APIFY_TOKENS', 'APIFY_TOKEN', 'APIFY_API_TOKEN'):
+        toks += [t.strip() for t in os.environ.get(name, '').replace(';', ',').split(',') if t.strip()]
+    return list(dict.fromkeys(toks)) or ['apify_api_placeholder']
+
+
+class KeyExhausted(RuntimeError):
+    """this Apify key cannot run the search (no credit, usage limit, invalid): try the next key"""
+
+
+def _apify(method, path, tok, body=None, timeout=90):
     req = urllib.request.Request('https://api.apify.com/v2' + path, method=method,
                                  data=json.dumps(body).encode() if body is not None else None,
                                  headers={'Authorization': 'Bearer ' + tok, 'Content-Type': 'application/json'})
@@ -127,7 +140,53 @@ def _apify(method, path, body=None, timeout=90):
         with urllib.request.urlopen(req, timeout=timeout) as r:
             return json.loads(r.read().decode('utf-8'))
     except urllib.error.HTTPError as e:
-        raise RuntimeError('Apify %s %s: %s' % (e.code, path.split('?')[0], e.read().decode('utf-8', 'replace')[:300]))
+        msg = 'Apify %s %s: %s' % (e.code, path.split('?')[0], e.read().decode('utf-8', 'replace')[:300])
+        if e.code in (401, 402, 403, 429):
+            raise KeyExhausted(msg)
+        raise RuntimeError(msg)
+
+
+def key_has_credit(tok):
+    """False when the key's monthly usage already reached its limit (skip it without starting a run)"""
+    try:
+        d = _apify('GET', '/users/me/limits', tok, timeout=30)['data']
+        used = (d.get('current') or {}).get('monthlyUsageUsd')
+        cap = (d.get('limits') or {}).get('maxMonthlyUsageUsd')
+        return not (used is not None and cap and used >= cap * 0.98)
+    except KeyExhausted:
+        return False
+    except Exception:  # noqa: BLE001 - cannot tell: try it
+        return True
+
+
+def run_actor(kws, min_plays, per_kw=30, max_wait=900):
+    """run the search with the first Apify key that has credit; on running out, the next key"""
+    toks, errors = apify_tokens(), []
+    for i, tok in enumerate(toks):
+        label = 'key %d/%d' % (i + 1, len(toks))
+        if len(toks) > 1 and not key_has_credit(tok):
+            errors.append('%s: monthly limit reached' % label)
+            print('Apify %s: no credit left - next key' % label)
+            continue
+        try:
+            run = _apify('POST', '/acts/%s/runs?waitForFinish=60' % urllib.parse.quote(ACTOR, safe='~'), tok,
+                         actor_input(kws, min_plays, per_kw))['data']
+            t0 = time.time()
+            while run.get('status') in ('READY', 'RUNNING') and time.time() - t0 < max_wait:
+                run = _apify('GET', '/actor-runs/%s?waitForFinish=60' % run['id'], tok)['data']
+            if run.get('status') != 'SUCCEEDED':
+                why = 'Apify run %s ended %s: %s' % (run.get('id'), run.get('status'), run.get('statusMessage', ''))
+                if re.search(r'credit|limit|usage|quota|memory', why, re.I):
+                    raise KeyExhausted(why)
+                raise RuntimeError(why)   # not a key problem: do not spend the other keys on it
+            items = _apify('GET', '/datasets/%s/items?format=json&clean=true&limit=2000' % run['defaultDatasetId'],
+                           tok, timeout=180)
+            print('Apify %s: %d items' % (label, len(items)))
+            return items
+        except KeyExhausted as e:
+            errors.append('%s: %s' % (label, str(e)[:160]))
+            print('Apify %s failed (%s) - next key' % (label, str(e)[:160]))
+    raise RuntimeError('every Apify key failed: ' + ' | '.join(errors))
 
 
 def actor_input(kws, min_plays, per_kw):
@@ -137,17 +196,6 @@ def actor_input(kws, min_plays, per_kw):
     return {'searchQueries': kws, 'contentType': 'videos', 'maxItems': per_kw, 'sortBy': 'most_liked',
             'datePosted': 'last_24_hours', 'deepSearch': True, 'uniqueAuthors': False, 'minPlays': min_plays,
             'includeSuggestions': False}
-
-
-def run_actor(kws, min_plays, per_kw=30, max_wait=900):
-    run = _apify('POST', '/acts/%s/runs?waitForFinish=60' % urllib.parse.quote(ACTOR, safe='~'),
-                 actor_input(kws, min_plays, per_kw))['data']
-    t0 = time.time()
-    while run.get('status') in ('READY', 'RUNNING') and time.time() - t0 < max_wait:
-        run = _apify('GET', '/actor-runs/%s?waitForFinish=60' % run['id'])['data']
-    if run.get('status') != 'SUCCEEDED':
-        raise RuntimeError('Apify run %s ended %s' % (run.get('id'), run.get('status')))
-    return _apify('GET', '/datasets/%s/items?format=json&clean=true&limit=2000' % run['defaultDatasetId'], timeout=180)
 
 
 def _num(*xs):

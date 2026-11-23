@@ -35,8 +35,9 @@ comentários, loop, emoção, visual; juiz da sessão + juiz Gemini independente
 `bootstrap.py`/`studio.py` recusam o resto. A nota vai para o log e o `metrics.py` compara com as views reais.
 - Por conta em `accounts.json` (opcional): `niche_keywords` (palavras extras), `viral_min_plays` (padrão 100000),
   `viral_threshold` (padrão 80).
-- Variáveis: `APIFY_TOKEN` (obrigatório para pesquisar), `GEMINI_API_KEY` (juiz independente), `APIFY_ACTOR`
-  (padrão `themineworks~tiktok-search-scraper`). Rede: `api.apify.com`, `generativelanguage.googleapis.com`.
+- Chaves do Apify (rotativas): variável `APIFY_TOKENS` com várias chaves separadas por vírgula; usa a 1ª com crédito e,
+  quando acaba (limite do mês / 402 / 403), passa para a próxima — igual às chaves da ElevenLabs. Uma só: `APIFY_TOKEN`; `GEMINI_API_KEY` (juiz independente), `APIFY_ACTOR`
+  (padrão `themineworks~tiktok-search-scraper`).
 - Histórico em Drive `_state/viral_lab.jsonl` e `_state/viral_research_<formato>_<língua>.json`.
 - A nota é uma avaliação heurística do roteiro, **não** uma probabilidade real de viralizar.
 

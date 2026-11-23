@@ -55,7 +55,7 @@ No video is made from a script the lab has not approved: `bootstrap.py` / `studi
    — TikTok videos of the last 24 h in the account's niche (format + language keywords, `daily/viral/niches.json`),
    scored by views/hour + engagement; hashtags, recurring words/phrases, typical length, top captions.
    Accounts with the same format + language share one search (cached). If Apify fails it uses the newest cached
-   research (≤ 3 days); if there is none, say so in the report and write from metrics/insights.
+   research (≤ 3 days); keys rotate (`APIFY_TOKENS`, next key when one runs out); if there is none, say so in the report and write from metrics/insights.
 2. **Patterns**: under `## Daily notes <date>` in insights add 2–3 lines per account: which themes/angles/hooks
    win today in its niche and WHY (curiosity gap, relatable fear, rule, number…), and which ONE you will use.
    Techniques and themes only: never copy a video's story, lines, characters or title.
