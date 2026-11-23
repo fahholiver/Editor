@@ -178,6 +178,13 @@ def main():
              'format': a.format, 'channels': a.channels, 'idea': a.idea, 'series': a.series, 'part': a.part, 'choice': a.choice, 'account': a.account or a.channels,
              'duration': video_duration(a.video),
              'scheduled': '%s %s' % (a.at, a.tz) if mode == 'customScheduled' else mode}
+    try:   # the viral lab's approved score, so metrics.py can compare it with the real views
+        import viral_lab
+        ap_ = viral_lab.approval(a.account)
+        if ap_:
+            entry.update(viral_score=ap_.get('score'), viral_judge=ap_.get('judge'), viral_rounds=ap_.get('rounds'))
+    except Exception as e:  # noqa: BLE001
+        print('WARNING: viral score not logged: %s' % e)
 
     with tempfile.TemporaryDirectory() as tmp:
         up = os.path.join(tmp, name)

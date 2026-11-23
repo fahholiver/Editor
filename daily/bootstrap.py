@@ -149,6 +149,10 @@ def main():
             a.provider, a.voice = 'edge', a.voice or edge_voice
         print('account %s: %s, voices %s / %s' % (a.account, c['language'], a.voice, edge_voice))
 
+    if a.account:   # only a script approved by the viral lab becomes a video (daily/viral_lab.py)
+        import viral_lab
+        viral_lab.require_approval(a.account, a.story)
+
     tpl = os.path.join(a.motion, 'template')
     if not os.path.isdir(tpl):
         sys.exit('no template/ in %s - clone fahholiver/Motion (branch claude/radiator-animation) first' % a.motion)

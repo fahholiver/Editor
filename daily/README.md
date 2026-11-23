@@ -26,6 +26,20 @@ Uma linha por conta, todas as horas em horário de Londres:
   Conferir: `python3 daily/sheet.py`.
 - A fila do Drive roda às 13:35 de Londres: uma conta Gerar = n com horário antes disso posta quando a tarefa roda.
 
+## Laboratório viral (antes de cada vídeo) — `viral_lab.py`
+Ciclo por conta: **pesquisar** vídeos virais das últimas 24 h no nicho da conta (TikTok via Apify, palavras do
+formato + idioma em `viral/niches.json`) → **padrões** (hashtags, temas, ganchos, duração, velocidade de views) →
+**3 roteiros originais** → **avaliar** (rubrica de 9 critérios: gancho, retenção, payoff, trend, originalidade,
+comentários, loop, emoção, visual; juiz da sessão + juiz Gemini independente + checagens medidas) → **melhorar** →
+**selecionar** o melhor. Só um roteiro **aprovado** (nota ≥ `viral_threshold`, padrão 80) vira vídeo: o
+`bootstrap.py`/`studio.py` recusam o resto. A nota vai para o log e o `metrics.py` compara com as views reais.
+- Por conta em `accounts.json` (opcional): `niche_keywords` (palavras extras), `viral_min_plays` (padrão 100000),
+  `viral_threshold` (padrão 80).
+- Variáveis: `APIFY_TOKEN` (obrigatório para pesquisar), `GEMINI_API_KEY` (juiz independente), `APIFY_ACTOR`
+  (padrão `themineworks~tiktok-search-scraper`). Rede: `api.apify.com`, `generativelanguage.googleapis.com`.
+- Histórico em Drive `_state/viral_lab.jsonl` e `_state/viral_research_<formato>_<língua>.json`.
+- A nota é uma avaliação heurística do roteiro, **não** uma probabilidade real de viralizar.
+
 ## Como mudar
 - **Conta / horário / formato / repostagem / gerar**: a planilha (acima).
 - **Voz / tamanho por conta**: `accounts.json` (conta nova sem entrada usa `_languages`); formatos em `formats/`,

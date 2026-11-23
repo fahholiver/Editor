@@ -116,6 +116,9 @@ def setup(a):
     import plan
     import voiceover
     c = plan.account_cfg(a.account) if a.account else {}
+    if a.account:   # only a script approved by the viral lab becomes a video (daily/viral_lab.py)
+        import viral_lab
+        viral_lab.require_approval(a.account, a.story)
     engine = a.engine or c.get('engine') or 'motion'
     if engine not in ENGINES:
         sys.exit('engine %r is not a studio engine (%s); use bootstrap.py for the Motion engine'
