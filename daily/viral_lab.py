@@ -26,7 +26,8 @@ evaluate: `--judge` is the strict rubric scoring written by Claude in the sessio
 `judge-template`; no other model judges - owner 2026-11-23); every 9-10 needs its reason in "why". Plus
 measured checks (length, hook length, final question, loop back to the hook, line length, trend fit,
 similarity to the account's past hooks). final = 0.75 * judge + 0.25 * checks. A hard fail (wrong length, no
-final question, near-copy of an earlier hook) blocks approval whatever the score.
+final question, near-copy of an earlier hook, hook criterion < 9) blocks approval whatever the score.
+Bar: final >= 90 and hook >= 9 for every video (owner 2026-11-23).
 
 approve: writes /tmp/viral/<acc>.approved.json with the story's hash. bootstrap.py and studio.py setup refuse
 to make a video for --account <acc> unless that exact text is approved (VIRAL_GATE=off disables the gate).
@@ -51,7 +52,8 @@ sys.path.insert(0, HERE)
 OUT = os.environ.get('VIRAL_DIR', '/tmp/viral')
 NICHES = os.path.join(HERE, 'viral', 'niches.json')
 ACTOR = os.environ.get('APIFY_ACTOR', 'themineworks~tiktok-search-scraper')
-DEFAULT_THRESHOLD = 80
+DEFAULT_THRESHOLD = 90   # owner 2026-11-23: every final script >= 90/100 (a floor: an account can only raise it)
+MIN_HOOK = 9             # owner 2026-11-23: the hook criterion must be >= 9/10 in every video
 DEFAULT_MIN_PLAYS = 100000
 MAX_KEYWORDS = 7
 
@@ -490,6 +492,9 @@ def evaluate(a):
         jscore = sum(s for _, s, _ in js) / len(js)
         final = round(0.75 * jscore + 0.25 * chk, 1)
         hard = [n for n, _, _, h, note in res if h]
+        hook = float(judges[i].get('scores', judges[i]).get('hook', 0))
+        if hook < MIN_HOOK:
+            hard.append('hook %g < %d' % (hook, MIN_HOOK))
         rec = {'date': today(), 'account': a.account, 'format': c.get('format'), 'file': sp, 'hash': story_hash(text),
                'hook': text.split('\n')[0][:200], 'final': final, 'judge': {n: s for n, s, _ in js}, 'checks': chk,
                'hard_fail': hard, 'threshold': threshold(c),
@@ -520,7 +525,7 @@ def evaluate(a):
 
 
 def threshold(c):
-    return int(os.environ.get('VIRAL_THRESHOLD') or c.get('viral_threshold') or DEFAULT_THRESHOLD)
+    return max(DEFAULT_THRESHOLD, int(os.environ.get('VIRAL_THRESHOLD') or c.get('viral_threshold') or DEFAULT_THRESHOLD))
 
 
 def approve(a):

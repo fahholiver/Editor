@@ -68,12 +68,14 @@ No video is made from a script the lab has not approved: `bootstrap.py` / `studi
    (YOU are the only judge - owner 2026-11-23, no Gemini/other model; every 9-10 needs a concrete reason in `why`;
    measured checks are 25 %).
 5. **Improve** the best one on its lowest criteria + the printed notes (`> …` lines), save as a new file
-   (`_cand_<acc>_4.txt`…), score it again (fresh rubric, honest). Up to 3 rounds; still below the bar → 3 new
+   (`_cand_<acc>_4.txt`…), score it again (fresh rubric, honest). Up to 5 rounds; still below the bar → 3 new
    scripts and repeat once. Still below after that → skip the account today and report it (never post a script
    below the bar).
 6. **Approve**: `cp <best> /home/user/motion/_story_<acc>.txt && python3 daily/viral_lab.py approve --account <acc> /home/user/motion/_story_<acc>.txt`
-   (bar = `viral_threshold` of the account, default 80; a hard fail — wrong length, no final question, repeated
-   hook — always blocks). Any edit after approval needs evaluate + approve again.
+   **Bar (owner 2026-11-23, every video): final ≥ 90/100 AND hook ≥ 9/10.** A 9 hook works for a viewer who has
+   never seen the account (series parts too: open on the threat, recap the earlier choice in ≤ 4 words). A hard
+   fail — wrong length, no final question, repeated hook, hook < 9 — always blocks. Any edit after approval needs
+   evaluate + approve again. Never inflate a score to reach the bar: improve the script.
 
 ## 2. Stories — rules for every script of step 1
 - **Owner's ideas first:** a line of `/tmp/ideas.txt` (`<account|todas>: <idea>`) not yet in any `idea` field of
