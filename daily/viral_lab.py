@@ -433,7 +433,7 @@ def checks(acc, c, text, research_data):
                              first.lower()))
     res.append(('hook_tension', 1.0 if tension else 0.4, 10, False,
                 'opening has a number/negation/direct address/question' if tension else 'opening has no number, rule, "you" or question - weak scroll stop'))
-    q = last.rstrip('”"» ').endswith('?')
+    q = '?' in last   # "...un inconnu? Commente OUI ou NON." counts: the question may be followed by the call to comment
     res.append(('final_question', 1.0 if q else 0.0, 15, not q, 'last line is a one-word comment question' if q else 'last line must be a comment question (STORY_BRIEF)'))
     loop = bool(set(words_of(first)) & set(words_of(' '.join(lines[-2:]))))
     res.append(('loop', 1.0 if loop else 0.3, 10, False, 'ending echoes the hook' if loop else 'ending does not echo a word/object of the first line'))
