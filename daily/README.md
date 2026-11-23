@@ -55,5 +55,8 @@ comentários, loop, emoção, visual; análise feita pelo Claude + checagens med
 Variáveis do ambiente: `BUFFER_API_KEY` (+ `BUFFER_API_KEY_2…4`), `ELEVENLABS_API_KEYS`, `GDRIVE_CLIENT_ID`,
 `GDRIVE_CLIENT_SECRET`, `GDRIVE_REFRESH_TOKEN` (arquivos do app) e `GDRIVE_FULL_REFRESH_TOKEN` (fila: pasta criada
 à mão; `python3 daily/gdrive.py auth --full` e depois `token --full '<endereço>'`). Rede: `api.buffer.com`,
-`api.elevenlabs.io`, `speech.platform.bing.com`, Google APIs. Canais: `python3 daily/buffer_api.py channels`.
+`api.elevenlabs.io`, `speech.platform.bing.com`, `api.apify.com`, Google APIs; `APIFY_TOKENS` (laboratório viral). Canais: `python3 daily/buffer_api.py channels`.
 Teste sem postar: `publish.py … --dry-run`; fila: `queue_post.py --folder <id> --list`.
+
+## Postagem pela planilha
+Fica no repositório **fahholiver/TikTok-drive-buffer** (GitHub Actions, todo dia às 17:00 de Londres).

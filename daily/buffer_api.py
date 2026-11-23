@@ -45,6 +45,8 @@ _KEY_ENV = ['BUFFER_API_KEY']
 def api_keys():
     """env var names of the configured Buffer keys: BUFFER_API_KEY, BUFFER_API_KEY_2 ... _9 (one per Buffer account)"""
     names = ['BUFFER_API_KEY'] + ['BUFFER_API_KEY_%d' % i for i in range(2, 10)]
+    # any other BUFFER_API_KEY_<NAME> (e.g. BUFFER_API_KEY_MARCA1) counts too
+    names += sorted(n for n in os.environ if n.startswith('BUFFER_API_KEY_') and n not in names)
     return [n for n in names if os.environ.get(n)]
 
 
