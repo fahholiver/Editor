@@ -46,6 +46,26 @@ def _sent(org, days):
     return [p for p in out if p.get('channelService') in buffer_api.SERVICES and (p.get('sentAt') or '') >= since]
 
 
+def calibration(rows):
+    """does the viral lab's script score predict the views? (Spearman rank correlation, >= 5 scored posts)"""
+    xs = [(r['vs'], r['views']) for r in rows if r.get('vs') is not None]
+    if len(xs) < 5:
+        return ''
+    rank = lambda v: {x: i for i, x in enumerate(sorted(set(v)))}  # noqa: E731
+    rs, rv = rank([x for x, _ in xs]), rank([y for _, y in xs])
+    a, b = [rs[x] for x, _ in xs], [rv[y] for _, y in xs]
+    ma, mb = sum(a) / len(a), sum(b) / len(b)
+    num = sum((p - ma) * (q - mb) for p, q in zip(a, b))
+    den = (sum((p - ma) ** 2 for p in a) * sum((q - mb) ** 2 for q in b)) ** 0.5
+    rho = num / den if den else 0
+    hi = [y for x, y in xs if x >= statistics.median([x for x, _ in xs])]
+    lo = [y for x, y in xs if x < statistics.median([x for x, _ in xs])]
+    return ('viral lab calibration: %d scored posts, Spearman %.2f (script score vs views); median views of the '
+            'higher-scored half %d vs lower half %d%s' % (
+                len(xs), rho, statistics.median(hi) if hi else 0, statistics.median(lo) if lo else 0,
+                ' - the rubric does NOT predict views here: recalibrate it (insights)' if rho < 0.2 else ''))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('log', nargs='?')
@@ -69,7 +89,7 @@ def main():
                    comments=int(m.get('comments', 0)), shares=int(m.get('shares', 0)),
                    through=(100 * m.get('averageTimeWatched', 0) / dur) if dur else None,
                    title=e.get('title') or '', fmt=e.get('format') or '', hook=e.get('hook') or '',
-                   text=(p.get('text') or '').replace('\n', ' ')[:80], ours=bool(e))
+                   text=(p.get('text') or '').replace('\n', ' ')[:80], ours=bool(e), vs=e.get('viral_score'))
         by_acc.setdefault(p['channel']['name'], []).append(row)
 
     print('# TikTok performance (last %d days, Buffer metrics)\n' % a.days)
@@ -79,16 +99,20 @@ def main():
         mature = [r for r in rows if r['date'] <= cutoff] or rows
         print('## %s — %d posts, median views %d, median avg watch %.1f s\n' % (
             acc, len(rows), statistics.median(r['views'] for r in mature), statistics.median(r['avg'] for r in mature)))
-        print('| date | views | avg watch | through | eng % | likes | com | shares | story / caption |')
-        print('|---|---|---|---|---|---|---|---|---|')
+        print('| date | views | avg watch | through | eng % | likes | com | shares | lab | story / caption |')
+        print('|---|---|---|---|---|---|---|---|---|---|')
         for r in rows:
             th = '%.0f%%' % r['through'] if r['through'] is not None else '–'
             what = ('**%s** (%s) — %s' % (r['title'], r['fmt'], r['hook'][:60])) if r['ours'] else r['text']
-            print('| %s | %d | %.1f s | %s | %.1f | %d | %d | %d | %s |' % (
-                r['date'], r['views'], r['avg'], th, r['eng'], r['likes'], r['comments'], r['shares'], what))
+            print('| %s | %d | %.1f s | %s | %.1f | %d | %d | %d | %s | %s |' % (
+                r['date'], r['views'], r['avg'], th, r['eng'], r['likes'], r['comments'], r['shares'],
+                '%.0f' % r['vs'] if r.get('vs') is not None else '–', what))
         label = lambda r: '%s (%d views, %.0f s)' % (r['title'] or r['text'][:40], r['views'], r['avg'])  # noqa: E731
         print('\nbest: ' + '; '.join(label(r) for r in sorted(mature, key=lambda r: (r['views'], r['avg']), reverse=True)[:3]))
         print('worst: ' + '; '.join(label(r) for r in sorted(mature, key=lambda r: (r['views'], r['avg']))[:3]))
+        cal = calibration(mature)
+        if cal:
+            print(cal)
         print('(posts younger than 2 days are still growing; judge them later)\n')
 
 
