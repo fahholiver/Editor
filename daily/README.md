@@ -31,10 +31,13 @@ Ciclo por conta: **pesquisar** vídeos virais das últimas 24 h no nicho da cont
 formato + idioma em `viral/niches.json`) → **padrões** (hashtags, temas, ganchos, duração, velocidade de views) →
 **3 roteiros originais** → **avaliar** (rubrica de 9 critérios: gancho, retenção, payoff, trend, originalidade,
 comentários, loop, emoção, visual; análise feita pelo Claude + checagens medidas) → **melhorar** →
-**selecionar** o melhor. Só um roteiro **aprovado** vira vídeo — **nota final ≥ 90/100 e gancho ≥ 9/10 em todo vídeo** (regra do dono, 2026-11-23): o
+**selecionar** o melhor. Só um roteiro **aprovado** vira vídeo — **nota final ≥ 80/100 e gancho ≥ 9/10 em todo vídeo** (regra do dono, 2026-11-23): o
 `bootstrap.py`/`studio.py` recusam o resto. A nota vai para o log e o `metrics.py` compara com as views reais.
 - Por conta em `accounts.json` (opcional): `niche_keywords` (palavras extras), `viral_min_plays` (padrão 100000),
-  `viral_threshold` (só pode subir acima de 90).
+  `viral_threshold` (só pode subir acima de 80).
+- **Banco de roteiros** (economia de tokens): os outros roteiros do dia que também passaram (gancho ≥ 9, nota ≥ 80)
+  ficam em Drive `_state/script_bank.jsonl`; nos próximos 3 dias a conta usa um deles (`bank-take`) em vez de
+  pesquisar, escrever e avaliar de novo. Partes de série interativa não entram no banco.
 - Chaves do Apify (rotativas): variável `APIFY_TOKENS` com várias chaves separadas por vírgula; usa a 1ª com crédito e,
   quando acaba (limite do mês / 402 / 403), passa para a próxima — igual às chaves da ElevenLabs. Uma só: `APIFY_TOKEN`; `APIFY_ACTOR`
   (padrão `themineworks~tiktok-search-scraper`).

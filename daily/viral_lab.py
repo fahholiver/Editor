@@ -27,7 +27,14 @@ evaluate: `--judge` is the strict rubric scoring written by Claude in the sessio
 measured checks (length, hook length, final question, loop back to the hook, line length, trend fit,
 similarity to the account's past hooks). final = 0.75 * judge + 0.25 * checks. A hard fail (wrong length, no
 final question, near-copy of an earlier hook, hook criterion < 9) blocks approval whatever the score.
-Bar: final >= 90 and hook >= 9 for every video (owner 2026-11-23).
+Bar: final >= 80 and hook >= 9 for every video (owner 2026-11-23).
+
+Script bank (token economy, owner 2026-11-23): the OTHER scripts of the day that also passed (hook >= 9, final
+>= 80) are saved by `sync` to Drive _state/script_bank.jsonl; the next days `bank-take` gives the account its
+best spare (same format, <= 3 days old) so no new research/writing/judging is needed:
+    python3 viral_lab.py bank-take --account <acc> --out <story.txt>   # exit 1 = no spare: run the full cycle
+    python3 viral_lab.py evaluate --account <acc> <story.txt> --judge /tmp/viral/<acc>.bank_judge.json && ... approve
+Interactive series parts are never banked (each part depends on the viewers' choice).
 
 approve: writes /tmp/viral/<acc>.approved.json with the story's hash. bootstrap.py and studio.py setup refuse
 to make a video for --account <acc> unless that exact text is approved (VIRAL_GATE=off disables the gate).
@@ -52,7 +59,7 @@ sys.path.insert(0, HERE)
 OUT = os.environ.get('VIRAL_DIR', '/tmp/viral')
 NICHES = os.path.join(HERE, 'viral', 'niches.json')
 ACTOR = os.environ.get('APIFY_ACTOR', 'themineworks~tiktok-search-scraper')
-DEFAULT_THRESHOLD = 90   # owner 2026-11-23: every final script >= 90/100 (a floor: an account can only raise it)
+DEFAULT_THRESHOLD = 80   # owner 2026-11-23: every final script >= 80/100 (a floor: an account can only raise it)
 MIN_HOOK = 9             # owner 2026-11-23: the hook criterion must be >= 9/10 in every video
 DEFAULT_MIN_PLAYS = 100000
 MAX_KEYWORDS = 7
@@ -498,7 +505,7 @@ def evaluate(a):
         rec = {'date': today(), 'account': a.account, 'format': c.get('format'), 'file': sp, 'hash': story_hash(text),
                'hook': text.split('\n')[0][:200], 'final': final, 'judge': {n: s for n, s, _ in js}, 'checks': chk,
                'hard_fail': hard, 'threshold': threshold(c),
-               'criteria': judges[i].get('scores', judges[i]),
+               'criteria': judges[i].get('scores', judges[i]), 'rubric': judges[i], 'text': text,
                'improve': [x for _, _, imp in js for x in imp][:6],
                'notes': {n: note for n, pt, w, h, note in res if pt < 1}}
         rows.append(rec)
@@ -623,6 +630,82 @@ def sync(_a):
             f.write(json.dumps(e, ensure_ascii=False) + '\n')
     gdrive.put_state(p, 'viral_lab.jsonl')
     print('viral_lab.jsonl: +%d records' % len(new))
+    bank_save()
+
+
+BANK = 'script_bank.jsonl'
+NO_BANK_FORMATS = ('interactive_series',)
+
+
+def _bank_load():
+    import gdrive
+    p = os.path.join(OUT, BANK)
+    os.makedirs(OUT, exist_ok=True)
+    if not gdrive.get_state(BANK, p):
+        open(p, 'w').close()
+    return p, [json.loads(l) for l in open(p, encoding='utf-8') if l.strip()]
+
+
+def _passed(e):
+    return (not e.get('hard_fail') and e.get('final', 0) >= max(DEFAULT_THRESHOLD, e.get('threshold') or 0)
+            and float((e.get('criteria') or {}).get('hook', 0)) >= MIN_HOOK and e.get('text'))
+
+
+def bank_save():
+    """today's other passing scripts (not the approved one) -> Drive script bank, for the next days"""
+    import gdrive
+    p, bank = _bank_load()
+    have = {e['hash'] for e in bank}
+    used_today = set()
+    for f in os.listdir(OUT):
+        if f.endswith('.approved.json'):
+            used_today.add(json.load(open(os.path.join(OUT, f), encoding='utf-8'))['hash'])
+    new, seen = [], set()
+    for f in sorted(os.listdir(OUT)):
+        if not f.endswith('.evals.jsonl'):
+            continue
+        for l in open(os.path.join(OUT, f), encoding='utf-8'):
+            e = json.loads(l) if l.strip() else {}
+            h = e.get('hash')
+            if not e or h in have or h in used_today or h in seen or e.get('format') in NO_BANK_FORMATS or not _passed(e):
+                continue
+            seen.add(h)
+            new.append({'kind': 'spare', 'date': e['date'], 'account': e['account'], 'format': e.get('format'),
+                        'hash': h, 'final': e['final'], 'hook': e['hook'], 'text': e['text'], 'rubric': e.get('rubric')})
+    if new:
+        with open(p, 'a', encoding='utf-8') as fh:
+            for e in new:
+                fh.write(json.dumps(e, ensure_ascii=False) + '\n')
+        gdrive.put_state(p, BANK)
+    print('script bank: +%d spare scripts (%s)' % (len(new), ', '.join('%s %.0f' % (e['account'], e['final']) for e in new) or '-'))
+
+
+def bank_take(a):
+    """the account's best unused spare (same format, <= 3 days old) -> --out; exit 1 if there is none"""
+    import gdrive
+    c = account(a.account)
+    if c.get('format') in NO_BANK_FORMATS:
+        sys.exit('no spare: %s is a series format (write the next part)' % c.get('format'))
+    p, bank = _bank_load()
+    used = {e['hash'] for e in bank if e.get('kind') == 'used'}
+    base = re.sub(r'-\d+$', '', a.account)
+    oldest = (dt.date.fromisoformat(today()) - dt.timedelta(days=3)).isoformat()
+    spares = [e for e in bank if e.get('kind') == 'spare' and e['hash'] not in used and e.get('format') == c.get('format')
+              and re.sub(r'-\d+$', '', e['account']) == base and e['date'] >= oldest and e['date'] < today()]
+    if not spares:
+        sys.exit('no spare script for %s (%s) - run the full cycle' % (a.account, c.get('format')))
+    e = max(spares, key=lambda x: x['final'])
+    open(a.out, 'w', encoding='utf-8').write(e['text'].strip() + '\n')
+    json.dump(e['rubric'], open(acc_file(a.account, 'bank_judge.json'), 'w', encoding='utf-8'), ensure_ascii=False)
+    rp = acc_file(a.account, 'research.json')
+    if not os.path.exists(rp):   # no new search needed for a banked script
+        json.dump({'date': today(), 'status': 'bank', 'source': 'script bank (%s, written %s)' % (e['account'], e['date']),
+                   'videos': []}, open(rp, 'w', encoding='utf-8'))
+    with open(p, 'a', encoding='utf-8') as fh:
+        fh.write(json.dumps({'kind': 'used', 'hash': e['hash'], 'date': today(), 'account': a.account}) + '\n')
+    gdrive.put_state(p, BANK)
+    print('spare script from %s (score %.1f) -> %s\nnext: evaluate --account %s %s --judge %s, then approve' % (
+        e['date'], e['final'], a.out, a.account, a.out, acc_file(a.account, 'bank_judge.json')))
 
 
 def main():
@@ -641,13 +724,16 @@ def main():
     p.add_argument('story')
     sp.add_parser('status')
     sp.add_parser('sync')
+    b = sp.add_parser('bank-take')
+    b.add_argument('--account', required=True)
+    b.add_argument('--out', required=True)
     sp.add_parser('judge-template')
     a = ap.parse_args()
     if a.cmd == 'judge-template':
         print(json.dumps(JUDGE_TEMPLATE, indent=1))
         print('\n'.join('# %-13s weight %2d  10 = %s' % (k, w, d) for k, (w, d) in RUBRIC.items()))
         return
-    {'research': research, 'evaluate': evaluate, 'approve': approve, 'status': status, 'sync': sync}[a.cmd](a)
+    {'research': research, 'evaluate': evaluate, 'approve': approve, 'status': status, 'sync': sync, 'bank-take': bank_take}[a.cmd](a)
 
 
 if __name__ == '__main__':

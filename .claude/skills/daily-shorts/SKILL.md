@@ -51,6 +51,12 @@ owner's reference videos; short on purpose — never fetch `inspiration_archive.
 ## 1. Viral lab: research → patterns → 3 scripts → evaluate → improve → approve (owner 2026-11-23)
 No video is made from a script the lab has not approved: `bootstrap.py` / `studio.py setup --account` stop with
 `VIRAL GATE` otherwise. For EACH account of today (use the plan.py key, e.g. `mandraketoons-2`):
+0. **Script bank first (saves tokens, owner 2026-11-23):**
+   `python3 daily/viral_lab.py bank-take --account <acc> --out /home/user/motion/_story_<acc>.txt`
+   — a spare script from the last 3 days that already passed (same account + format). If it prints one: run
+   `evaluate` on it with `--judge /tmp/viral/<acc>.bank_judge.json` (its stored rubric, do not re-judge), then
+   `approve`, write only title/slug/caption and go to the video. Exit 1 ("no spare") → full cycle below.
+   Check the story log first: a spare whose premise was posted since on another account is skipped (full cycle).
 1. **Research** (before writing): `python3 daily/viral_lab.py research --account <acc> > /tmp/log_viral_<acc>.txt 2>&1; tail -n 40 /tmp/log_viral_<acc>.txt`
    — TikTok videos of the last 24 h in the account's niche (format + language keywords, `daily/viral/niches.json`),
    scored by views/hour + engagement; hashtags, recurring words/phrases, typical length, top captions.
@@ -72,10 +78,12 @@ No video is made from a script the lab has not approved: `bootstrap.py` / `studi
    scripts and repeat once. Still below after that → skip the account today and report it (never post a script
    below the bar).
 6. **Approve**: `cp <best> /home/user/motion/_story_<acc>.txt && python3 daily/viral_lab.py approve --account <acc> /home/user/motion/_story_<acc>.txt`
-   **Bar (owner 2026-11-23, every video): final ≥ 90/100 AND hook ≥ 9/10.** A 9 hook works for a viewer who has
+   **Bar (owner 2026-11-23, every video): final ≥ 80/100 AND hook ≥ 9/10.** A 9 hook works for a viewer who has
    never seen the account (series parts too: open on the threat, recap the earlier choice in ≤ 4 words). A hard
    fail — wrong length, no final question, repeated hook, hook < 9 — always blocks. Any edit after approval needs
    evaluate + approve again. Never inflate a score to reach the bar: improve the script.
+   The other candidates that also passed (hook ≥ 9, ≥ 80) are not wasted: `viral_lab.py sync` at the end saves
+   them to the script bank for the next days (not for interactive_series).
 
 ## 2. Stories — rules for every script of step 1
 - **Owner's ideas first:** a line of `/tmp/ideas.txt` (`<account|todas>: <idea>`) not yet in any `idea` field of
