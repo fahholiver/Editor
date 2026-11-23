@@ -22,6 +22,18 @@ def _today():
 _CFG = {}
 
 
+# formats that only work with one engine/look: forced whatever the account or the sheet had before
+# (2026-11-22: kaelusuxkzx kept vintage 1:1 with mindset_explainer and the video lost the whole look)
+FORMAT_LOOK = {
+    'mindset_explainer': {'engine': 'motion', 'visual_style': 'spotlight_line', 'aspect': '9:16', 'music_bed': False},
+}
+
+
+def format_look(c):
+    c.update(FORMAT_LOOK.get(c.get('format'), {}))
+    return c
+
+
 def config():
     """accounts.json merged with the sheet (only the sheet's gerar=s accounts), or accounts.json alone"""
     if 'cfg' not in _CFG:
@@ -48,6 +60,7 @@ def account_cfg(acc):
     for day, over in sorted((c.pop('changes_from', None) or {}).items()):   # dated changes
         if day <= today:
             c.update(over)
+    format_look(c)
     c['account'] = acc
     c['brief'] = os.path.join(HERE, 'formats', c['format'] + '.md')
     c['locale'] = os.path.join(HERE, 'locales', c['language'] + '.md')

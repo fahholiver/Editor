@@ -5,6 +5,24 @@ Owner's model (2026-11-21, 9 reference videos, see Drive `_state/inspiration.md`
 mini-essay so the viewer feels understood and convinced. Fiction-free: no claims about real people, no
 financial advice, no promises of money.
 
+## Engine and overrides (forced by plan.py FORMAT_LOOK — 2026-11-22 run came out wrong: vintage 1:1, navy, text only)
+- Always **Motion engine + `spotlight_line`, 9:16**, whatever the account used before. If plan.py prints another
+  engine for this format, stop and fix plan.py — never fall back to vintage/vox/cartoon or to plain kinetic text.
+- **Every shot has the stage**: black `K.stage`, at least one `K.spotlight`, the white `K.figure` (or 2 figures /
+  `K.crowd`) and one metaphor object. A shot with only text and numbers is wrong. Text on screen = the counter +
+  1–3 word labels, never whole sentences (the captions already carry the words).
+- **Not the horror opening:** Motion CLAUDE.md's "first 7 s every shot 0.5–1.0 s / cut at frame 210" and
+  STORY_BRIEF's double-meaning + 3–5 cuts do NOT apply. The hook is the counter-intuitive claim; the "shock
+  visual" is the big number already moving in frame 1 + `K.HOOK` title; then one glide per sentence.
+- **Music:** no channel track (`music_bed: false`). Write `score.json`: `calm` under the setup, `curious` under
+  "Imagine someone…", `hopeful` (build) from "This happens because…" to the end; `"key": "D", "bpm": 84`.
+  SFX only `tick` on counter jumps, `whoosh` on big glides, `ting` on the last line.
+- **Never reuse the references' claims** (first 10k vs next 100k, the one who fails most earns most, the smartest
+  is broke, six months away, nobody rich in your family, obsessed with something other than money, always do
+  what you always did, everyone wants to win, your brain keeps thinking about getting rich) — not even
+  translated or with other numbers (2026-11-22's "le premier client est dix fois plus dur que les cent
+  suivants" was too close).
+
 ## Script shape (in this order — the template is what convinces)
 1. **Hook (0–2.5 s, ≤ 10 words):** a counter-intuitive claim that flatters the viewer or reveals a hidden rule.
    Patterns: *"If X, it's because Y."* / *"The one who X ends up Z."* / *"The first A is harder than the next B."*

@@ -235,6 +235,8 @@ def merged(cfg, today):
         c.update(m)
         if m.get('engine') == 'motion' and 'visual_style' not in m:
             c.pop('visual_style', None)
+        import plan
+        plan.format_look(c)   # e.g. mindset_explainer -> Motion engine + spotlight_line, 9:16
         c.update(channel=acc, slot=slots[acc], language=lang, post_time=row['post_time'], tz=TZ,
                  also_post_to=[{'channel': n, 'name': n, 'post_time': row['post_time'], 'tz': TZ} for n in row['reposts']])
         out[key] = c

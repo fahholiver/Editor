@@ -69,6 +69,8 @@ python3 render.py video 4 && python3 audio.py && ./finalize.sh && python3 verify
 `LENGTH … OUTSIDE` → change the story length and rerun. `visual_style` (e.g. pixel_arcade) is hooked in by
 bootstrap; check one still early. Write `SHOTS` in render.py, `CUES` in audio.py, music in `score.json`.
 QC per Motion's CLAUDE.md (clean decode, black/freeze, opening cuts, one 1 fps sheet).
+Format `mindset_explainer` (style `spotlight_line`): follow its format file's "Engine and overrides" — black
+stage + spotlight + white figure in every shot, glides instead of the horror opening cuts, `score.json` music.
 
 **vintage / vox / cartoon** (`daily/studio/README.md`, its "what to write" section for the engine):
 ```bash
