@@ -2,7 +2,7 @@
 
 Owner's skill **Finance Documentary Studio** (2026-11-28), installed in `.claude/skills/finance-documentary-studio`.
 Plan.py forces **engine `finance`** (9:16, the skill's own score, no channel track). Not horror: a true money story
-told like a streaming-service business film, in the account's language. **Assigned: mandraketoons, English (en-GB)** (owner 2026-11-28).
+told like a streaming-service business film, in the account's language. **Assigned (owner 2026-11-28): English (mandraketoons) and German (anna.20263, thai.1382).** Model video: "Wirecard: 1,9 Milliarden, die es nie gab" (thai.1382, 2026-11-28).
 
 ## Story (true, checkable — read the skill's `references/script.md`, `legal.md`, `research.md`)
 - One real company / brand / fraud / bubble per video. Topics people search now (the viral lab's research +

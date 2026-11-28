@@ -119,7 +119,7 @@ python3 /home/user/Editor/daily/studio.py stills <slug> 1.5 4 9 ...      # -> <s
 python3 /home/user/Editor/daily/studio.py finish <slug> [--workers 3]     # -> output/<slug>_1080x1920.mp4 (+ QC sheet)
 ```
 **finance / orbit / engfail** = the owner's documentary skills (2026-11-28), chosen by the sheet's Modelo-skill
-`finance_doc` (English, mandraketoons), `space_killer` (French), `engineering_failure` (German); plan.py forces the engine, the
+`finance_doc` (English + German), `space_killer` (French), `engineering_failure` (installed, no account yet); plan.py forces the engine, the
 narrator (ElevenLabs premade voice per language) and 60–90 s. Same `studio.py setup / stills / finish` (see
 `daily/docstudio.py`); read the format file and the skill's own references, then write the project file setup names
 (`episode.py` / `build_scene.py` / `shots.py`). Facts must be real and checked with a web search (sources.md).

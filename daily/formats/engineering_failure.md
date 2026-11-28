@@ -3,7 +3,7 @@
 Owner's skill **Engineering Failures Studio** (2026-11-28), installed in `.claude/skills/engineering-failures-video`.
 Plan.py forces **engine `engfail`**: the skill's 1920x1080 film (navy grid, white evidence boxes, handwritten
 notes and arrows, archive footage, word-highlight captions) placed in a 9:16 frame with the title band on top.
-Not horror: a calm, exact investigation. **Assigned language: German (de-DE)** (owner 2026-11-28): German narration, German notes and title band; German/European cases (BFU, BAV, Bundesanstalt reports) or the big US/UK investigations, all retold in German.
+Not horror: a calm, exact investigation. **Not assigned to an account (owner 2026-11-28: German uses finance_doc).** If used in German: German narration, German notes and title band; German/European cases (BFU, BAV, Bundesanstalt reports) or the big US/UK investigations, all retold in German.
 
 ## Story (read the skill's `reference/sourcing.md`, `production.md`, `scenes.md`)
 - One completed investigation with a physical mechanism (NTSB, CSB, Coast Guard, HSE/AAIB for UK cases…).

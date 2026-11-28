@@ -2,7 +2,7 @@
 
 Owner's skill **Orbit** (2026-11-28), installed in `.claude/skills/orbit-space-videos`. Plan.py forces
 **engine `orbit`** (9:16 scene 1080x1920, the skill's own synth score, no channel track). Not horror: a fast,
-true space explainer in the second person. **Assigned language: French (fr-FR).**
+true space explainer in the second person. **Assigned (owner 2026-11-28): French (user890997140, kaelusuxkzx).** Model video: "Et si tu tombais dans Jupiter ?" (kaelusuxkzx, 2026-11-28).
 
 ## Story (read the skill's `references/script.md`; every number checked against NASA/ESA/JPL)
 - One place per video (planet, moon, star, black hole, comet, space itself…); never repeat a place of the log.
