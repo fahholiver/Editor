@@ -2,18 +2,18 @@
 
 Owner's skill **Finance Documentary Studio** (2026-11-28), installed in `.claude/skills/finance-documentary-studio`.
 Plan.py forces **engine `finance`** (9:16, the skill's own score, no channel track). Not horror: a true money story
-told like a streaming-service business film, in the account's language. **Assigned language: German (de-DE).**
+told like a streaming-service business film, in the account's language. **Assigned: mandraketoons, English (en-GB)** (owner 2026-11-28).
 
 ## Story (true, checkable — read the skill's `references/script.md`, `legal.md`, `research.md`)
 - One real company / brand / fraud / bubble per video. Topics people search now (the viral lab's research +
   the skill's research.md). Never repeat a company of the log.
-- **Every number from a real source** (annual report, SEC/EDGAR, Bundesanzeiger, press release, reputable press)
-  — check it with a web search before writing; if unsure, say "etwa"/"about" or leave it out. Note the sources
+- **Every number from a real source** (annual report, SEC/EDGAR, Companies House, press release, reputable press)
+  — check it with a web search before writing; if unsure, say "about" or leave it out. Note the sources
   in `<slug>/sources.md`. No financial advice, no defamation: documented facts only, court findings as findings.
 - Shape (the skill's Shorts rule): **the most shocking fact in the first second** with its number
-  ("Diese Firma hätte Netflix für 50 Millionen Dollar kaufen können."), one idea, a new beat every 2–3 s:
+  ("This company was worth more than a 150-year-old bank. Its money never existed."), one idea, a new beat every 2–3 s:
   rise (one number) → the decision that doomed them → the fall (one number, the crash) → today (one image) →
-  a last line that loops to the hook → a one-word comment question ("Hättest du gekauft? Ja oder nein.").
+  a last line that loops to the hook → a one-word comment question ("Would you have bought the shares? Yes or no.").
 - Write numbers as they are spoken (words), so the voice says them right.
 
 ## Picture (the skill's engine, `episode.py` in the project — studio.py setup writes the starter)
