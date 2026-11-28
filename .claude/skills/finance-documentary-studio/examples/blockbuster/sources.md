@@ -1,0 +1,12 @@
+# Sources (Blockbuster preview)
+- Revenue in 2000: $4,960.1 million (Form 10-K for 2004, Selected Financial Data).
+- First store: October 19, 1985, Dallas, Texas; founder David Cook, previously ran Cook Data Services (software for oil and gas firms); 8,000 VHS tapes in the first store. History.com, "First Blockbuster store opens"; Wikipedia, Blockbuster (retailer).
+- "A new store every 24 hours" in the late 1980s under Wayne Huizenga: Wikipedia, Blockbuster (retailer).
+- Peak: more than 9,000 stores (9,094) and 84,300 employees in 2004: Wikipedia.
+- Revenue around $6 billion a year at the peak; $800 million in late fees in 2000; Netflix offered for $50 million in 2000 (Reed Hastings and Marc Randolph): CNBC, "How Netflix almost lost the movie rental wars to Blockbuster" (2020-09-22).
+- CEO "trying not to laugh": Marc Randolph's account of the 2000 meeting (That Will Never Work, 2019), as reported widely.
+- Chapter 11 bankruptcy: September 23, 2010. Revenue 2010: $3.24 billion. Wikipedia; History.com.
+- The last Blockbuster: a franchised store in Bend, Oregon. History.com; Wikipedia.
+- Revenue (millions): 2000 4,960.1 · 2001 5,156.7 · 2002 5,565.9 · 2003 5,911.7 · 2004 6,053.2 (Form 10-K for 2004); 2005 5,721.8 · 2006 5,522.2 · 2007 5,542.4 · 2008 5,287.9 (Form 10-K for 2008, which restates 2004 as 5,932.8). 2010: 3.24 billion (Wikipedia). 2009 left out of the chart.
+- Stores at year end: 8,867 (2003), 9,094 (2004) (Form 10-K for 2004); about 400 stores by 1988 (History.com).
+- On-screen clipping (late fees): "In 2000, $800 million, or 16 percent of total revenue, came from fines." Mental Floss, "15 Fast-Forward Facts About Blockbuster Video", https://www.mentalfloss.com/article/75171/15-fast-forward-facts-about-blockbuster-video (quoted text, layout recreated on screen).

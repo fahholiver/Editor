@@ -31,7 +31,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 STUDIO = os.path.join(HERE, 'studio')
 sys.path.insert(0, HERE)
 
-ENGINES = ('vintage', 'vox', 'cartoon')
+import docstudio  # noqa: E402  finance / orbit / engfail = the owner's documentary skills (docstudio.py)
+
+ENGINES = ('vintage', 'vox', 'cartoon') + docstudio.DOC_ENGINES
 FRAME_ENGINES = ('vintage', 'cartoon')   # Playwright frame renderers (render.mjs)
 CARTOON_KIT = os.path.join(os.path.dirname(HERE), '.claude', 'skills', 'cartoon-audio-short', 'kit')
 SHARED = ['tts.py', 'words.py', 'captions.py', 'srt.py', 'thumbnail.mjs', 'sheet.py', 'align.py', 'paper.py',
@@ -130,7 +132,14 @@ def setup(a):
         sys.exit('%s already exists and is not empty - pick a new slug' % d)
 
     # 1. kit + tools
-    if engine == 'cartoon':
+    doc = engine in docstudio.DOC_ENGINES
+    if doc:
+        if square:
+            sys.exit('engine %s is 9:16 only' % engine)
+        for sub in ('audio', 'work', 'stills', 'tools'):
+            os.makedirs(os.path.join(d, sub), exist_ok=True)
+        shutil.copy2(os.path.join(STUDIO, 'tools', 'sheet.py'), os.path.join(d, 'tools', 'sheet.py'))
+    elif engine == 'cartoon':
         if square:
             sys.exit('engine cartoon is 9:16 only')
         subprocess.check_call(['bash', os.path.join(CARTOON_KIT, 'tools', 'setup.sh'), d])
@@ -141,26 +150,32 @@ def setup(a):
     else:
         shutil.copytree(os.path.join(STUDIO, 'kits', engine), d, dirs_exist_ok=True,
                         ignore=shutil.ignore_patterns('node_modules', '__pycache__'))
-    for sub in ('tools', 'audio', 'work', 'out', 'thumb', 'stills'):
+    for sub in ([] if doc else ['tools', 'audio', 'work', 'out', 'thumb', 'stills']):
         os.makedirs(os.path.join(d, sub), exist_ok=True)
-    for f in SHARED:
+    for f in ([] if doc else SHARED):
         shutil.copy2(os.path.join(STUDIO, 'tools', f), os.path.join(d, 'tools', f))
-    for f in AUDIO:
+    for f in ([] if doc else AUDIO):
         shutil.copy2(os.path.join(STUDIO, 'tools', f), os.path.join(d, 'audio', f))
+    if doc:
+        pass
     # music written per scene: audio.py runs score.py on work/score.json (rewritten for each video)
-    os.replace(os.path.join(d, 'audio', 'audio.py'), os.path.join(d, 'audio', 'audio_example.py'))
-    open(os.path.join(d, 'audio', 'audio.py'), 'w').write(AUDIO_RUNNER)
+    else:
+      os.replace(os.path.join(d, 'audio', 'audio.py'), os.path.join(d, 'audio', 'audio_example.py'))
+      open(os.path.join(d, 'audio', 'audio.py'), 'w').write(AUDIO_RUNNER)
     # captions in a bundled font that has every accent (Arial Black is not installed on the cloud machine)
     cap = os.path.join(d, 'tools', 'captions.py')
-    s = open(cap).read()
+    s = open(cap).read() if not doc else 'Style: Cap,Arial Black,'
     assert 'Style: Cap,Arial Black,' in s, 'captions.py changed - update the font patch'
     s = s.replace('Style: Cap,Arial Black,', 'Style: Cap,Archivo Black,')
     if square:   # 1080 x 1080: captions in the lower part of the square, clear of the TikTok UI
         s = s.replace('PlayResY: 1920', 'PlayResY: 1080').replace('MAXW, MAXC, Y = 3, 16, 430', 'MAXW, MAXC, Y = 3, 16, 150')
         assert 'PlayResY: 1080' in s and 'Y = 3, 16, 150' in s, 'captions.py changed - update the square patch'
-    open(cap, 'w').write(s)
+    if not doc:
+        open(cap, 'w').write(s)
     shutil.copytree(os.path.join(STUDIO, 'fonts'), os.path.join(d, 'fonts'), dirs_exist_ok=True)
-    if engine == 'vintage':
+    if doc:
+        pass
+    elif engine == 'vintage':
         patch_browser(d)
         if square:   # the three.js canvas and every Playwright viewport -> 1080 x 1080
             for f, old, new in [('web/main.js', 'const W = 1080, H = 1920;', 'const W = 1080, H = 1080;'),
@@ -205,9 +220,11 @@ def setup(a):
               open(os.path.join(d, 'work', 'words.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=0)
     shutil.copy(a.story, os.path.join(d, 'script.txt'))
 
+    doc_next = docstudio.setup(d, engine, c, wav, words, a.story) if doc else None
+
     # 3. the channel's background track (same one the Motion videos use), 48 kHz stereo
     bed = sorted(glob.glob(os.path.join(HERE, 'assets', 'background_music.*')))
-    if c.get('music_bed') is False:   # this account has its own sound: only the cue music from audio.py
+    if c.get('music_bed') is False or doc:   # this account has its own sound: only the cue music from audio.py
         bed = ['-']
     elif not bed:
         try:
@@ -227,7 +244,7 @@ def setup(a):
         print('background music: none')
 
     # 4. node packages (browsers are not downloaded: the machine's Chromium is used)
-    if engine != 'cartoon':   # cartoon: setup.sh linked the machine's Playwright
+    if engine != 'cartoon' and not doc:   # cartoon: setup.sh linked the machine's Playwright
         run(['npm', 'install', '--no-audit', '--no-fund', '--loglevel=error'], d)
 
     n = int(round(dur * 30))
@@ -249,7 +266,9 @@ def setup(a):
         if y[1] - x[2] > 0.35:
             print('  %.2f-%.2f  after "%s"' % (x[2], y[1], x[0]))
     guide = os.path.join(STUDIO, 'skills', engine + '.md')
-    if engine == 'cartoon':
+    if doc:
+        print('\nnext: %s; then studio.py stills / finish (the skill makes its own score: no work/score.json)' % doc_next)
+    elif engine == 'cartoon':
         print('\nnext: read %s steps 4.2-4.6; write work/PLAN.md, web/story.js (TOTAL = %d), the world in web/main.js, '
               'the cast in web/roman.js (then cat web/toonbase.js web/roman.js > web/toon.js), work/score.json%s; '
               'then studio.py stills / finish' % (os.path.join(os.path.dirname(CARTOON_KIT), 'SKILL.md'), n,
@@ -273,7 +292,9 @@ def stills(a):
     out = os.path.join(d, 'stills', 'check')
     shutil.rmtree(out, ignore_errors=True)
     os.makedirs(out)
-    if m['engine'] in FRAME_ENGINES:
+    if m['engine'] in docstudio.DOC_ENGINES:
+        docstudio.stills(d, m['engine'], a.secs, out)
+    elif m['engine'] in FRAME_ENGINES:
         frames = ','.join(str(min(m['frames'] - 1, int(round(float(s) * 30)))) for s in a.secs)
         run(['node', 'render.mjs', out, frames], d)
     else:
@@ -350,6 +371,13 @@ def finish(a):
     if os.path.exists(mp4):
         os.replace(mp4, mp4.replace('.mp4', '_v1.mp4'))   # keep the previous version
     dur = wav_len(os.path.join(d, 'audio', 'voice48.wav'))
+    if m['engine'] in docstudio.DOC_ENGINES:   # the skill renders + mixes (its own score under the voice)
+        src = docstudio.finish(d, m['engine'], m['title'], a.workers)
+        run(['ffmpeg', '-y', '-loglevel', 'error', '-i', src, '-vf', 'scale=1080:1920:force_original_aspect_ratio=decrease,'
+             'pad=1080:1920:(ow-iw)/2:(oh-ih)/2,fps=30', '-t', '%.3f' % (dur + 0.15), '-c:v', 'libx264', '-profile:v', 'high',
+             '-crf', '19', '-preset', 'medium', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart', mp4], d)
+        print('->', mp4)
+        return qc(d, mp4, dur)
     if m['engine'] in FRAME_ENGINES:
         n = int(re.search(r'\b(?:N|TOTAL) = (\d+)', open(os.path.join(d, 'web', 'story.js')).read()).group(1))
         if n < round(dur * 30):

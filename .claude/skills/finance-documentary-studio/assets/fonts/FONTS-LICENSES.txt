@@ -1,0 +1,8 @@
+Fonts are free to use and redistribute:
+Bebas Neue, Oswald, Playfair Display, IBM Plex Mono, Stardos Stencil, Courier Prime, Kalam, Caveat Brush, Patrick Hand, Permanent Marker: SIL Open Font License 1.1
+Special Elite: Apache License 2.0
+All from Google Fonts (fonts.google.com).
+
+Cinzel (Natasha Wolff): SIL Open Font License 1.1, https://github.com/google/fonts/tree/main/ofl/cinzel
+
+Cormorant Garamond (Christian Thalmann): SIL Open Font License 1.1, https://github.com/google/fonts/tree/main/ofl/cormorantgaramond

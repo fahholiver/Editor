@@ -1,0 +1,6 @@
+faster-whisper>=1.0
+soundfile
+numpy
+scipy
+imageio-ffmpeg
+certifi

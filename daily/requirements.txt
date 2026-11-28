@@ -4,3 +4,7 @@ numpy
 scipy
 pycairo
 pillow
+skia-python
+soundfile
+imageio-ffmpeg
+certifi

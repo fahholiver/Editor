@@ -1,0 +1,21 @@
+ENGINEERING FAILURES STUDIO  (free Claude skill from Money Mastery Hub)
+
+What you need:
+  1. A Claude Pro plan (or higher)
+  2. The Claude desktop app: https://claude.com/download
+  3. A voiceover: your own voice, or any AI voice tool (for example ElevenLabs)
+Everything else (Node.js, Python, FFmpeg, Chrome) Claude installs for you.
+
+How to use it:
+  1. Unzip this folder anywhere you like (Desktop is fine).
+  2. Open the Claude desktop app and click the "Code" tab (not Chat).
+  3. Choose "This computer", click the folder icon, and open this
+     "Engineering Failures Studio" folder. Click "Trust" if asked.
+  4. Type:   Follow SETUP.md
+     Say yes when Claude asks to install things.
+  5. Type:   Make a documentary about the Baltimore Key Bridge collapse
+     (or any engineering failure you like)
+     Claude researches it, finds free footage, writes the script and
+     gives you the voiceover text.
+  6. Make the voiceover, drag the MP3 into the chat and type:   Make the video
+  7. Your video appears in  episodes/<topic>/out/final.mp4

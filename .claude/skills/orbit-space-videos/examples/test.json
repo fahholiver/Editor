@@ -1,0 +1,5 @@
+{ "width": 1280, "height": 720, "fps": 30, "shots": [ { "start": 0, "end": 3, "cam": { "zoomFrom": 1, "zoomTo": 1.1 }, "els": [
+  { "type": "planet", "kind": "jupiter", "x": 1250, "y": 560, "r": 340 },
+  { "type": "astronaut", "x": 500, "y": 600, "s": 50, "rot": 0.3 },
+  { "type": "you", "x": 520, "y": 560, "lx": 330, "ly": 360, "t0": 0.4 },
+  { "type": "caption", "text": "setup *complete*", "t0": 0.8, "dur": 2 } ] } ] }

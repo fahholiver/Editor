@@ -26,11 +26,29 @@ _CFG = {}
 # (2026-11-22: kaelusuxkzx kept vintage 1:1 with mindset_explainer and the video lost the whole look)
 FORMAT_LOOK = {
     'mindset_explainer': {'engine': 'motion', 'visual_style': 'spotlight_line', 'aspect': '9:16', 'music_bed': False},
+    # the owner's documentary skills (2026-11-28, daily/docstudio.py): format = skill, engine forced
+    'finance_doc': {'engine': 'finance', 'aspect': '9:16', 'music_bed': False, 'visual_style': None},
+    'space_killer': {'engine': 'orbit', 'aspect': '9:16', 'music_bed': False, 'visual_style': None},
+    'engineering_failure': {'engine': 'engfail', 'aspect': '9:16', 'music_bed': False, 'visual_style': None},
 }
+
+
+# documentary skills: one narrator per language (ElevenLabs library, chosen 2026-11-28; Edge stays the fallback)
+DOC_VOICE = {'de-DE': 'nPczCjzI2devNBz1zQrb',   # Brian - deep, resonant (premade: library voices need a paid plan)
+             'fr-FR': 'JBFqnCBsd6RMkjVDRZzb',   # George - warm, captivating storyteller (premade, multilingual v2)
+             'en-GB': 'onwK4e9ZLuTAKqWW03F9'}   # Daniel - steady British broadcaster (premade)
+DOC_SECONDS = [60, 90]
+DOC_WORDS = {'de-DE': [125, 175], 'fr-FR': [140, 195], 'en-GB': [150, 210]}   # documentary pace ~150 wpm
 
 
 def format_look(c):
     c.update(FORMAT_LOOK.get(c.get('format'), {}))
+    if c.get('engine') in ('finance', 'orbit', 'engfail'):
+        c['elevenlabs_voice'] = DOC_VOICE.get(c.get('language'), c.get('elevenlabs_voice'))
+        c['seconds'] = DOC_SECONDS
+        c['words'] = DOC_WORDS.get(c.get('language'), c.get('words'))
+    if c.get('visual_style') is None:
+        c.pop('visual_style', None)
     return c
 
 

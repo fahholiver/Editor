@@ -15,6 +15,13 @@ An account picks one with `"engine"` in `daily/accounts.json`. You can date it w
 | `vox` | Vox Style: paper collage, cut-outs with white border and tape, film grain, self-drawing red arrows and circles, yellow highlighter, slamming Oswald headlines | Remotion | ≈ 10 min | none: the headlines carry the words |
 | `cartoon` | bean-head cards in an inked, painted three.js world with depth of field (newer than vintage: ink pass, DOF, Roman/medieval-style cast `roman.js`) | Playwright + Chromium (SwiftShader), ≈ 3.2 s/frame | **≈ 45–60 min** for 75 s with 3 workers (`finish --workers 3`): start it first, in the background | none (skill rule); `interactive_series` overlays (Partie N, red circle, choice card) from `work/overlay.json` |
 
+| `finance` | Finance Documentary Studio (`.claude/skills/finance-documentary-studio`): dark market terminal, real Commons photos with credits, self-drawing charts (red at the crash), word captions | skia-python (CPU) | ≈ 10 min | burned in, 3 words, spoken word green |
+| `orbit` | Orbit (`.claude/skills/orbit-space-videos`): drawn planets, tiny astronaut TOI/YOU, chapter cards, counters, stamps | Playwright + Chromium canvas | ≈ 10 min | keyword captions only |
+| `engfail` | Engineering Failures Studio (`.claude/skills/engineering-failures-video`): navy grid, evidence boxes, handwritten notes + arrows, archive footage; 16:9 film in a 9:16 frame | HyperFrames + GSAP | not timed yet | burned in by the skill |
+
+The three documentary engines are glued in by `daily/docstudio.py` (formats `finance_doc`, `space_killer`,
+`engineering_failure` force them; see those format files).
+
 Files: `kits/vintage`, `kits/vox` (read-only templates, the example video of each plugin), `tools/` (shared
 tools: words/tts/captions/srt/sheet/thumbnail + audio engine dsp/instruments/mix), `skills/*.md` (the
 plugins' original instructions, the reference for the code), `fonts/` (caption font, OFL).

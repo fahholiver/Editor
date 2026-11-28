@@ -42,9 +42,11 @@ import gdrive  # noqa: E402
 SHEET_ID = os.environ.get('ACCOUNTS_SHEET_ID', '152_rw1qpLMHeCPw2R48N66MjDgBBHZlKilqIOJx4XKQ')
 CACHE = 'accounts_sheet.csv'
 TZ = 'Europe/London'
-ENGINES = ('motion', 'vintage', 'vox', 'cartoon')
+ENGINES = ('motion', 'vintage', 'vox', 'cartoon', 'finance', 'orbit', 'engfail')
 ENGINE_LOOK = {'vintage': {'aspect': '1:1', 'music_bed': False}, 'vox': {'aspect': '1:1', 'music_bed': False},
-               'motion': {'aspect': '9:16', 'music_bed': True}, 'cartoon': {'aspect': '9:16', 'music_bed': True}}
+               'motion': {'aspect': '9:16', 'music_bed': True}, 'cartoon': {'aspect': '9:16', 'music_bed': True},
+               'finance': {'aspect': '9:16', 'music_bed': False}, 'orbit': {'aspect': '9:16', 'music_bed': False},
+               'engfail': {'aspect': '9:16', 'music_bed': False}}
 # words that name a language/country -> locales/<code>.md
 LANG_WORDS = {
     'en-GB': ('en', 'en-gb', 'uk', 'gb', 'ingles', 'english', 'inglaterra', 'reino unido', 'britain', 'england'),

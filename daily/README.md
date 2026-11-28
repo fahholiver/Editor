@@ -19,7 +19,8 @@ Uma linha por conta, todas as horas em horário de Londres:
 - **Conta repostagem**: nomes dos canais no Buffer separados por vírgula; postam o mesmo vídeo no mesmo horário.
 - **País-Língua**: UK/Inglês, Alemanha/Alemão, França/Francês (ou en-GB, de-DE, fr-FR).
 - **Modelo-skill**: formato (`confession`, `rule_horror`, `interactive_series`, `survival_guide`, `parable`,
-  `curiosity`) e/ou engine (`motion`, `vintage`, `vox`, `cartoon`) e/ou estilo (`pixel_arcade`), separados por `/`:
+  `curiosity`, e as skills documentário `finance_doc` / `space_killer` / `engineering_failure`) e/ou engine
+  (`motion`, `vintage`, `vox`, `cartoon`, `finance`, `orbit`, `engfail`) e/ou estilo (`pixel_arcade`), separados por `/`:
   ex. `parable/vintage`.
 - Lida com o seu login do Google (`GDRIVE_FULL_REFRESH_TOKEN`); cada leitura fica salva em Drive
   `_state/accounts_sheet.csv` e é usada se o Google falhar. Planilha vazia/cabeçalho errado → `accounts.json` como antes.

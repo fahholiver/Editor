@@ -1,0 +1,866 @@
+{
+ "width": 1920,
+ "height": 1080,
+ "fps": 30,
+ "shots": [
+  {
+   "start": 0,
+   "end": 3.0,
+   "els": [
+    {
+     "type": "sun",
+     "x": 60,
+     "y": 1000,
+     "r": 30
+    },
+    {
+     "type": "planet",
+     "kind": "venus",
+     "seed": 4,
+     "x": 1300,
+     "y": 560,
+     "r": 420,
+     "light": 2.6,
+     "spin": 0.03
+    },
+    {
+     "type": "astronaut",
+     "x": 520,
+     "y": 640,
+     "s": 48,
+     "vx": 12,
+     "rot": 0.35
+    },
+    {
+     "type": "you",
+     "x": 545,
+     "y": 600,
+     "lx": 330,
+     "ly": 390,
+     "t0": 0.34
+    },
+    {
+     "type": "title",
+     "text": "VENUS",
+     "sub": "2ND PLANET FROM THE SUN",
+     "t0": 1.2,
+     "dur": 1.8
+    }
+   ],
+   "cam": {
+    "zoomFrom": 1,
+    "zoomTo": 1.12,
+    "fx": 0.62
+   }
+  },
+  {
+   "start": 3.0,
+   "end": 6.82,
+   "els": [
+    {
+     "type": "planet",
+     "kind": "venus",
+     "seed": 4,
+     "x": 960,
+     "y": 900,
+     "r": 900,
+     "light": -1.9,
+     "spin": 0.02
+    },
+    {
+     "type": "caption",
+     "text": "it looks *calm*",
+     "t0": 0.5,
+     "dur": 3.0
+    }
+   ],
+   "cam": {
+    "zoomFrom": 1.0,
+    "zoomTo": 1.1,
+    "fy": 0.4
+   }
+  },
+  {
+   "start": 6.82,
+   "end": 10.2,
+   "els": [
+    {
+     "type": "lineup",
+     "y": 0.66,
+     "gap": 160,
+     "items": [
+      {
+       "kind": "venus",
+       "seed": 4,
+       "r": 228,
+       "label": "VENUS",
+       "note": "12,104 km wide",
+       "at": 0
+      },
+      {
+       "kind": "earth",
+       "r": 240,
+       "label": "EARTH",
+       "note": "12,742 km wide",
+       "at": 0.9
+      }
+     ]
+    },
+    {
+     "type": "caption",
+     "text": "almost the *same size*",
+     "y": 0.12,
+     "t0": 0.76,
+     "dur": 2.5
+    }
+   ],
+   "cam": {
+    "zoomFrom": 1.0,
+    "zoomTo": 1.05
+   }
+  },
+  {
+   "start": 10.2,
+   "end": 12.88,
+   "els": [
+    {
+     "type": "planet",
+     "kind": "venus",
+     "seed": 4,
+     "x": 960,
+     "y": 1500,
+     "r": 1000,
+     "light": -1.6,
+     "spin": 0.02
+    },
+    {
+     "type": "astronaut",
+     "x": 960,
+     "y": 420,
+     "s": 110,
+     "spin": 0.9,
+     "vy": 30
+    },
+    {
+     "type": "big",
+     "text": "WHAT KILLS YOU FIRST?",
+     "size": 120,
+     "y": 0.16,
+     "tone": "yellow",
+     "t0": 0.54
+    }
+   ],
+   "cam": {
+    "zoomFrom": 1.0,
+    "zoomTo": 1.12,
+    "fy": 0.4
+   }
+  },
+  {
+   "start": 12.88,
+   "end": 24.06,
+   "els": [
+    {
+     "type": "planet",
+     "kind": "venus",
+     "seed": 4,
+     "x": 960,
+     "y": 1900,
+     "r": 1500,
+     "light": -1.6,
+     "spin": 0.16
+    },
+    {
+     "type": "astronaut",
+     "x": 300,
+     "y": 300,
+     "s": 80,
+     "vx": 120,
+     "spin": 1.6,
+     "lamp": 0.5
+    },
+    {
+     "type": "chapter",
+     "n": "KILLER #1",
+     "text": "THE WIND",
+     "dur": 0.9
+    },
+    {
+     "type": "counter",
+     "label": "WIND AT THE CLOUD TOPS",
+     "from": 0,
+     "to": 300,
+     "unit": "km/h",
+     "x": 0.05,
+     "y": 0.08,
+     "t0": 3.02,
+     "t1": 1.4
+    },
+    {
+     "type": "big",
+     "text": "4 DAYS",
+     "sub": "FOR THE WIND TO CIRCLE THE WHOLE PLANET",
+     "y": 0.42,
+     "size": 210,
+     "t0": 9.72
+    },
+    {
+     "type": "caption",
+     "text": "fast enough to *drag you* around the planet",
+     "t0": 6.58,
+     "dur": 3.0
+    }
+   ],
+   "cam": {
+    "zoomFrom": 1.0,
+    "zoomTo": 1.08,
+    "panFrom": -60,
+    "panTo": 80
+   }
+  },
+  {
+   "start": 24.06,
+   "end": 35.1,
+   "els": [
+    {
+     "type": "descent",
+     "sky": [
+      "#ecca86",
+      "#b98a3e"
+     ],
+     "cols": [
+      "#f2dca4",
+      "#dab36a",
+      "#b8893e"
+     ],
+     "speed": 700,
+     "rain": "#e8f27a"
+    },
+    {
+     "type": "astronaut",
+     "x": 1420,
+     "y": 640,
+     "s": 120,
+     "spin": 0.5,
+     "rot": -0.4,
+     "lamp": 0
+    },
+    {
+     "type": "chapter",
+     "n": "KILLER #2",
+     "text": "ACID CLOUDS",
+     "dur": 0.9
+    },
+    {
+     "type": "counter",
+     "label": "ALTITUDE",
+     "from": 70,
+     "to": 45,
+     "unit": "km",
+     "x": 0.05,
+     "y": 0.08,
+     "t0": 1.64,
+     "t1": 9
+    },
+    {
+     "type": "caption",
+     "text": "they're not *water*",
+     "t0": 4.34,
+     "dur": 1.3
+    },
+    {
+     "type": "pill",
+     "text": "SULFURIC ACID",
+     "tone": "red",
+     "x": 0.66,
+     "y": 0.1,
+     "t0": 6.1
+    },
+    {
+     "type": "stamp",
+     "text": "ACID",
+     "x": 0.74,
+     "y": 0.6,
+     "rot": 0.14,
+     "t0": 6.74,
+     "dur": 1.2
+    },
+    {
+     "type": "big",
+     "text": "25 KM",
+     "sub": "OF ACID CLOUD, STRAIGHT DOWN",
+     "y": 0.42,
+     "size": 220,
+     "t0": 7.98
+    }
+   ],
+   "cam": {
+    "zoomFrom": 1.0,
+    "zoomTo": 1.1,
+    "shake": 3
+   }
+  },
+  {
+   "start": 35.1,
+   "end": 52.6,
+   "els": [
+    {
+     "type": "descent",
+     "sky": [
+      "#b06a22",
+      "#4a2208"
+     ],
+     "cols": [
+      "#c98a40",
+      "#a2621f",
+      "#7a4212"
+     ],
+     "speed": 380,
+     "alpha": 0.85
+    },
+    {
+     "type": "astronaut",
+     "x": 480,
+     "y": 520,
+     "s": 100,
+     "spin": 0.25,
+     "rot": 0.2,
+     "lamp": 0.6
+    },
+    {
+     "type": "chapter",
+     "n": "KILLER #3",
+     "text": "THE PRESSURE",
+     "dur": 0.9
+    },
+    {
+     "type": "counter",
+     "label": "ALTITUDE",
+     "from": 45,
+     "to": 0,
+     "unit": "km",
+     "x": 0.05,
+     "y": 0.08,
+     "t0": 1.2,
+     "t1": 15
+    },
+    {
+     "type": "pill",
+     "text": "AIR: 96.5% CARBON DIOXIDE",
+     "x": 0.05,
+     "y": 0.26,
+     "t0": 4.8
+    },
+    {
+     "type": "gauge",
+     "label": "AIR PRESSURE (EARTH = 1\u00d7)",
+     "to": 92,
+     "max": 100,
+     "unit": "\u00d7",
+     "x": 0.5,
+     "y": 0.52,
+     "r": 180,
+     "t0": 9.1,
+     "t1": 1.2
+    },
+    {
+     "type": "depth",
+     "label": "A SUBMARINE FEELS THIS AT",
+     "max": 1000,
+     "to": 900,
+     "x": 0.79,
+     "y": 0.24,
+     "t0": 13.76
+    },
+    {
+     "type": "caption",
+     "text": "*92\u00d7* harder than Earth's air",
+     "t0": 10.12,
+     "dur": 3.4
+    }
+   ],
+   "cam": {
+    "zoomFrom": 1.04,
+    "zoomTo": 1.0,
+    "shake": 2
+   }
+  },
+  {
+   "start": 52.6,
+   "end": 66.9,
+   "els": [
+    {
+     "type": "surface",
+     "kind": "venus",
+     "heat": 2.4,
+     "rocks": true
+    },
+    {
+     "type": "astronaut",
+     "x": 860,
+     "y": 860,
+     "s": 90,
+     "rot": 0.6,
+     "lamp": 0.4
+    },
+    {
+     "type": "chapter",
+     "n": "KILLER #4",
+     "text": "THE HEAT",
+     "dur": 0.9
+    },
+    {
+     "type": "thermo",
+     "from": 20,
+     "to": 465,
+     "max": 500,
+     "label": "SURFACE TEMPERATURE",
+     "x": 0.12,
+     "y": 0.78,
+     "t0": 2.0,
+     "t1": 1.4
+    },
+    {
+     "type": "caption",
+     "text": "day *or* night",
+     "t0": 5.7,
+     "dur": 2.4
+    },
+    {
+     "type": "pill",
+     "text": "HOTTER THAN MERCURY",
+     "tone": "red",
+     "x": 0.6,
+     "y": 0.12,
+     "t0": 8.74
+    },
+    {
+     "type": "melt",
+     "x": 0.72,
+     "y": 0.78,
+     "t0": 12.0
+    },
+    {
+     "type": "stamp",
+     "text": "MELTS LEAD",
+     "x": 0.72,
+     "y": 0.44,
+     "rot": -0.1,
+     "t0": 12.98
+    }
+   ],
+   "cam": {
+    "zoomFrom": 1.0,
+    "zoomTo": 1.07,
+    "fx": 0.3,
+    "fy": 0.6
+   }
+  },
+  {
+   "start": 66.9,
+   "end": 85.42,
+   "els": [
+    {
+     "type": "surface",
+     "kind": "venus",
+     "heat": 2.6,
+     "rocks": true
+    },
+    {
+     "type": "probe",
+     "x": 1300,
+     "y": 900,
+     "s": 230,
+     "drop": 2.4,
+     "t0": 0.6,
+     "dead": 16.979999999999997,
+     "cook": 17
+    },
+    {
+     "type": "tag",
+     "text": "VENERA 13 \u00b7 1982",
+     "x": 0.05,
+     "y": 0.06,
+     "t0": 2.68
+    },
+    {
+     "type": "timer",
+     "label": "BUILT TO SURVIVE",
+     "to": 1920,
+     "x": 0.05,
+     "y": 0.15,
+     "t0": 7.94,
+     "t1": 1.2
+    },
+    {
+     "type": "timer",
+     "label": "ACTUALLY SURVIVED",
+     "to": 7620,
+     "x": 0.05,
+     "y": 0.35,
+     "t0": 10.62,
+     "t1": 2.6,
+     "dead": 6.959999999999999
+    },
+    {
+     "type": "caption",
+     "text": "*colour photos* of the ground",
+     "t0": 14.5,
+     "dur": 2.4
+    },
+    {
+     "type": "stamp",
+     "text": "COOKED",
+     "x": 0.7,
+     "y": 0.32,
+     "rot": -0.12,
+     "t0": 17.58
+    }
+   ],
+   "cam": {
+    "zoomFrom": 1.0,
+    "zoomTo": 1.12,
+    "fx": 0.66,
+    "fy": 0.78
+   }
+  },
+  {
+   "start": 85.42,
+   "end": 93.76,
+   "els": [
+    {
+     "type": "planet",
+     "kind": "venus",
+     "seed": 4,
+     "x": 960,
+     "y": 560,
+     "r": 330,
+     "light": -2.4,
+     "spin": -0.06
+    },
+    {
+     "type": "caption",
+     "text": "things would feel *wrong*",
+     "t0": 0.82,
+     "dur": 2.6
+    },
+    {
+     "type": "pill",
+     "text": "ONE SPIN = 243 EARTH DAYS",
+     "x": 0.06,
+     "y": 0.3,
+     "t0": 4.86
+    },
+    {
+     "type": "pill",
+     "text": "ONE TRIP AROUND THE SUN = 225 DAYS",
+     "x": 0.94,
+     "y": 0.62,
+     "align": "right",
+     "t0": 7.08,
+     "tone": "red"
+    }
+   ],
+   "cam": {
+    "zoomFrom": 1.0,
+    "zoomTo": 1.08
+   }
+  },
+  {
+   "start": 93.76,
+   "end": 97.78,
+   "els": [
+    {
+     "type": "surface",
+     "kind": "venus",
+     "heat": 1.5,
+     "cols": [
+      "#3a1a0a",
+      "#a24e18",
+      "#e0904a",
+      "#8a3e14",
+      "#62280c",
+      "#3a1606"
+     ]
+    },
+    {
+     "type": "sun",
+     "x": 260,
+     "y": 820,
+     "r": 34,
+     "vy": -70
+    },
+    {
+     "type": "astronaut",
+     "x": 1300,
+     "y": 820,
+     "s": 90,
+     "rot": 0,
+     "flip": true,
+     "lamp": 0
+    },
+    {
+     "type": "pill",
+     "text": "\u2190 WEST",
+     "x": 0.06,
+     "y": 0.1,
+     "t0": 0.4
+    },
+    {
+     "type": "caption",
+     "text": "the sun rises in the *west*",
+     "t0": 1.78,
+     "dur": 2.1
+    }
+   ],
+   "cam": {
+    "zoomFrom": 1.0,
+    "zoomTo": 1.06
+   }
+  },
+  {
+   "start": 97.78,
+   "end": 112.38,
+   "els": [
+    {
+     "type": "surface",
+     "kind": "venus",
+     "volcano": 0.62,
+     "heat": 1.6
+    },
+    {
+     "type": "caption",
+     "text": "the ground might not be *still*",
+     "t0": 0,
+     "dur": 2.3
+    },
+    {
+     "type": "evidence",
+     "src": "media/PIA00271.jpg",
+     "credit": "NASA/JPL \u00b7 Magellan radar map",
+     "tag": "REAL NASA RADAR \u00b7 UNDER THE CLOUDS",
+     "x": 0.5,
+     "y": 0.47,
+     "w": 760,
+     "h": 600,
+     "t0": 2.48,
+     "dur": 5.9,
+     "zoom": 0.12
+    },
+    {
+     "type": "evidence",
+     "src": "media/PIA00106.jpg",
+     "credit": "NASA/JPL \u00b7 Magellan radar, height exaggerated 10\u00d7",
+     "tag": "REAL NASA RADAR \u00b7 MAAT MONS VOLCANO",
+     "x": 0.5,
+     "y": 0.47,
+     "w": 1100,
+     "h": 620,
+     "t0": 8.36,
+     "rot": 0.012,
+     "zoom": 0.1
+    },
+    {
+     "type": "pill",
+     "text": "A VENT CHANGED SHAPE IN 8 MONTHS",
+     "tone": "red",
+     "x": 0.5,
+     "y": 0.84,
+     "t0": 9.9,
+     "align": "right"
+    },
+    {
+     "type": "stamp",
+     "text": "STILL ERUPTING?",
+     "tone": "yellow",
+     "x": 0.72,
+     "y": 0.2,
+     "rot": 0.08,
+     "size": 70,
+     "t0": 12.82
+    }
+   ],
+   "cam": {
+    "zoomFrom": 1.0,
+    "zoomTo": 1.08,
+    "fx": 0.62
+   }
+  },
+  {
+   "start": 112.38,
+   "end": 114.38,
+   "els": [
+    {
+     "type": "big",
+     "text": "BUT\u2026",
+     "size": 300,
+     "tone": "yellow",
+     "t0": 0
+    }
+   ],
+   "cam": {
+    "zoomFrom": 1.0,
+    "zoomTo": 1.1
+   }
+  },
+  {
+   "start": 114.38,
+   "end": 125.94,
+   "els": [
+    {
+     "type": "descent",
+     "sky": [
+      "#fbe6b6",
+      "#e9c27a"
+     ],
+     "cols": [
+      "#fff1cf",
+      "#f2d79a",
+      "#e0b56c"
+     ],
+     "speed": 60,
+     "alpha": 0.95
+    },
+    {
+     "type": "astronaut",
+     "x": 900,
+     "y": 470,
+     "s": 120,
+     "rot": 0.1,
+     "lamp": 0
+    },
+    {
+     "type": "counter",
+     "label": "ALTITUDE",
+     "from": 50,
+     "to": 50,
+     "unit": "km",
+     "x": 0.05,
+     "y": 0.08,
+     "t0": 1.3,
+     "t1": 0.5
+    },
+    {
+     "type": "gauge",
+     "label": "AIR PRESSURE (EARTH = 1\u00d7)",
+     "from": 92,
+     "to": 1,
+     "max": 100,
+     "unit": "\u00d7",
+     "x": 0.78,
+     "y": 0.5,
+     "r": 160,
+     "t0": 3.3,
+     "t1": 1.6
+    },
+    {
+     "type": "caption",
+     "text": "roughly what you feel *right now*",
+     "t0": 4.62,
+     "dur": 2.4
+    },
+    {
+     "type": "stamp",
+     "text": "EARTH-LIKE",
+     "tone": "green",
+     "x": 0.32,
+     "y": 0.22,
+     "rot": -0.1,
+     "t0": 7.86
+    }
+   ],
+   "cam": {
+    "zoomFrom": 1.0,
+    "zoomTo": 1.06
+   }
+  },
+  {
+   "start": 125.94,
+   "end": 131.42,
+   "els": [
+    {
+     "type": "descent",
+     "sky": [
+      "#fbe6b6",
+      "#e9c27a"
+     ],
+     "cols": [
+      "#fff1cf",
+      "#f2d79a",
+      "#e0b56c"
+     ],
+     "speed": 50,
+     "alpha": 0.95
+    },
+    {
+     "type": "airship",
+     "x": 980,
+     "y": 430,
+     "s": 170
+    },
+    {
+     "type": "pill",
+     "text": "NASA STUDY \u00b7 HAVOC CONCEPT",
+     "x": 0.05,
+     "y": 0.08,
+     "t0": 0.2
+    },
+    {
+     "type": "caption",
+     "text": "floating *above the acid*",
+     "t0": 3.18,
+     "dur": 2.2
+    }
+   ],
+   "cam": {
+    "zoomFrom": 1.1,
+    "zoomTo": 1.0,
+    "panFrom": 40,
+    "panTo": -40
+   },
+   "trans": "fade"
+  },
+  {
+   "start": 131.42,
+   "end": 138.4,
+   "els": [
+    {
+     "type": "planet",
+     "kind": "venus",
+     "seed": 4,
+     "x": 1250,
+     "y": 560,
+     "r": 400,
+     "light": 2.6,
+     "spin": 0.03
+    },
+    {
+     "type": "astronaut",
+     "x": 540,
+     "y": 520,
+     "s": 48,
+     "rot": 0.3,
+     "vx": -6
+    },
+    {
+     "type": "caption",
+     "text": "it will never let you *land*",
+     "t0": 0.08,
+     "dur": 2.0
+    },
+    {
+     "type": "caption",
+     "text": "as long as you never *come down*",
+     "t0": 4.08,
+     "dur": 2.6
+    }
+   ],
+   "cam": {
+    "zoomFrom": 1.12,
+    "zoomTo": 1.0,
+    "fx": 0.62
+   },
+   "trans": "fade"
+  }
+ ]
+}

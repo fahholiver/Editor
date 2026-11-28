@@ -31,6 +31,7 @@ posts on the same channel at its own time. Every slot is its own brand-new story
 ```bash
 cd /home/user && git clone -q --depth 1 -b claude/buffer-tiktok-video-generation-lrudue https://github.com/fahholiver/Editor Editor
 cd /home/user/Editor && pip install -q -r daily/requirements.txt > /tmp/log_pip.txt 2>&1; tail -n 2 /tmp/log_pip.txt
+(apt-get install -y -q libegl1 > /tmp/log_apt.txt 2>&1 || (apt-get update -q > /dev/null 2>&1 && apt-get install -y -q libegl1 > /tmp/log_apt.txt 2>&1))   # skia (finance engine)
 python3 daily/engine.py fetch /home/user/motion > /tmp/log_fetch.txt 2>&1; tail -n 2 /tmp/log_fetch.txt   # Motion engine from Drive
 for f in stories.jsonl insights.md inspiration.md; do python3 daily/gdrive.py get-state $f /tmp/$f; done
 python3 daily/gdrive.py visual-ideas /tmp/visual > /tmp/visual.txt
@@ -117,6 +118,13 @@ cd /home/user/motion && python3 /home/user/Editor/daily/studio.py setup . <slug>
 python3 /home/user/Editor/daily/studio.py stills <slug> 1.5 4 9 ...      # -> <slug>/work/sheet.jpg
 python3 /home/user/Editor/daily/studio.py finish <slug> [--workers 3]     # -> output/<slug>_1080x1920.mp4 (+ QC sheet)
 ```
+**finance / orbit / engfail** = the owner's documentary skills (2026-11-28), chosen by the sheet's Modelo-skill
+`finance_doc` (German), `space_killer` (French), `engineering_failure` (English); plan.py forces the engine, the
+narrator (ElevenLabs premade voice per language) and 60–90 s. Same `studio.py setup / stills / finish` (see
+`daily/docstudio.py`); read the format file and the skill's own references, then write the project file setup names
+(`episode.py` / `build_scene.py` / `shots.py`). Facts must be real and checked with a web search (sources.md).
+Each skill makes its own score under the voice (no score.json). The skills' "ask the user" steps (topic, length,
+voice, preview approval) do NOT apply in the daily run: decide yourself. Finance renders ≈ 10 min, Orbit ≈ 10 min.
 `cartoon` (user890997140) = `.claude/skills/cartoon-audio-short` (steps 4.2–4.6), no captions, series overlays
 from `work/overlay.json`. vintage and cartoon render for 45–90 min: set them up first and run `finish` in the
 background while making the other accounts.

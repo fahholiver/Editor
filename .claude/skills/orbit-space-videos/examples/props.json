@@ -1,0 +1,237 @@
+{
+ "width": 1920,
+ "height": 1080,
+ "fps": 30,
+ "shots": [
+  {
+   "start": 0,
+   "end": 2,
+   "els": [
+    {
+     "type": "receipt",
+     "title": "VENUS DINER",
+     "items": [
+      [
+       "SPACESUIT",
+       "\u00d71"
+      ],
+      [
+       "SPACESUIT",
+       "\u00d71"
+      ],
+      [
+       "PROBE (SOVIET)",
+       "\u00d710"
+      ],
+      [
+       "SUNLIGHT",
+       "\u00d7\u221e"
+      ]
+     ],
+     "total": "ALL OF IT",
+     "x": 0.35
+    },
+    {
+     "type": "doc",
+     "org": "Interplanetary Complaints Office",
+     "title": "Official Complaint",
+     "fields": [
+      [
+       "Filed by",
+       "one (1) planet"
+      ],
+      [
+       "Against",
+       "Venera 13"
+      ],
+      [
+       "Reason",
+       "you landed on me"
+      ]
+     ],
+     "stamp": "FILED",
+     "x": 0.72,
+     "stampAt": 1.0
+    }
+   ]
+  },
+  {
+   "start": 2,
+   "end": 4,
+   "els": [
+    {
+     "type": "options",
+     "x": 0.1,
+     "y": 0.2,
+     "items": [
+      {
+       "text": "Fly higher",
+       "at": 0,
+       "out": 0.5
+      },
+      {
+       "text": "Dig in",
+       "at": 0.6,
+       "out": 1.1
+      },
+      {
+       "text": "Wait for night",
+       "at": 1.2
+      }
+     ],
+     "verdict": {
+      "text": "Nothing works",
+      "at": 1.6
+     }
+    },
+    {
+     "type": "loading",
+     "text": "Translating Venus\u2026",
+     "x": 0.7,
+     "y": 0.3,
+     "to": 0.35,
+     "t1": 1.2
+    },
+    {
+     "type": "label",
+     "text": "teeth on the bottom jaw only",
+     "underline": true,
+     "x": 0.7,
+     "y": 0.7
+    }
+   ]
+  },
+  {
+   "start": 4,
+   "end": 6,
+   "els": [
+    {
+     "type": "panels",
+     "titles": [
+      "Earth",
+      "Venus",
+      "Mars"
+     ]
+    },
+    {
+     "type": "stick",
+     "x": 0.17,
+     "y": 0.75,
+     "label": "you",
+     "pose": "wave"
+    },
+    {
+     "type": "pie",
+     "x": 0.5,
+     "y": 0.55,
+     "r": 180,
+     "title": "Venus air",
+     "slices": [
+      {
+       "v": 96.5,
+       "label": "CO2"
+      },
+      {
+       "v": 3.5,
+       "label": "N2"
+      }
+     ]
+    },
+    {
+     "type": "balance",
+     "x": 0.83,
+     "y": 0.45,
+     "left": "you",
+     "right": "the air",
+     "tilt": 0.3
+    }
+   ]
+  },
+  {
+   "start": 6,
+   "end": 8,
+   "els": [
+    {
+     "type": "icons",
+     "count": 100,
+     "cols": 20,
+     "from": 100,
+     "to": 38,
+     "icon": "dot",
+     "label": "probes sent",
+     "caption": "each dot = 1 probe",
+     "big": true,
+     "y": 0.25,
+     "x": 0.45
+    }
+   ]
+  },
+  {
+   "start": 8,
+   "end": 10,
+   "els": [
+    {
+     "type": "xray",
+     "part": "lungs",
+     "label": "air in your lungs",
+     "title": "it crushes this",
+     "x": 0.55,
+     "y": 0.6
+    },
+    {
+     "type": "meters",
+     "title": "",
+     "bars": [
+      {
+       "label": "you",
+       "level": 0.1
+      },
+      {
+       "label": "venus",
+       "level": 0.95,
+       "note": "92\u00d7"
+      }
+     ],
+     "x": 0.85,
+     "y": 0.55
+    }
+   ]
+  },
+  {
+   "start": 10,
+   "end": 12,
+   "els": [
+    {
+     "type": "eyes",
+     "lookX": 0.5,
+     "lookY": 0.75
+    }
+   ]
+  },
+  {
+   "start": 12,
+   "end": 14,
+   "els": [
+    {
+     "type": "astronaut",
+     "x": 900,
+     "y": 540,
+     "s": 140
+    },
+    {
+     "type": "scan",
+     "text": "you, being scanned"
+    }
+   ]
+  },
+  {
+   "start": 14,
+   "end": 16,
+   "els": [
+    {
+     "type": "endcard"
+    }
+   ]
+  }
+ ]
+}

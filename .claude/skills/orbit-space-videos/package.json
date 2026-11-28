@@ -1,0 +1,3 @@
+{ "name": "orbit-space-explainer", "version": "1.0.0", "private": true, "type": "module",
+  "description": "Turns a space topic into a narrated 2D explainer video drawn in code.",
+  "dependencies": { "playwright": "1.48.2" } }

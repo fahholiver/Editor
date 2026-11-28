@@ -1,43 +1,203 @@
 {
-  "_comment": "TikTok search keywords per story format and language for viral_lab.py research (last 24 h). Each account searches the keywords of its format in its language + the 'en' ones (global trends). An account can add its own with \"niche_keywords\": [...] in accounts.json, and change the minimum views with \"viral_min_plays\" (default 100000) and the approval bar with \"viral_threshold\" (default 80).",
-  "confession": {
-    "en": ["scary story", "creepy story animation", "horror story animated", "true scary story", "night shift horror"],
-    "de-DE": ["gruselgeschichte", "horror geschichte", "gruselige geschichte animation"],
-    "fr-FR": ["histoire d'horreur", "histoire qui fait peur", "creepypasta français"]
-  },
-  "rule_horror": {
-    "en": ["horror rules", "rules horror story", "if you see this never", "analog horror", "creepy rules"],
-    "de-DE": ["gruselige regeln", "horror regeln", "gruselgeschichte"],
-    "fr-FR": ["règles d'horreur", "histoire d'horreur", "si tu vois ça"]
-  },
-  "interactive_series": {
-    "en": ["horror story part 1", "scary story part 2", "choose your ending", "animated horror series"],
-    "de-DE": ["horror geschichte teil 1", "gruselgeschichte teil 2"],
-    "fr-FR": ["histoire d'horreur partie 1", "partie 2 histoire", "tu choisis la suite"]
-  },
-  "survival_guide": {
-    "en": ["blackout survival", "power outage tips", "emergency preparedness", "survival tips"],
-    "de-DE": ["blackout vorsorge", "stromausfall", "notvorrat", "krisenvorsorge"],
-    "fr-FR": ["coupure de courant", "survie blackout", "kit de survie"]
-  },
-  "parable": {
-    "en": ["moral story", "animated fable", "life lesson story", "short story with a lesson"],
-    "de-DE": ["fabel", "geschichte mit moral", "lebensweisheit"],
-    "fr-FR": ["fable", "histoire avec une morale", "leçon de vie", "conte"]
-  },
-  "curiosity": {
-    "en": ["what if", "what would happen if", "did you know", "crazy facts animated"],
-    "de-DE": ["was wäre wenn", "wusstest du", "krasse fakten"],
-    "fr-FR": ["et si", "que se passerait-il si", "le saviez-vous"]
-  },
-  "mindset_explainer": {
-    "en": ["mindset", "money mindset", "rich vs poor mindset", "self improvement animation", "psychology facts"],
-    "de-DE": ["mindset", "geld mindset", "psychologie fakten"],
-    "fr-FR": ["mindset", "état d'esprit argent", "psychologie", "développement personnel"]
-  },
-  "_any": {
-    "en": ["dark animation", "horror animation", "creepy animation", "animated scary story"],
-    "de-DE": ["gruselgeschichte"],
-    "fr-FR": ["histoire d'horreur"]
-  }
+ "_comment": "TikTok search keywords per story format and language for viral_lab.py research (last 24 h). Each account searches the keywords of its format in its language + the 'en' ones (global trends). An account can add its own with \"niche_keywords\": [...] in accounts.json, and change the minimum views with \"viral_min_plays\" (default 100000) and the approval bar with \"viral_threshold\" (default 80).",
+ "confession": {
+  "en": [
+   "scary story",
+   "creepy story animation",
+   "horror story animated",
+   "true scary story",
+   "night shift horror"
+  ],
+  "de-DE": [
+   "gruselgeschichte",
+   "horror geschichte",
+   "gruselige geschichte animation"
+  ],
+  "fr-FR": [
+   "histoire d'horreur",
+   "histoire qui fait peur",
+   "creepypasta français"
+  ]
+ },
+ "rule_horror": {
+  "en": [
+   "horror rules",
+   "rules horror story",
+   "if you see this never",
+   "analog horror",
+   "creepy rules"
+  ],
+  "de-DE": [
+   "gruselige regeln",
+   "horror regeln",
+   "gruselgeschichte"
+  ],
+  "fr-FR": [
+   "règles d'horreur",
+   "histoire d'horreur",
+   "si tu vois ça"
+  ]
+ },
+ "interactive_series": {
+  "en": [
+   "horror story part 1",
+   "scary story part 2",
+   "choose your ending",
+   "animated horror series"
+  ],
+  "de-DE": [
+   "horror geschichte teil 1",
+   "gruselgeschichte teil 2"
+  ],
+  "fr-FR": [
+   "histoire d'horreur partie 1",
+   "partie 2 histoire",
+   "tu choisis la suite"
+  ]
+ },
+ "survival_guide": {
+  "en": [
+   "blackout survival",
+   "power outage tips",
+   "emergency preparedness",
+   "survival tips"
+  ],
+  "de-DE": [
+   "blackout vorsorge",
+   "stromausfall",
+   "notvorrat",
+   "krisenvorsorge"
+  ],
+  "fr-FR": [
+   "coupure de courant",
+   "survie blackout",
+   "kit de survie"
+  ]
+ },
+ "parable": {
+  "en": [
+   "moral story",
+   "animated fable",
+   "life lesson story",
+   "short story with a lesson"
+  ],
+  "de-DE": [
+   "fabel",
+   "geschichte mit moral",
+   "lebensweisheit"
+  ],
+  "fr-FR": [
+   "fable",
+   "histoire avec une morale",
+   "leçon de vie",
+   "conte"
+  ]
+ },
+ "curiosity": {
+  "en": [
+   "what if",
+   "what would happen if",
+   "did you know",
+   "crazy facts animated"
+  ],
+  "de-DE": [
+   "was wäre wenn",
+   "wusstest du",
+   "krasse fakten"
+  ],
+  "fr-FR": [
+   "et si",
+   "que se passerait-il si",
+   "le saviez-vous"
+  ]
+ },
+ "mindset_explainer": {
+  "en": [
+   "mindset",
+   "money mindset",
+   "rich vs poor mindset",
+   "self improvement animation",
+   "psychology facts"
+  ],
+  "de-DE": [
+   "mindset",
+   "geld mindset",
+   "psychologie fakten"
+  ],
+  "fr-FR": [
+   "mindset",
+   "état d'esprit argent",
+   "psychologie",
+   "développement personnel"
+  ]
+ },
+ "finance_doc": {
+  "en": [
+   "rise and fall of",
+   "how this company went bankrupt",
+   "business documentary",
+   "company collapse"
+  ],
+  "de-DE": [
+   "aufstieg und fall",
+   "wie diese firma pleite ging",
+   "wirtschaft doku",
+   "firmenpleite"
+  ],
+  "fr-FR": [
+   "l'ascension et la chute",
+   "comment cette entreprise a fait faillite",
+   "documentaire business"
+  ]
+ },
+ "space_killer": {
+  "en": [
+   "what would kill you first",
+   "space facts",
+   "what if you fell into",
+   "planet facts"
+  ],
+  "de-DE": [
+   "was würde dich zuerst töten",
+   "weltraum fakten",
+   "was wäre wenn weltall"
+  ],
+  "fr-FR": [
+   "qu'est-ce qui te tuerait en premier",
+   "espace fait",
+   "et si tu tombais sur",
+   "planète incroyable"
+  ]
+ },
+ "engineering_failure": {
+  "en": [
+   "engineering failure",
+   "bridge collapse explained",
+   "engineering disaster",
+   "how this disaster happened"
+  ],
+  "de-DE": [
+   "ingenieur katastrophe",
+   "brückeneinsturz erklärt",
+   "technik katastrophe"
+  ],
+  "fr-FR": [
+   "catastrophe d'ingénierie",
+   "effondrement de pont expliqué"
+  ]
+ },
+ "_any": {
+  "en": [
+   "dark animation",
+   "horror animation",
+   "creepy animation",
+   "animated scary story"
+  ],
+  "de-DE": [
+   "gruselgeschichte"
+  ],
+  "fr-FR": [
+   "histoire d'horreur"
+  ]
+ }
 }
